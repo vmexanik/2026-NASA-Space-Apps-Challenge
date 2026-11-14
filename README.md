@@ -15,6 +15,11 @@ we_charge/
 └── parser/      # (далі) Python-парсер FIRMS даних
 ```
 
+## Документація
+
+- [docs/harmonization/README.md](docs/harmonization/README.md) — як гармонізація зводить MODIS і VIIRS в один ряд, з доказами на даних NASA.
+- [docs/database/README.md](docs/database/README.md) — схема бази FIRMS і функції, які читає бекенд.
+
 ## Контейнери
 
 | Сервіс | Контейнер  | Порт на хості | Призначення                 |
