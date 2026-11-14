@@ -7,6 +7,7 @@ import urllib.error
 from pathlib import Path
 from unittest import mock
 
+from fetch_current_year import needs_fetch
 from firms import (
     BASE_URL,
     WORLD,
@@ -212,6 +213,45 @@ class MergeCsvTest(unittest.TestCase):
     def test_different_headers_are_refused(self):
         with self.assertRaises(FirmsResponseError):
             merge_csv([HEADER + "\n", HEADER + ",type\n"], io.StringIO())
+
+
+class NeedsFetchTest(unittest.TestCase):
+    """fetch_current_year.py fetches a chunk it already has only while
+    satellite passes of its last day can still arrive."""
+
+    TODAY = dt.date(2026, 11, 15)
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.saved = Path(tmp.name) / "chunk.csv"
+        self.saved.write_text(HEADER + "\n")
+
+    def needs(self, source, last_day, target=None):
+        start = last_day - dt.timedelta(days=4)
+        return needs_fetch(target or self.saved, source, start, 5, self.TODAY)
+
+    def test_nrt_chunk_ending_yesterday_is_fetched_again(self):
+        self.assertTrue(self.needs(Source.VIIRS_SNPP_NRT, self.TODAY - dt.timedelta(days=1)))
+
+    def test_nrt_chunk_ending_today_is_fetched_again(self):
+        self.assertTrue(self.needs(Source.MODIS_NRT, self.TODAY))
+
+    def test_older_nrt_chunk_is_kept(self):
+        for back in (2, 3, 30):
+            with self.subTest(back=back):
+                self.assertFalse(self.needs(Source.VIIRS_NOAA20_NRT,
+                                            self.TODAY - dt.timedelta(days=back)))
+
+    def test_saved_sp_chunk_is_never_fetched_again(self):
+        for back in (0, 1, 2):
+            with self.subTest(back=back):
+                self.assertFalse(self.needs(Source.MODIS_SP, self.TODAY - dt.timedelta(days=back)))
+
+    def test_missing_chunk_is_fetched(self):
+        missing = self.saved.with_name("missing.csv")
+        self.assertTrue(self.needs(Source.MODIS_SP, self.TODAY - dt.timedelta(days=30), missing))
+        self.assertTrue(self.needs(Source.MODIS_NRT, self.TODAY - dt.timedelta(days=30), missing))
 
 
 if __name__ == "__main__":

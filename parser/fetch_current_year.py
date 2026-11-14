@@ -53,6 +53,15 @@ def plan(client: FirmsClient, year: int, today: dt.date) -> list[tuple[Source, d
     return jobs
 
 
+def needs_fetch(target: Path, source: Source, start: dt.date, days: int, today: dt.date) -> bool:
+    """True if the chunk of days from start must be downloaded into target."""
+    # Passes of an NRT chunk's last day keep arriving for hours after the
+    # day ends, so a chunk that ends yesterday or today is fetched again.
+    last_day = start + dt.timedelta(days=days - 1)
+    growing = source.is_near_real_time and last_day >= today - dt.timedelta(days=1)
+    return not target.is_file() or growing
+
+
 def wait_for_quota(client: FirmsClient) -> None:
     while (left := client.key_status().remaining) < RESERVE:
         log.info("key has %d transactions left, waiting", left)
@@ -73,9 +82,7 @@ def main(argv: list[str] | None = None) -> int:
     failed = 0
     for i, (source, start, days) in enumerate(jobs, 1):
         target = args.dir / source.value / f"{start.isoformat()}_{days}d.csv"
-        # The last chunk of an NRT source still grows; fetch it again.
-        growing = source.is_near_real_time and start + dt.timedelta(days=days) > today
-        if target.is_file() and not growing:
+        if not needs_fetch(target, source, start, days, today):
             continue
         wait_for_quota(client)
         try:
