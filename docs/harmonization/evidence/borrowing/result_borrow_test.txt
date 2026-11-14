@@ -1,0 +1,96 @@
+Ukraine sparse share of fires (0.5deg / 2deg areas): 1.7% / 3.4%
+  own                      0.5deg 23.25% (sparse  34.4%)  2deg 18.16% cal  73.8%
+  cross         lam    10  0.5deg 23.19% (sparse  33.7%)  2deg 18.23% cal  74.0%
+  cross         lam    30  0.5deg 23.26% (sparse  32.3%)  2deg 18.17% cal  74.1%
+  cross         lam   100  0.5deg 23.10% (sparse  32.4%)  2deg 17.90% cal  73.9%
+  cross         lam   300  0.5deg 22.96% (sparse  29.3%)  2deg 18.01% cal  74.1%
+  cross         lam  1000  0.5deg 23.17% (sparse  27.3%)  2deg 18.67% cal  73.5%
+  ring          lam    10  0.5deg 23.18% (sparse  36.3%)  2deg 18.16% cal  74.0%
+  ring          lam    30  0.5deg 23.21% (sparse  36.7%)  2deg 18.15% cal  74.1%
+  ring          lam   100  0.5deg 23.04% (sparse  35.1%)  2deg 17.96% cal  74.1%
+  ring          lam   300  0.5deg 23.05% (sparse  32.8%)  2deg 17.84% cal  74.0%
+  ring          lam  1000  0.5deg 23.46% (sparse  31.3%)  2deg 18.50% cal  73.8%
+  months        lam    10  0.5deg 23.26% (sparse  31.7%)  2deg 18.15% cal  73.9%
+  months        lam    30  0.5deg 23.18% (sparse  33.9%)  2deg 18.16% cal  74.2%
+  months        lam   100  0.5deg 23.19% (sparse  28.1%)  2deg 18.37% cal  74.7%
+  months        lam   300  0.5deg 22.93% (sparse  33.6%)  2deg 18.17% cal  74.6%
+  months        lam  1000  0.5deg 23.14% (sparse  31.5%)  2deg 18.16% cal  74.5%
+  cross+months  lam    10  0.5deg 23.20% (sparse  31.4%)  2deg 18.13% cal  73.9%
+  cross+months  lam    30  0.5deg 23.18% (sparse  32.7%)  2deg 18.07% cal  74.3%
+  cross+months  lam   100  0.5deg 22.93% (sparse  29.6%)  2deg 18.15% cal  74.3%
+  cross+months  lam   300  0.5deg 23.00% (sparse  29.6%)  2deg 18.56% cal  74.1%
+  cross+months  lam  1000  0.5deg 23.08% (sparse  31.3%)  2deg 18.43% cal  74.2%
+  big square    lam    10  0.5deg 23.22% (sparse  34.2%)  2deg 18.18% cal  74.0%
+  big square    lam    30  0.5deg 23.20% (sparse  35.5%)  2deg 18.14% cal  74.3%
+  big square    lam   100  0.5deg 23.18% (sparse  34.4%)  2deg 18.00% cal  73.9%
+  big square    lam   300  0.5deg 23.25% (sparse  29.9%)  2deg 18.29% cal  73.5%
+  big square    lam  1000  0.5deg 23.36% (sparse  29.7%)  2deg 18.99% cal  73.4%
+  region        lam    10  0.5deg 23.22% (sparse  30.1%)  2deg 18.17% cal  73.9%
+  region        lam    30  0.5deg 23.31% (sparse  32.0%)  2deg 18.17% cal  74.3%
+  region        lam   100  0.5deg 23.01% (sparse  28.2%)  2deg 17.98% cal  74.1%
+  region        lam   300  0.5deg 23.01% (sparse  27.8%)  2deg 18.25% cal  73.7%
+  region        lam  1000  0.5deg 23.28% (sparse  28.1%)  2deg 18.56% cal  74.3%
+Brazil sparse share of fires (0.5deg / 2deg areas): 0.3% / 0.9%
+  own                      0.5deg 21.46% (sparse  34.1%)  2deg 16.53% cal  63.6%
+  cross         lam    10  0.5deg 21.48% (sparse  33.3%)  2deg 16.54% cal  63.6%
+  cross         lam    30  0.5deg 21.47% (sparse  31.7%)  2deg 16.48% cal  63.7%
+  cross         lam   100  0.5deg 21.45% (sparse  27.9%)  2deg 16.39% cal  63.7%
+  cross         lam   300  0.5deg 21.36% (sparse  26.3%)  2deg 16.51% cal  63.6%
+  cross         lam  1000  0.5deg 21.35% (sparse  24.6%)  2deg 17.12% cal  62.3%
+  ring          lam    10  0.5deg 21.45% (sparse  32.3%)  2deg 16.47% cal  63.6%
+  ring          lam    30  0.5deg 21.45% (sparse  31.4%)  2deg 16.48% cal  63.6%
+  ring          lam   100  0.5deg 21.45% (sparse  28.9%)  2deg 16.50% cal  63.7%
+  ring          lam   300  0.5deg 21.35% (sparse  28.3%)  2deg 16.51% cal  63.4%
+  ring          lam  1000  0.5deg 21.37% (sparse  25.0%)  2deg 17.10% cal  62.4%
+  months        lam    10  0.5deg 21.46% (sparse  32.6%)  2deg 16.49% cal  63.6%
+  months        lam    30  0.5deg 21.43% (sparse  30.7%)  2deg 16.48% cal  63.8%
+  months        lam   100  0.5deg 21.43% (sparse  27.2%)  2deg 16.44% cal  63.9%
+  months        lam   300  0.5deg 21.28% (sparse  26.8%)  2deg 16.44% cal  63.8%
+  months        lam  1000  0.5deg 21.30% (sparse  27.3%)  2deg 17.23% cal  62.8%
+  cross+months  lam    10  0.5deg 21.46% (sparse  33.3%)  2deg 16.51% cal  63.6%
+  cross+months  lam    30  0.5deg 21.45% (sparse  31.7%)  2deg 16.46% cal  63.7%
+  cross+months  lam   100  0.5deg 21.43% (sparse  28.6%)  2deg 16.40% cal  63.8%
+  cross+months  lam   300  0.5deg 21.34% (sparse  26.1%)  2deg 16.28% cal  64.0%
+  cross+months  lam  1000  0.5deg 21.25% (sparse  24.2%)  2deg 16.78% cal  63.0%
+  big square    lam    10  0.5deg 21.45% (sparse  31.3%)  2deg 16.47% cal  63.7%
+  big square    lam    30  0.5deg 21.47% (sparse  29.5%)  2deg 16.49% cal  63.7%
+  big square    lam   100  0.5deg 21.44% (sparse  28.3%)  2deg 16.55% cal  63.6%
+  big square    lam   300  0.5deg 21.38% (sparse  27.5%)  2deg 16.76% cal  62.9%
+  big square    lam  1000  0.5deg 21.45% (sparse  27.5%)  2deg 17.70% cal  61.6%
+  region        lam    10  0.5deg 21.46% (sparse  30.0%)  2deg 16.51% cal  63.5%
+  region        lam    30  0.5deg 21.42% (sparse  29.2%)  2deg 16.48% cal  63.5%
+  region        lam   100  0.5deg 21.38% (sparse  25.9%)  2deg 16.65% cal  63.3%
+  region        lam   300  0.5deg 21.30% (sparse  26.3%)  2deg 17.24% cal  62.5%
+  region        lam  1000  0.5deg 21.56% (sparse  27.8%)  2deg 18.64% cal  60.3%
+Australia sparse share of fires (0.5deg / 2deg areas): 5.3% / 5.4%
+  own                      0.5deg 25.22% (sparse  38.2%)  2deg 19.84% cal  76.1%
+  cross         lam    10  0.5deg 25.00% (sparse  35.1%)  2deg 19.75% cal  76.1%
+  cross         lam    30  0.5deg 24.88% (sparse  32.2%)  2deg 19.51% cal  76.2%
+  cross         lam   100  0.5deg 24.76% (sparse  29.6%)  2deg 19.22% cal  76.4%
+  cross         lam   300  0.5deg 24.56% (sparse  28.8%)  2deg 19.02% cal  76.3%
+  cross         lam  1000  0.5deg 24.51% (sparse  28.6%)  2deg 19.16% cal  75.9%
+  ring          lam    10  0.5deg 25.00% (sparse  34.8%)  2deg 19.65% cal  76.2%
+  ring          lam    30  0.5deg 24.84% (sparse  32.5%)  2deg 19.45% cal  76.2%
+  ring          lam   100  0.5deg 24.76% (sparse  30.0%)  2deg 19.26% cal  76.4%
+  ring          lam   300  0.5deg 24.55% (sparse  28.8%)  2deg 19.06% cal  76.3%
+  ring          lam  1000  0.5deg 24.52% (sparse  28.5%)  2deg 19.12% cal  75.9%
+  months        lam    10  0.5deg 25.00% (sparse  35.5%)  2deg 19.66% cal  76.1%
+  months        lam    30  0.5deg 24.76% (sparse  32.5%)  2deg 19.25% cal  76.3%
+  months        lam   100  0.5deg 24.50% (sparse  29.6%)  2deg 18.81% cal  76.7%
+  months        lam   300  0.5deg 24.29% (sparse  27.4%)  2deg 18.61% cal  76.6%
+  months        lam  1000  0.5deg 24.23% (sparse  28.5%)  2deg 19.01% cal  75.9%
+  cross+months  lam    10  0.5deg 24.99% (sparse  34.8%)  2deg 19.68% cal  76.2%
+  cross+months  lam    30  0.5deg 24.83% (sparse  32.0%)  2deg 19.35% cal  76.3%
+  cross+months  lam   100  0.5deg 24.64% (sparse  28.8%)  2deg 19.02% cal  76.5%
+  cross+months  lam   300  0.5deg 24.41% (sparse  28.6%)  2deg 18.78% cal  76.6%
+  cross+months  lam  1000  0.5deg 24.27% (sparse  28.1%)  2deg 18.84% cal  76.4%
+  big square    lam    10  0.5deg 24.99% (sparse  34.7%)  2deg 19.64% cal  76.2%
+  big square    lam    30  0.5deg 24.85% (sparse  32.7%)  2deg 19.46% cal  76.3%
+  big square    lam   100  0.5deg 24.77% (sparse  29.6%)  2deg 19.12% cal  76.6%
+  big square    lam   300  0.5deg 24.52% (sparse  29.1%)  2deg 19.12% cal  76.4%
+  big square    lam  1000  0.5deg 24.54% (sparse  28.3%)  2deg 19.38% cal  75.8%
+  region        lam    10  0.5deg 24.99% (sparse  34.7%)  2deg 19.68% cal  76.2%
+  region        lam    30  0.5deg 24.80% (sparse  31.9%)  2deg 19.40% cal  76.3%
+  region        lam   100  0.5deg 24.61% (sparse  29.0%)  2deg 19.31% cal  76.6%
+  region        lam   300  0.5deg 24.54% (sparse  28.3%)  2deg 19.35% cal  76.1%
+  region        lam  1000  0.5deg 24.55% (sparse  28.3%)  2deg 19.86% cal  75.0%

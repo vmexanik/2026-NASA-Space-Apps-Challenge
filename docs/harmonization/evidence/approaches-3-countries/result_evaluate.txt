@@ -1,0 +1,45 @@
+Ukraine {"w_frp": [[0.43, 1.25], [1.2, 0.91]], "w_scan": [[1.06, 0.9], [1.09, 0.85]], "beta10": [0.909, 0.816], "modis_points": 153160, "viirs_points": 867375, "cells2": 36, "same_bar_kept": 0.345, "coincident_modis_points": 21311, "coincident_viirs_points": 108275}
+   1 Один множник                           err  33.9 bias -16.9 stab  10.8 cal  55.3 cal±1  92.4 kept 100.0 cell  33.1
+   2 Множник на місяць                      err  12.3 bias  -4.8 stab   7.0 cal  74.2 cal±1  97.7 kept 100.0 cell  18.7
+   3 Місяць + місце (клітинка 2°)           err  13.4 bias  -6.6 stab   7.7 cal  76.5 cal±1  97.0 kept 100.0 cell  18.7
+   4 Місяць + вага за силою вогню           err  13.6 bias  -3.6 stab   7.9 cal  74.2 cal±1  97.7 kept 100.0 cell  19.0
+   5 Однакова планка (день, від 10 МВт)     err   9.7 bias  -2.5 stab   5.2 cal  79.5 cal±1  98.5 kept  34.5 cell  16.9
+   6 Множник з одночасних прольотів         err  22.6 bias -22.8 stab   7.1 cal  64.4 cal±1  90.9 kept 100.0 cell  21.3
+   7 Кожен датчик проти своєї норми         err   —   bias   —   stab   —   cal  75.0 cal±1  98.5 kept 100.0 cell   —  
+   8 Машинне навчання (гребенева регресія)  err  15.7 bias  13.7 stab  11.5 cal  71.2 cal±1  96.2 kept 100.0 cell  20.7
+  10 Регресія log V = місяць + β·log M      err  13.1 bias   0.4 stab  11.7 cal  72.0 cal±1  97.7 kept 100.0 cell  21.2
+  11 Квантильне зіставлення                 err  34.3 bias   0.9 stab  14.9 cal  54.5 cal±1  93.9 kept 100.0 cell  38.5
+  12 Сума FRP                               err  15.9 bias  -4.4 stab  11.9 cal  70.5 cal±1  99.2 kept 100.0 cell  25.0
+  13 Клітинко-дні (1 км × день)             err  11.6 bias  -6.7 stab   6.9 cal  70.5 cal±1  98.5 kept 100.0 cell  18.5
+  14 Місяць + поправка на розмір пікселя    err  12.8 bias  -4.7 stab   7.2 cal  75.8 cal±1  97.7 kept 100.0 cell  19.0
+  15 Стягування до множника країни (клітинк err  13.3 bias  -5.5 stab   7.6 cal  74.2 cal±1  97.7 kept 100.0 cell  17.9
+Brazil {"w_frp": [[3.23, 0.64], [0.05, 1.15]], "w_scan": [[0.05, 2.46], [1.23, 0.65]], "beta10": [1.126, 0.97], "modis_points": 2284636, "viirs_points": 14896219, "cells2": 221, "same_bar_kept": 0.452, "coincident_modis_points": 274151, "coincident_viirs_points": 1838583}
+   1 Один множник                           err  11.0 bias   6.8 stab   4.2 cal  74.2 cal±1  99.2 kept 100.0 cell  24.3
+   2 Множник на місяць                      err   5.9 bias   1.3 stab   3.9 cal  84.8 cal±1  99.2 kept 100.0 cell  23.6
+   3 Місяць + місце (клітинка 2°)           err   4.8 bias   0.1 stab   4.6 cal  81.8 cal±1  99.2 kept 100.0 cell  17.6
+   4 Місяць + вага за силою вогню           err   6.3 bias   1.0 stab   4.4 cal  84.1 cal±1  99.2 kept 100.0 cell  26.8
+   5 Однакова планка (день, від 10 МВт)     err   5.0 bias   0.4 stab   3.6 cal  78.0 cal±1  99.2 kept  45.2 cell  20.3
+   6 Множник з одночасних прольотів         err   7.7 bias  -0.0 stab   4.0 cal  73.5 cal±1  98.5 kept 100.0 cell  25.3
+   7 Кожен датчик проти своєї норми         err   —   bias   —   stab   —   cal  85.6 cal±1  99.2 kept 100.0 cell   —  
+   8 Машинне навчання (гребенева регресія)  err   6.5 bias   0.9 stab   6.4 cal  80.3 cal±1  99.2 kept 100.0 cell  24.2
+  10 Регресія log V = місяць + β·log M      err   6.6 bias   0.8 stab   3.9 cal  77.3 cal±1  99.2 kept 100.0 cell  24.0
+  11 Квантильне зіставлення                 err   8.3 bias   0.6 stab   3.6 cal  76.5 cal±1  98.5 kept 100.0 cell  24.5
+  12 Сума FRP                               err   6.5 bias  -0.6 stab   3.8 cal  82.6 cal±1  98.5 kept 100.0 cell  25.7
+  13 Клітинко-дні (1 км × день)             err   7.3 bias   0.2 stab   3.3 cal  75.0 cal±1  99.2 kept 100.0 cell  23.2
+  14 Місяць + поправка на розмір пікселя    err   6.4 bias   1.5 stab   3.9 cal  81.8 cal±1  99.2 kept 100.0 cell  28.2
+  15 Стягування до множника країни (клітинк err   4.5 bias  -0.0 stab   4.3 cal  81.8 cal±1  99.2 kept 100.0 cell  17.3
+Australia {"w_frp": [[5.03, 0.53], [0.05, 1.12]], "w_scan": [[1.74, 0.03], [1.3, 0.58]], "beta10": [0.983, 0.911], "modis_points": 1540454, "viirs_points": 12829564, "cells2": 227, "same_bar_kept": 0.467, "coincident_modis_points": 182810, "coincident_viirs_points": 1486360}
+   1 Один множник                           err  12.2 bias   1.7 stab   4.8 cal  70.5 cal±1  98.5 kept 100.0 cell  23.1
+   2 Множник на місяць                      err   5.4 bias   0.2 stab   4.8 cal  81.8 cal±1  98.5 kept 100.0 cell  21.8
+   3 Місяць + місце (клітинка 2°)           err   4.2 bias   0.0 stab   3.6 cal  84.8 cal±1  98.5 kept 100.0 cell  20.1
+   4 Місяць + вага за силою вогню           err   6.5 bias   1.3 stab   4.6 cal  81.8 cal±1  98.5 kept 100.0 cell  26.4
+   5 Однакова планка (день, від 10 МВт)     err   4.6 bias  -0.2 stab   3.7 cal  81.8 cal±1  98.5 kept  46.7 cell  21.6
+   6 Множник з одночасних прольотів         err   8.9 bias   0.2 stab   5.4 cal  70.5 cal±1  98.5 kept 100.0 cell  22.5
+   7 Кожен датчик проти своєї норми         err   —   bias   —   stab   —   cal  81.8 cal±1  98.5 kept 100.0 cell   —  
+   8 Машинне навчання (гребенева регресія)  err  11.4 bias  11.3 stab   7.9 cal  76.5 cal±1  97.7 kept 100.0 cell  24.7
+  10 Регресія log V = місяць + β·log M      err   6.0 bias   0.9 stab   5.4 cal  81.8 cal±1  98.5 kept 100.0 cell  22.0
+  11 Квантильне зіставлення                 err  11.2 bias   0.4 stab   6.2 cal  69.7 cal±1  98.5 kept 100.0 cell  23.7
+  12 Сума FRP                               err   8.2 bias  -2.5 stab   6.7 cal  87.9 cal±1  99.2 kept 100.0 cell  28.1
+  13 Клітинко-дні (1 км × день)             err   6.6 bias  -2.6 stab   5.3 cal  81.8 cal±1  98.5 kept 100.0 cell  22.5
+  14 Місяць + поправка на розмір пікселя    err   5.1 bias   0.9 stab   3.6 cal  85.6 cal±1  98.5 kept 100.0 cell  26.9
+  15 Стягування до множника країни (клітинк err   5.0 bias  -0.1 stab   3.9 cal  85.6 cal±1  98.5 kept 100.0 cell  19.3

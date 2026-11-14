@@ -1,0 +1,48 @@
+Ukraine 2012-2022, neighbours: Russian_Federation Belarus Poland Slovakia Hungary Romania Moldova
+  points the comparison uses: MODIS Aqua 153160, VIIRS 867375, ratio 5.663
+  border cells (0.05 deg): 760; they hold 1.64% of MODIS and 1.82% of VIIRS points; ratio without them 5.652 (-0.19%)
+  share test: 549 border cells with 5+ points in both; mean share gap MODIS-VIIRS +0.001; 5 cells with a gap of 0.5+, holding 5 MODIS and 80 VIIRS points
+  one-sided: 8 cells with 3+ MODIS points and no VIIRS point, holding 28 MODIS points (0.02%)
+    cell lat 51.20 lon 27.00: MODIS 4, VIIRS (any country) 0
+    cell lat 46.45 lon 33.95: MODIS 4, VIIRS (any country) 0
+    cell lat 48.60 lon 22.70: MODIS 4, VIIRS (any country) 0
+    cell lat 49.40 lon 31.90: MODIS 4, VIIRS (any country) 0
+    cell lat 48.95 lon 23.20: MODIS 3, VIIRS (any country) 0
+    cell lat 52.20 lon 32.90: MODIS 3, VIIRS (any country) 0
+    cell lat 49.45 lon 31.70: MODIS 3, VIIRS (any country) 0
+    cell lat 48.95 lon 38.90: MODIS 3, VIIRS (any country) 0
+    gap cell lat 45.25 lon 28.45: target share MODIS 0.00 VIIRS 0.86
+    gap cell lat 51.20 lon 23.70: target share MODIS 0.50 VIIRS 1.00
+    gap cell lat 48.25 lon 39.90: target share MODIS 0.58 VIIRS 0.06
+    gap cell lat 45.40 lon 28.25: target share MODIS 0.17 VIIRS 0.73
+    gap cell lat 50.30 lon 36.85: target share MODIS 0.40 VIIRS 1.00
+Brazil 2012-2022, neighbours: Argentina Bolivia Colombia French_Guiana Guyana Paraguay Peru Suriname Uruguay Venezuela
+  points the comparison uses: MODIS Aqua 2284636, VIIRS 14896219, ratio 6.520
+  border cells (0.05 deg): 935; they hold 0.27% of MODIS and 0.29% of VIIRS points; ratio without them 6.519 (-0.01%)
+  share test: 683 border cells with 5+ points in both; mean share gap MODIS-VIIRS -0.011; 4 cells with a gap of 0.5+, holding 8 MODIS and 51 VIIRS points
+  one-sided: 515 cells with 3+ MODIS points and no VIIRS point, holding 2488 MODIS points (0.11%)
+    cell lat -12.20 lon -55.95: MODIS 26, VIIRS (any country) 0
+    cell lat -12.50 lon -51.90: MODIS 24, VIIRS (any country) 0
+    cell lat -24.05 lon -46.45: MODIS 22, VIIRS (any country) 0
+    cell lat -12.85 lon -54.30: MODIS 21, VIIRS (any country) 0
+    cell lat -12.60 lon -57.95: MODIS 19, VIIRS (any country) 0
+    cell lat -12.50 lon -51.95: MODIS 18, VIIRS (any country) 0
+    cell lat -12.15 lon -57.40: MODIS 18, VIIRS (any country) 0
+    cell lat -12.40 lon -58.10: MODIS 18, VIIRS (any country) 0
+    gap cell lat -12.15 lon -64.70: target share MODIS 0.00 VIIRS 0.53
+    gap cell lat -14.45 lon -60.40: target share MODIS 0.83 VIIRS 0.33
+    gap cell lat -14.90 lon -60.30: target share MODIS 0.86 VIIRS 0.10
+    gap cell lat 4.50 lon -60.15: target share MODIS 0.60 VIIRS 0.09
+Australia 2012-2022, neighbours: Indonesia Papua_New_Guinea Timor-Leste
+  points the comparison uses: MODIS Aqua 1540454, VIIRS 12829564, ratio 8.328
+  border cells (0.05 deg): 0; they hold 0.00% of MODIS and 0.00% of VIIRS points; ratio without them 8.328 (+0.00%)
+  share test: 0 border cells with 5+ points in both; mean share gap MODIS-VIIRS +0.000; 0 cells with a gap of 0.5+, holding 0 MODIS and 0 VIIRS points
+  one-sided: 534 cells with 3+ MODIS points and no VIIRS point, holding 2806 MODIS points (0.18%)
+    cell lat -28.70 lon 147.35: MODIS 29, VIIRS (any country) 0
+    cell lat -32.60 lon 138.00: MODIS 24, VIIRS (any country) 0
+    cell lat -19.90 lon 130.00: MODIS 22, VIIRS (any country) 0
+    cell lat -19.10 lon 143.55: MODIS 19, VIIRS (any country) 0
+    cell lat -24.85 lon 114.85: MODIS 17, VIIRS (any country) 0
+    cell lat -24.90 lon 114.85: MODIS 17, VIIRS (any country) 0
+    cell lat -18.40 lon 139.05: MODIS 16, VIIRS (any country) 0
+    cell lat -24.25 lon 114.15: MODIS 15, VIIRS (any country) 0

@@ -1,0 +1,18 @@
+Ukraine (gap 1 d): points 867375; night 21.0%, day weak 44.5%, kept 34.5%
+  events 353507; seen by the bar 25.6%; their points 51.7% of all; lost 263161 events with 48.3% of points (night only 18%, day weak only 79%, single point 69%, median 1 points)
+    1 день    events  92.4% points  73.2% seen 23.3%
+    2–3 дні   events   7.2% points  19.9% seen 51.6%
+    4–7 днів  events   0.4% points   4.3% seen 66.7%
+    8+ днів   events   0.1% points   2.6% seen 72.9%
+Brazil (gap 1 d): points 14896219; night 29.3%, day weak 25.5%, kept 45.2%
+  events 3730260; seen by the bar 38.0%; their points 74.6% of all; lost 2312408 events with 25.4% of points (night only 21%, day weak only 75%, single point 70%, median 1 points)
+    1 день    events  85.4% points  40.5% seen 32.3%
+    2–3 дні   events  12.6% points  25.6% seen 67.5%
+    4–7 днів  events   1.8% points  17.7% seen 92.9%
+    8+ днів   events   0.3% points  16.2% seen 99.2%
+Australia (gap 1 d): points 12829564; night 35.8%, day weak 17.5%, kept 46.7%
+  events 884563; seen by the bar 43.5%; their points 91.3% of all; lost 499998 events with 8.7% of points (night only 33%, day weak only 57%, single point 56%, median 1 points)
+    1 день    events  74.1% points  15.8% seen 32.9%
+    2–3 дні   events  20.1% points  21.6% seen 68.1%
+    4–7 днів  events   4.6% points  24.9% seen 92.4%
+    8+ днів   events   1.1% points  37.7% seen 98.8%

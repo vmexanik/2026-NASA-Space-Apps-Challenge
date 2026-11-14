@@ -1,0 +1,62 @@
+overlap years used for the multipliers: 2012-2021
+multiplier by month: Січ 10.6  Лют 6.0  Бер 3.9  Кві 4.8  Тра 8.7  Чер 12.8  Лип 9.8  Сер 8.9  Вер 5.8  Жов 3.7  Лис 4.4  Гру 8.2
+
+Ukraine, fire points per month, counted the VIIRS way.  · far below  ░ below  ▒ usual  ▓ above  █ far above the usual for that month
+       Січ Лют Бер Кві Тра Чер Лип Сер Вер Жов Лис Гру   year total   source
+2003    ·   ·   ·   ▓   ▓   ▒   ·   ·   ░   ·   ·   ▓        34858   MODIS x multiplier
+2004    ·   ·   ·   ▒   ·   ·   ·   ▒   ▒   ·   ·   ▓        65045   MODIS x multiplier
+2005    █   ·   ·   █   ░   ░   ▓   ▒   ▓   ▓   ▓   ·       126198   MODIS x multiplier
+2006    ·   ·   ·   ▒   █   ▒   ▒   ▓   ▒   ·   ·   █        90632   MODIS x multiplier
+2007    █   █   █   ·   ▒   █   █   ░   ·   ·   ·   ·       108960   MODIS x multiplier
+2008    █   █   ·   ·   ░   ▓   ▓   █   ▓   ░   ▓   ▓       186717   MODIS x multiplier
+2009    ·   ·   ·   █   ▓   ▓   ▓   ▓   ▒   ·   ·   ·       122022   MODIS x multiplier
+2010    ·   ·   ░   ·   ▒   ░   ▒   ░   ▒   ·   █   ·        62806   MODIS x multiplier
+2011    ·   ·   ▒   ▒   ░   ▒   ▒   ░   ▒   ▒   █   ▓        81948   MODIS x multiplier
+2012    ·   ·   ▓   ░   ▒   ▒   ░   ·   ·   ·   ·   ·        48789   VIIRS
+2013    ·   ▒   ·   ░   ▒   ▒   ░   ·   ·   ·   ░   █        42806   VIIRS
+2014    ·   ·   █   ·   ░   ░   ▓   ▒   █   █   █   ▒       147810   VIIRS
+2015    ·   █   █   ░   ░   ▓   ▒   ▓   ▓   █   ▓   █       153668   VIIRS
+2016    ·   ░   ·   ░   ·   ░   ▓   ▒   ▓   ░   ·   ·        81445   VIIRS
+2017    ·   ▒   ▓   ▒   ▓   ▒   ▓   ▓   ▒   ·   ·   ·       103479   VIIRS
+2018    ·   ·   ·   ▒   ▒   ▓   ░   ·   ·   ▓   ▒   ·        53860   VIIRS
+2019    ·   ▓   ░   ▓   ·   ▓   ▒   ·   ▒   ▓   ▓   ▒        80317   VIIRS
+2020    ▓   ░   ▓   ▓   ·   ·   ░   ·   ░   ░   ·   ░        76623   VIIRS
+2021    ·   ·   ·   ·   ·   ·   ·   ·   ·   ░   ░   ·        31436   VIIRS
+usual    0   1  12  14   1   1  15  27   8   8   2   0   (thousand points)
+
+The same years drawn twice: from VIIRS (V) and from MODIS x multiplier (M)
+2012 V  ·   ·   ▓   ░   ▒   ▒   ░   ·   ·   ·   ·   · 
+     M  ·   ·   ▓   ░   ▓   ▒   ░   ·   ░   ·   ·   · 
+2013 V  ·   ▒   ·   ░   ▒   ▒   ░   ·   ·   ·   ░   █ 
+     M  ·   ▓   ·   ░   ▓   ▒   ░   ·   ·   ·   ░   █ 
+2014 V  ·   ·   █   ·   ░   ░   ▓   ▒   █   █   █   ▒ 
+     M  ·   ·   █   ·   ░   ▒   ▓   ▒   █   █   █   ░ 
+2015 V  ·   █   █   ░   ░   ▓   ▒   ▓   ▓   █   ▓   █ 
+     M  ·   █   █   ░   ░   ▓   ▒   ▓   ▓   █   ▓   █ 
+2016 V  ·   ░   ·   ░   ·   ░   ▓   ▒   ▓   ░   ·   · 
+     M  ·   ░   ·   ░   ·   ░   ▓   ▒   ▓   ░   ·   · 
+2017 V  ·   ▒   ▓   ▒   ▓   ▒   ▓   ▓   ▒   ·   ·   · 
+     M  ·   ▒   ▓   ▒   ▓   ▒   ▓   ▓   ▒   ·   ·   · 
+2018 V  ·   ·   ·   ▒   ▒   ▓   ░   ·   ·   ▓   ▒   · 
+     M  ·   ·   ·   ▒   ▒   ▓   ░   ·   ·   ▓   ░   · 
+2019 V  ·   ▓   ░   ▓   ·   ▓   ▒   ·   ▒   ▓   ▓   ▒ 
+     M  ·   ▓   ░   ▓   ·   ▓   ▒   ·   ▒   ▓   ▓   ▒ 
+2020 V  ▓   ░   ▓   ▓   ·   ·   ░   ·   ░   ░   ·   ░ 
+     M  ▓   ░   ▓   ▓   ·   ·   ·   ·   ░   ░   ·   ▒ 
+2021 V  ·   ·   ·   ·   ·   ·   ·   ·   ·   ░   ░   · 
+     M  ·   ·   ·   ·   ·   ·   ·   ·   ·   ░   ·   · 
+cells with the same shade (months with a usual of 1000+ points): 92 of 100 = 92%
+
+August, year by year
+  2008  MODIS counted  13783, x8.9 for August           ->  122524 = x4.57 of a usual August
+  2009  MODIS counted   4064, x8.9 for August           ->   36127 = x1.35 of a usual August
+  2010  MODIS counted   2009, x8.9 for August           ->   17859 = x0.67 of a usual August
+  2011  MODIS counted   1878, x8.9 for August           ->   16694 = x0.62 of a usual August
+  2012  VIIRS counted   5965                                  ->    5965 = x0.22 of a usual August   (MODIS counted 645, x8.9 = 5734)
+  2013  VIIRS counted   9850                                  ->    9850 = x0.37 of a usual August   (MODIS counted 1056, x8.9 = 9387)
+  2014  VIIRS counted  29888                                  ->   29888 = x1.12 of a usual August   (MODIS counted 3263, x8.9 = 29006)
+  2015  VIIRS counted  44157                                  ->   44157 = x1.65 of a usual August   (MODIS counted 4476, x8.9 = 39789)
+
+Shape of the year over the overlap years: share of the year's points in each month
+  MODIS as counted :   0%   1%  25%  16%   1%   1%  10%  15%  10%  19%   3%   0%
+  VIIRS            :   0%   1%  17%  14%   1%   1%  17%  24%  10%  12%   2%   0%

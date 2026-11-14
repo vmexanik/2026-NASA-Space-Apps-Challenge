@@ -1,0 +1,15 @@
+Ukraine: MODIS points day+bar 68.2%, day weak 29.6%, night 2.3%; VIIRS points day+bar 34.5%, day weak 44.5%, night 21.0%
+  all       error  12.3%  bias  -4.8%  stability   7.0%  calendar  74.2%
+  bar       error  13.3%  bias  -7.1%  stability   7.9%  calendar  77.3%
+  split     error  21.4%  bias  -4.0%  stability   9.8%  calendar  68.9%
+  daynight  error  17.8%  bias  -1.7%  stability   8.5%  calendar  66.7%
+Brazil: MODIS points day+bar 79.8%, day weak 9.4%, night 10.7%; VIIRS points day+bar 45.2%, day weak 25.5%, night 29.3%
+  all       error   5.9%  bias  +1.3%  stability   3.9%  calendar  84.8%
+  bar       error   6.7%  bias  +1.4%  stability   4.5%  calendar  80.3%
+  split     error   5.2%  bias  +0.8%  stability   3.2%  calendar  84.8%
+  daynight  error   5.4%  bias  +0.1%  stability   2.7%  calendar  80.3%
+Australia: MODIS points day+bar 79.0%, day weak 7.0%, night 14.0%; VIIRS points day+bar 46.7%, day weak 17.5%, night 35.8%
+  all       error   5.4%  bias  +0.2%  stability   4.8%  calendar  81.8%
+  bar       error   6.7%  bias  +1.2%  stability   5.6%  calendar  81.1%
+  split     error   6.8%  bias  -1.2%  stability   5.4%  calendar  81.8%
+  daynight  error   5.3%  bias  -1.8%  stability   6.3%  calendar  84.1%

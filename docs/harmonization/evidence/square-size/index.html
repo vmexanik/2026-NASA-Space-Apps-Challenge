@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Розмір квадрата: чи однаковий множник з року в рік</title>
+<style>
+  :root {
+    --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --ink-3: #6f6e69;
+    --grid: #e6e5e0; --rule: #b9b8b1; --best: #e3eefb;
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a;
+    --c-same: #52514e; --c-real: #9d9c93; --c-chance: #d6d5cf; --c-few: #ecebe6; --c-same-text: #fcfcfb;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --ink-3: #9d9c93;
+      --grid: #2e2e2c; --rule: #5a5955; --best: #1c3350;
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70;
+      --c-same: #e6e5e0; --c-real: #8a897f; --c-chance: #4a4a46; --c-few: #2e2e2c; --c-same-text: #1a1a19;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 1100px; margin: 0 auto; padding: 32px 20px 56px; }
+  h1 { font-size: 28px; line-height: 1.25; margin: 0 0 10px; }
+  h2 { font-size: 21px; margin: 40px 0 10px; }
+  h3 { font-size: 15px; margin: 0 0 6px; }
+  p { margin: 0 0 12px; max-width: 78ch; }
+  .lead { font-size: 18px; color: var(--ink-2); }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; margin: 24px 0; }
+  .tile, .card { background: var(--surface); border: 1px solid var(--grid); border-radius: 12px; }
+  .tile { padding: 14px 16px; }
+  .tile .k { font-size: 13px; color: var(--ink-2); }
+  .tile .v { font-size: 21px; font-weight: 650; margin-top: 2px; line-height: 1.3; }
+  .tile .s { font-size: 13px; color: var(--ink-3); margin-top: 4px; }
+  .card { padding: 16px 18px; position: relative; overflow-x: auto; }
+  .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--ink-2); margin: 0 0 10px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; flex: none; }
+  .ln { width: 16px; height: 3px; border-radius: 2px; display: inline-block; }
+  svg { display: block; width: 100%; height: auto; }
+  .axis text { fill: var(--ink-3); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+  .grid line { stroke: var(--grid); }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+  th, td { padding: 5px 8px; text-align: right; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: var(--ink-2); font-weight: 600; vertical-align: bottom; }
+  td.hl { background: var(--best); font-weight: 650; border-radius: 4px; }
+  ul, ol { padding-left: 22px; max-width: 82ch; }
+  li { margin-bottom: 6px; }
+  code { font-size: 13px; }
+  .muted { color: var(--ink-3); font-size: 13.5px; }
+  .tip { position: fixed; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--grid);
+         border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.16); padding: 7px 10px; font-size: 12.5px; display: none; z-index: 5; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Розмір квадрата: чи однаковий множник з року в рік</h1>
+  <p class="lead">Для кожного квадрата й календарного місяця рахуємо множник окремо за кожен рік 2012–2022 і порівнюємо його
+  з множником, вивченим на інших 10 роках. «Однаковий» — якщо типова зміна між роками не більша за 10%.
+  Шість розмірів квадрата, три країни.</p>
+
+  <div class="tiles" id="tiles"></div>
+
+  <h2>1. Яка частка пожеж має «однаковий» множник</h2>
+  <p>Кожна смуга — усі пожежі (точки VIIRS) країни, поділені за тим, як поводиться множник їхнього квадрата й місяця.</p>
+  <div class="card">
+    <div class="legend">
+      <span><i class="sw" style="background:var(--c-same)"></i>однаковий: змінюється не більше ніж на 10%</span>
+      <span><i class="sw" style="background:var(--c-real)"></i>справді змінюється між роками</span>
+      <span><i class="sw" style="background:var(--c-chance)"></i>не видно: пожеж замало, розкид як від випадковості</span>
+      <span><i class="sw" style="background:var(--c-few);outline:1px solid var(--rule)"></i>пожежі лише в 1–2 роках</span>
+    </div>
+    <div class="row3" id="stacks"></div>
+  </div>
+
+  <h2>2. Наскільки множник гуляє між роками</h2>
+  <p>Типова зміна множника квадрата за місяць між роками (половина пожеж — у квадратах з меншою зміною). Пунктир — твій поріг 10%.</p>
+  <div class="card">
+    <div class="legend" id="legend2"></div>
+    <svg id="change" viewBox="0 0 900 300" role="img" aria-label="Типова зміна множника за розміром квадрата"></svg>
+  </div>
+
+  <h2>3. Яку помилку побачить людина</h2>
+  <p>Інше питання: не чи стабільний множник, а наскільки точно вийде число для місця. Кожен рік вгадуємо множниками,
+  вивченими на інших 10 роках, і перевіряємо на однакових областях. Тоді квадрати різних розмірів порівнюються чесно.</p>
+  <div class="row3">
+    <div class="card"><h3>Області ~55 км (0,5°)</h3><div class="legend" id="legend3a"></div>
+      <svg id="err05" viewBox="0 0 440 260" role="img" aria-label="Помилка на областях 0,5° за розміром квадрата"></svg></div>
+    <div class="card"><h3>Області ~220 км (2°)</h3><div class="legend" id="legend3b"></div>
+      <svg id="err2" viewBox="0 0 440 260" role="img" aria-label="Помилка на областях 2° за розміром квадрата"></svg></div>
+  </div>
+  <p class="muted" style="margin-top:8px">Типова помилка за місяць по областях, де VIIRS дав 100+ точок. Обведена точка — найменша помилка для країни.</p>
+
+  <h2>4. Усі числа</h2>
+  <div class="card"><table id="table"></table></div>
+
+  <h2>Як рахували</h2>
+  <ol>
+    <li>Точки Aqua (MODIS) і Suomi NPP (VIIRS) з файлів країн архіву FIRMS, <code>type = 0</code>, 2012–2022.</li>
+    <li>Квадрати нарізані з усього глобуса: рядок = ⌊(широта + 90) / розмір⌋, стовпчик = ⌊(довгота + 180) / розмір⌋.
+      Квадрати різних розмірів вкладаються один в одного.</li>
+    <li>Для квадрата, календарного місяця m і року y: множник року k<sub>y</sub> = V<sub>y</sub> / M<sub>y</sub>;
+      множник решти K = (сума V за інші 10 років) / (сума M за них); зміна = |k<sub>y</sub> / K − 1|.
+      Типова зміна квадрата-місяця — медіана по роках. Потрібні точки MODIS хоча б у 3 роках.</li>
+    <li>Скільки розкиду дає сама випадковість: √(1/M<sub>y</sub> + 1/V<sub>y</sub> + 1/M<sub>решти</sub> + 1/V<sub>решти</sub>);
+      типова зміна від випадковості — 0,674 × її медіана. «Справді змінюється» — зміна понад 10% і понад 1,5 × випадкову.</li>
+    <li>Помилка для людини: кожен рік кожної клітинки 0,25° вгадується множником її квадрата, вивченим на інших 10 роках
+      (якщо в інших роках MODIS там нічого не бачив — множником усієї країни на цей місяць); суми по областях 0,5° і 2°
+      порівнюються зі справжнім VIIRS.</li>
+    <li>Дрейф: щороку справжні точки VIIRS ділимо на те, що очікують множники за всі роки; тренд цього ряду — у відсотках на рік.</li>
+  </ol>
+
+  <h2>Висновок (ще не рішення)</h2>
+  <ul id="concl"></ul>
+
+  <h2>Як відтворити</h2>
+  <p>Скрипти поруч: <code>square_stability.py</code> (розрахунок) і <code>make_size_page.py</code> (ця сторінка). Вхід — вирізані файли
+  трьох країн (<code>extract.py</code>). Сирі числа — <code>square_stability.json</code>.</p>
+</main>
+<div class="tip" id="tip"></div>
+<script>
+(() => {
+const P = {"data": {"sizes": [0.25, 0.5, 1.0, 2.0, 4.0, 8.0], "queries": [0.5, 2.0], "limit": 0.1, "countries": {"Ukraine": {"0.25": {"square_months": 13115, "share_same": 0.005359850122496037, "share_chance": 0.7336365470528895, "share_real": 0.1430961233607148, "share_few": 0.11790747946389969, "count_same": 29, "count_chance": 5211, "count_real": 524, "count_few": 7351, "typical_change": 0.4524539877300614, "median_fires_per_square_month": 22.0, "squares": 1323, "area_error": {"0.5": {"error": 0.256650213538058, "n": 2112}, "2.0": {"error": 0.21260322106016527, "n": 1266}}, "drift": {"per_year": 0.002141020609759625, "ratio_by_year": [0.9236253012846108, 1.1023280033619263, 1.0104876256149076, 1.0647460357854022, 1.017685681935561, 0.948225483074864, 1.0443536492685588, 1.0470190828505652, 1.110843476117914, 1.0505815824385034, 0.9519887202332634]}}, "0.5": {"square_months": 3982, "share_same": 0.009445741461305664, "share_chance": 0.6379662775616083, "share_real": 0.3140210404957487, "share_few": 0.03856694048133737, "count_same": 19, "count_chance": 1915, "count_real": 409, "count_few": 1639, "typical_change": 0.34716981132075464, "median_fires_per_square_month": 63.0, "squares": 365, "area_error": {"0.5": {"error": 0.24586744954392004, "n": 2112}, "2.0": {"error": 0.1830534818392397, "n": 1266}}, "drift": {"per_year": 0.0012940309390114813, "ratio_by_year": [0.9032821110058513, 1.073276237899434, 0.9998666765360067, 1.0499619662445454, 1.0047949939406173, 0.9385169052774774, 1.0145415089290535, 1.0220711837777068, 1.1044195920176356, 1.01605530212903, 0.9228642764701541]}}, "1.0": {"square_months": 1227, "share_same": 0.04157025507998271, "share_chance": 0.4334964692318778, "share_real": 0.5144937310851708, "share_few": 0.010439544602968727, "count_same": 18, "count_chance": 611, "count_real": 227, "count_few": 371, "typical_change": 0.2461895294897284, "median_fires_per_square_month": 173.0, "squares": 110, "area_error": {"0.5": {"error": 0.23583968156080803, "n": 2112}, "2.0": {"error": 0.1830161415839498, "n": 1266}}, "drift": {"per_year": 0.0018490328095523978, "ratio_by_year": [0.8972648336304597, 1.0524748116214022, 0.9948293453663425, 1.0551115624042675, 0.9971625487842253, 0.9336992408138439, 1.006298215556649, 1.0133806881229062, 1.105666733437715, 1.0155238438767977, 0.915547558015841]}}, "2.0": {"square_months": 398, "share_same": 0.06014123072488831, "share_chance": 0.18634039486957774, "share_real": 0.7510788298025652, "share_few": 0.0024395446029687276, "count_same": 7, "count_chance": 181, "count_real": 112, "count_few": 98, "typical_change": 0.18034859397694075, "median_fires_per_square_month": 483.5, "squares": 36, "area_error": {"0.5": {"error": 0.2325184808484606, "n": 2112}, "2.0": {"error": 0.18162361576733432, "n": 1266}}, "drift": {"per_year": 0.0021086967946732926, "ratio_by_year": [0.8954403685513557, 1.0459397783274391, 0.9898637568682793, 1.0679410153761095, 0.990500797967515, 0.9287255995914467, 0.9995583659311126, 1.0085401464180288, 1.1143965444632868, 1.0087550492397674, 0.9183581540938155]}}, "4.0": {"square_months": 162, "share_same": 0.15003545179420666, "share_chance": 0.09211240812797233, "share_real": 0.7568756304943075, "share_few": 0.0009765095835134746, "count_same": 8, "count_chance": 80, "count_real": 52, "count_few": 22, "typical_change": 0.13640956023028927, "median_fires_per_square_month": 1074.5, "squares": 14, "area_error": {"0.5": {"error": 0.23411198173899334, "n": 2112}, "2.0": {"error": 0.18089760567171226, "n": 1266}}, "drift": {"per_year": 0.0032782194052061175, "ratio_by_year": [0.8908000027800761, 1.034434129515839, 0.9852724669266535, 1.0704622676469402, 0.9923800386819973, 0.933204206071069, 1.000347618946435, 1.0054663876136354, 1.1135218245876253, 1.0222360616510977, 0.9193343342901223]}}, "8.0": {"square_months": 59, "share_same": 0.42330595186626313, "share_chance": 0.04706499495604554, "share_real": 0.5294953163280012, "share_few": 0.0001337368496901571, "count_same": 7, "count_chance": 24, "count_real": 22, "count_few": 6, "typical_change": 0.12392792737764258, "median_fires_per_square_month": 2938.0, "squares": 5, "area_error": {"0.5": {"error": 0.23774806020222, "n": 2112}, "2.0": {"error": 0.19412427058550008, "n": 1266}}, "drift": {"per_year": 0.0040887870299815, "ratio_by_year": [0.8810659456789257, 1.0205783780430921, 0.9909353665141155, 1.086858589394818, 0.9889640873701162, 0.9276646644331011, 0.9956099101518133, 0.9876922001082633, 1.1165491224882473, 1.0322091851504898, 0.9225655528497554]}}}, "Brazil": {"0.25": {"square_months": 104742, "share_same": 0.015334361021410869, "share_chance": 0.5971783846625778, "share_real": 0.32654877053029363, "share_few": 0.06093848378571771, "count_same": 237, "count_chance": 41544, "count_real": 5823, "count_few": 57138, "typical_change": 0.3398463674337514, "median_fires_per_square_month": 23.0, "squares": 10901, "area_error": {"0.5": {"error": 0.2191473837815301, "n": 32179}, "2.0": {"error": 0.194776336528507, "n": 12295}}, "drift": {"per_year": 0.004522203912047162, "ratio_by_year": [0.9904731844710731, 0.9787329356467621, 0.9672885443673658, 1.0334215987234203, 1.0010530367319366, 0.9983753905916855, 1.017382919537565, 1.0060242921347984, 1.0922307714890342, 1.0305990273840613, 0.9831489906621359]}}, "0.5": {"square_months": 31040, "share_same": 0.06369327679728662, "share_chance": 0.4361285907517874, "share_real": 0.48747779553992865, "share_few": 0.012700336910997348, "count_same": 207, "count_chance": 17329, "count_real": 3798, "count_few": 9706, "typical_change": 0.23495973472288012, "median_fires_per_square_month": 74.0, "squares": 2982, "area_error": {"0.5": {"error": 0.21055679655828574, "n": 32179}, "2.0": {"error": 0.17568064924599258, "n": 12295}}, "drift": {"per_year": 0.004579892846375833, "ratio_by_year": [0.9834729379140551, 0.9643191069264953, 0.9581439806613218, 1.0268961344068723, 0.9903450267810526, 0.9916836242508957, 1.0068659306157879, 0.9981492737538007, 1.083650393242099, 1.02213066336722, 0.971880394648527]}}, "1.0": {"square_months": 9069, "share_same": 0.1939811035270091, "share_chance": 0.20937668813811075, "share_real": 0.5944962275326376, "share_few": 0.002145980802242502, "count_same": 227, "count_chance": 4979, "count_real": 2168, "count_few": 1695, "typical_change": 0.15700652938222004, "median_fires_per_square_month": 252.0, "squares": 801, "area_error": {"0.5": {"error": 0.21003490401396152, "n": 32179}, "2.0": {"error": 0.1657950964187238, "n": 12295}}, "drift": {"per_year": 0.005039740527838399, "ratio_by_year": [0.9817604894881866, 0.9561808879580489, 0.9548608092369542, 1.0260497548027991, 0.9889146814188194, 0.9912690384507075, 1.0050966197070297, 0.9982148799113512, 1.0828121656868206, 1.0228900284278881, 0.9709698032285773]}}, "2.0": {"square_months": 2593, "share_same": 0.406945883381548, "share_chance": 0.07561892047908264, "share_real": 0.5171252517165598, "share_few": 0.00030994442280957336, "count_same": 193, "count_chance": 1160, "count_real": 994, "count_few": 246, "typical_change": 0.11454386476245992, "median_fires_per_square_month": 945.0, "squares": 221, "area_error": {"0.5": {"error": 0.21459982409850475, "n": 32179}, "2.0": {"error": 0.16534053580553343, "n": 12295}}, "drift": {"per_year": 0.005221310004187574, "ratio_by_year": [0.9824185114181946, 0.9505140761438279, 0.9560725592303939, 1.0277601094169695, 0.9871155763808097, 0.9904403644298743, 1.00414685756496, 0.995445451255202, 1.084727223298937, 1.0247686159999523, 0.9707019316506019]}}, "4.0": {"square_months": 801, "share_same": 0.6093921551502431, "share_chance": 0.02499439622900281, "share_real": 0.3655758551884878, "share_few": 3.759343226626837e-05, "count_same": 132, "count_chance": 284, "count_real": 357, "count_few": 28, "typical_change": 0.08298094276827017, "median_fires_per_square_month": 3141.0, "squares": 67, "area_error": {"0.5": {"error": 0.2213076989898185, "n": 32179}, "2.0": {"error": 0.1807701609652541, "n": 12295}}, "drift": {"per_year": 0.004775504533978792, "ratio_by_year": [0.9838423202433141, 0.9471059961538579, 0.9605444884631243, 1.0299143447148158, 0.9887120127859437, 0.9911680540380576, 1.0039046182483657, 0.996928313296451, 1.080861349710476, 1.0189685404444244, 0.9696465203554464]}}, "8.0": {"square_months": 240, "share_same": 0.7691749161314022, "share_chance": 0.005052490165457423, "share_real": 0.2257654778034614, "share_few": 7.115899678972228e-06, "count_same": 70, "count_chance": 43, "count_real": 122, "count_few": 5, "typical_change": 0.06261936065633322, "median_fires_per_square_month": 12459.0, "squares": 20, "area_error": {"0.5": {"error": 0.2280417099772909, "n": 32179}, "2.0": {"error": 0.1994285250426171, "n": 12295}}, "drift": {"per_year": 0.005144701572650012, "ratio_by_year": [0.983570797235807, 0.9437701337689663, 0.9596453807274183, 1.0303452601800351, 0.9842956534458387, 0.992219880318516, 1.0023278198504606, 0.9984747649261589, 1.0848945630817293, 1.0195388196982214, 0.970330991742076]}}}, "Australia": {"0.25": {"square_months": 70447, "share_same": 0.017124354342828798, "share_chance": 0.3239297921581747, "share_real": 0.33117181534773904, "share_few": 0.3277740381512575, "count_same": 288, "count_chance": 12970, "count_real": 5732, "count_few": 51457, "typical_change": 0.3654377880184332, "median_fires_per_square_month": 36.0, "squares": 10205, "area_error": {"0.5": {"error": 0.28188173791205345, "n": 23950}, "2.0": {"error": 0.23225199928937595, "n": 9690}}, "drift": {"per_year": 0.0030982115360171925, "ratio_by_year": [0.9878906419694626, 1.0086360063326367, 1.0162426365282335, 1.014519512059587, 1.017066026120387, 0.9904841708657602, 1.016580085836948, 1.0264425347605133, 1.0761050074019478, 0.9554598163766193, 1.0621357070691557]}}, "0.5": {"square_months": 24882, "share_same": 0.028234552631718427, "share_chance": 0.31169952462920797, "share_real": 0.5104136040788292, "share_few": 0.14965231866024442, "count_same": 155, "count_chance": 6924, "count_real": 4075, "count_few": 13728, "typical_change": 0.2935159849722404, "median_fires_per_square_month": 98.0, "squares": 2927, "area_error": {"0.5": {"error": 0.274185885103627, "n": 23950}, "2.0": {"error": 0.21994802529223212, "n": 9690}}, "drift": {"per_year": 0.0024616276813496096, "ratio_by_year": [0.9783030000816312, 1.0043866902768142, 1.0074044308486854, 1.0074144820951516, 1.0063541035978456, 0.9826534912005779, 1.0086797579489843, 1.0238968313830759, 1.067090246207764, 0.939716310363997, 1.0448869961251883]}}, "1.0": {"square_months": 8172, "share_same": 0.07300092193312259, "share_chance": 0.24329829135269132, "share_real": 0.6442354549227082, "share_few": 0.03946533179147787, "count_same": 124, "count_chance": 2750, "count_real": 2279, "count_few": 3019, "typical_change": 0.22242530917283354, "median_fires_per_square_month": 291.0, "squares": 807, "area_error": {"0.5": {"error": 0.25851852535202924, "n": 23950}, "2.0": {"error": 0.2038796372127255, "n": 9690}}, "drift": {"per_year": 0.002556234100904886, "ratio_by_year": [0.9714903664196084, 1.0007516018668925, 1.0060963745207692, 1.009980584020925, 0.9994912545195014, 0.9799021881489195, 1.007042331183288, 1.0263580957834448, 1.0677173740523087, 0.9350360447346858, 1.0387021637493843]}}, "2.0": {"square_months": 2541, "share_same": 0.24776742218207884, "share_chance": 0.15580202101957635, "share_real": 0.5906640319187776, "share_few": 0.005766524879567225, "count_same": 110, "count_chance": 902, "count_real": 986, "count_few": 543, "typical_change": 0.15900489478730373, "median_fires_per_square_month": 1119.0, "squares": 227, "area_error": {"0.5": {"error": 0.25217523510822054, "n": 23950}, "2.0": {"error": 0.19843227624283932, "n": 9690}}, "drift": {"per_year": 0.0023333789298076724, "ratio_by_year": [0.9704667364796621, 1.0043628340638662, 1.003800145248287, 1.0125273134059813, 0.9962659957582681, 0.9798519233074584, 1.003932483111876, 1.0281643909152152, 1.0679380432163537, 0.9348433464784901, 1.0344342474308796]}}, "4.0": {"square_months": 805, "share_same": 0.36795700929509373, "share_chance": 0.060198070643710105, "share_real": 0.5714025823480829, "share_few": 0.00044233771311324375, "count_same": 78, "count_chance": 249, "count_real": 416, "count_few": 62, "typical_change": 0.124547267668486, "median_fires_per_square_month": 3707.0, "squares": 69, "area_error": {"0.5": {"error": 0.25179992719416555, "n": 23950}, "2.0": {"error": 0.20121538748907525, "n": 9690}}, "drift": {"per_year": 0.0015825720866280424, "ratio_by_year": [0.9717043260010525, 1.008653458820279, 1.0034738761526074, 1.0154968423750474, 0.9921298551919835, 0.9775427980929813, 1.0062225399429545, 1.0299808417065346, 1.0695572327232814, 0.9300964536434891, 1.0244951881490483]}}, "8.0": {"square_months": 282, "share_same": 0.5646441297615414, "share_chance": 0.009521835660198584, "share_real": 0.42579124278892094, "share_few": 4.2791789339060935e-05, "count_same": 51, "count_chance": 46, "count_real": 168, "count_few": 17, "typical_change": 0.0935914113044517, "median_fires_per_square_month": 11764.5, "squares": 24, "area_error": {"0.5": {"error": 0.2542880869286998, "n": 23950}, "2.0": {"error": 0.203527685757938, "n": 9690}}, "drift": {"per_year": 0.001138476459537463, "ratio_by_year": [0.976395977362536, 1.0093948865525189, 1.003279344918295, 1.0106093261620446, 0.9925422872075768, 0.9772117757488298, 1.0088434976045597, 1.0279503965169041, 1.064194854198358, 0.9297759920242412, 1.0216767077553945]}}}}}, "ua": {"Ukraine": "Україна", "Brazil": "Бразилія", "Australia": "Австралія"}, "keys": ["0.25", "0.5", "1.0", "2.0", "4.0", "8.0"]}, D = P.data, C = Object.keys(D.countries), SZ = P.keys;
+const COLOR = {Ukraine: "--s1", Brazil: "--s2", Australia: "--s3"};
+const pct = (x, d = 0) => x == null ? "—" : (x * 100).toFixed(d).replace(".", ",") + "%";
+const deg = s => (+s).toString().replace(".", ",") + "°";
+const KM = {"0.25": "~28 км", "0.5": "~55 км", "1.0": "~110 км", "2.0": "~220 км", "4.0": "~440 км", "8.0": "~900 км"};
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const tip = document.getElementById("tip");
+const R = (c, s) => D.countries[c][s];
+const NS = "http://www.w3.org/2000/svg";
+const el = (tag, a, p) => { const e = document.createElementNS(NS, tag); for (const [k, v] of Object.entries(a)) e.setAttribute(k, v); p.appendChild(e); return e; };
+const showTip = (ev, html) => { tip.innerHTML = html; tip.style.display = "block"; tip.style.left = (ev.clientX + 14) + "px"; tip.style.top = (ev.clientY + 14) + "px"; };
+const hideTip = () => tip.style.display = "none";
+const best = (c, q) => SZ.reduce((b, s) => R(c, s).area_error[q].error < R(c, b).area_error[q].error ? s : b, SZ[0]);
+
+// tiles
+const same8 = C.map(c => pct(R(c, "8.0").share_same)).join(" / ");
+const same2 = C.map(c => pct(R(c, "2.0").share_same)).join(" / ");
+const drift = C.map(c => (R(c, "2.0").drift.per_year * 100).toFixed(1).replace(".", ",")).join(" / ");
+document.getElementById("tiles").innerHTML = `
+  <div class="tile"><div class="k">Ідеал «±10% в усі роки»</div><div class="v">лише у великих квадратах і лише для частини пожеж</div>
+    <div class="s">квадрат 8°: ${same8} пожеж; квадрат 2°: ${same2} (Україна / Бразилія / Австралія)</div></div>
+  <div class="tile"><div class="k">Для точності на місцях</div><div class="v">розмір майже не важить, найкраще ~2°</div>
+    <div class="s">2° — найкращий або гірший за найкращий щонайбільше на 0,5 пункту для всіх трьох країн і обох розмірів областей</div></div>
+  <div class="tile"><div class="k">Дрейф з роками</div><div class="v">малий: ${drift}% на рік</div>
+    <div class="s">квадрат 2°; за 10 років назад це ~2–5% зсуву</div></div>`;
+
+// stacked bars per country
+document.getElementById("stacks").innerHTML = C.map(c => `<div><h3>${P.ua[c]}</h3>` + SZ.map(s => { const r = R(c, s);
+  const seg = (v, bg, fg) => `<div style="width:${v * 100}%;background:var(${bg});color:var(${fg});display:flex;align-items:center;justify-content:center;font-size:11.5px;overflow:hidden;white-space:nowrap">${v >= 0.09 ? pct(v) : ""}</div>`;
+  return `<div style="display:grid;grid-template-columns:70px 1fr;gap:8px;align-items:center;margin:5px 0"><div style="font-size:12.5px;color:var(--ink-2)">${deg(s)} <span style="color:var(--ink-3)">${KM[s]}</span></div>` +
+    `<div style="display:flex;height:24px;gap:1px;border-radius:4px;overflow:hidden">` +
+    seg(r.share_same, "--c-same", "--c-same-text") + seg(r.share_real, "--c-real", "--ink") + seg(r.share_chance, "--c-chance", "--ink") + seg(r.share_few, "--c-few", "--ink") +
+    `</div></div>`; }).join("") + `</div>`).join("");
+
+// line chart helper
+function lines(svg, W, H, getY, ymax, tipFn, refLine, markBest) {
+  svg.innerHTML = "";
+  const L = 46, Rr = 30, T = 12, B = 34;
+  const x = i => L + i * (W - L - Rr) / (SZ.length - 1), y = v => T + (1 - v / ymax) * (H - T - B);
+  const g = el("g", {class: "grid"}, svg), ax = el("g", {class: "axis"}, svg);
+  for (let k = 0; k <= 5; k++) { const v = ymax * k / 5; el("line", {x1: L, x2: W - Rr, y1: y(v), y2: y(v)}, g);
+    el("text", {x: L - 6, y: y(v) + 4, "text-anchor": "end"}, ax).textContent = Math.round(v * 100) + "%"; }
+  SZ.forEach((s, i) => { el("text", {x: x(i), y: H - B + 16, "text-anchor": "middle"}, ax).textContent = deg(s);
+    el("text", {x: x(i), y: H - B + 29, "text-anchor": "middle", "font-size": 10}, ax).textContent = KM[s]; });
+  if (refLine != null) el("line", {x1: L, x2: W - Rr, y1: y(refLine), y2: y(refLine), stroke: css("--ink-2"), "stroke-dasharray": "4 4"}, svg);
+  for (const c of C) {
+    const col = css(COLOR[c]);
+    el("path", {d: SZ.map((s, i) => (i ? "L" : "M") + x(i) + "," + y(getY(c, s))).join(""), fill: "none", stroke: col, "stroke-width": 2}, svg);
+    const bs = markBest ? markBest(c) : null;
+    SZ.forEach((s, i) => {
+      const dot = el("circle", {cx: x(i), cy: y(getY(c, s)), r: s === bs ? 6 : 4, fill: s === bs ? css("--surface") : col,
+                                stroke: s === bs ? col : css("--surface"), "stroke-width": s === bs ? 2.5 : 1.5}, svg);
+      const hit = el("circle", {cx: x(i), cy: y(getY(c, s)), r: 11, fill: "transparent"}, svg);
+      hit.addEventListener("mousemove", ev => showTip(ev, tipFn(c, s)));
+      hit.addEventListener("mouseleave", hideTip);
+    });
+  }
+}
+const legend = C.map(c => `<span><i class="ln" style="background:var(${COLOR[c]})"></i>${P.ua[c]}</span>`).join("");
+for (const id of ["legend2", "legend3a", "legend3b"]) document.getElementById(id).innerHTML = legend;
+function drawAll() {
+  lines(document.getElementById("change"), 900, 300, (c, s) => R(c, s).typical_change, 0.5,
+    (c, s) => `<b>${P.ua[c]}, квадрат ${deg(s)}</b><br>типова зміна між роками: ${pct(R(c, s).typical_change, 1)}<br>однаковий множник: ${pct(R(c, s).share_same, 1)} пожеж`, 0.10, null);
+  for (const [id, q] of [["err05", "0.5"], ["err2", "2.0"]])
+    lines(document.getElementById(id), 440, 260, (c, s) => R(c, s).area_error[q].error, 0.3,
+      (c, s) => `<b>${P.ua[c]}, квадрат ${deg(s)}</b><br>помилка на областях ${deg(q)}: ${pct(R(c, s).area_error[q].error, 1)}`, null, c => best(c, q));
+}
+drawAll();
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawAll);
+
+// table
+document.getElementById("table").innerHTML =
+  `<thead><tr><th>Країна, квадрат</th><th>квадратів</th><th>квадрат ×<br>місяць</th><th>однаковий</th><th>справді<br>змінюється</th><th>не видно</th><th>1–2 роки</th>` +
+  `<th>типова<br>зміна</th><th>помилка,<br>області 0,5°</th><th>помилка,<br>області 2°</th><th>дрейф<br>на рік</th></tr></thead><tbody>` +
+  C.map(c => SZ.map(s => { const r = R(c, s), b05 = best(c, "0.5"), b2 = best(c, "2.0");
+    return `<tr><td>${P.ua[c]}, ${deg(s)}</td><td>${r.squares.toLocaleString("uk-UA")}</td><td>${r.square_months.toLocaleString("uk-UA")}</td>` +
+      `<td>${pct(r.share_same, 1)}</td><td>${pct(r.share_real, 1)}</td><td>${pct(r.share_chance, 1)}</td><td>${pct(r.share_few, 1)}</td>` +
+      `<td>${pct(r.typical_change, 1)}</td><td class="${s === b05 ? "hl" : ""}">${pct(r.area_error["0.5"].error, 1)}</td>` +
+      `<td class="${s === b2 ? "hl" : ""}">${pct(r.area_error["2.0"].error, 1)}</td><td>${(r.drift.per_year * 100).toFixed(1).replace(".", ",")}%</td></tr>`; }).join("")).join("") + `</tbody>`;
+
+// conclusions
+const tc = s => C.map(c => pct(R(c, s).typical_change)).join(" / ");
+document.getElementById("concl").innerHTML = `
+  <li><b>Ідеал «±10% в усі роки» досягається лише частково.</b> Навіть у квадратах 8° однаковий множник мають лише
+    ${same8} пожеж (Україна / Бразилія / Австралія). Типова зміна між роками: 0,25° — ${tc("0.25")}, 2° — ${tc("2.0")}, 8° — ${tc("8.0")}.</li>
+  <li><b>У малих квадратах зміни здебільшого випадкові:</b> там замало пожеж, щоб побачити, однаковий множник чи ні.</li>
+  <li><b>У великих квадратах решта змін справжня:</b> множник того самого квадрата й місяця справді гуляє між роками,
+    бо щороку інша суміш пожеж (більше дрібних чи більше великих). Це межа точності будь-якої гармонізації.</li>
+  <li><b>Для точності на місцях розмір майже не важить.</b> Найкраще ~2°: найкращий або майже найкращий для всіх трьох
+    країн. Більший квадрат стабільніший, але гірше знає місцеві пожежі, тому точніше не стає.</li>
+  <li><b>Дрейф малий</b> (${drift}% на рік), тож множники 2012–2022 можна застосовувати до 2002–2011.</li>`;
+})();
+</script>
+</body>
+</html>

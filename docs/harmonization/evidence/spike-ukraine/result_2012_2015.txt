@@ -1,0 +1,193 @@
+== load
+  modis_2012_Ukraine.csv                19626 rows  cols=15 type=yes
+  modis_2013_Ukraine.csv                13465 rows  cols=15 type=yes
+  modis_2014_Ukraine.csv                51472 rows  cols=15 type=yes
+  modis_2015_Ukraine.csv                48777 rows  cols=15 type=yes
+  modis_2016_Ukraine.csv                25863 rows  cols=15 type=yes
+  modis_2017_Ukraine.csv                34838 rows  cols=15 type=yes
+  modis_2018_Ukraine.csv                18933 rows  cols=15 type=yes
+  modis_2019_Ukraine.csv                28201 rows  cols=15 type=yes
+  modis_2020_Ukraine.csv                26349 rows  cols=15 type=yes
+  modis_2021_Ukraine.csv                10796 rows  cols=15 type=yes
+  viirs-snpp_2012_Ukraine.csv           72361 rows  cols=15 type=yes
+  viirs-snpp_2013_Ukraine.csv           64125 rows  cols=15 type=yes
+  viirs-snpp_2014_Ukraine.csv          166968 rows  cols=15 type=yes
+  viirs-snpp_2015_Ukraine.csv          171492 rows  cols=15 type=yes
+  Terra rows=  127388  2012-01-02..2021-12-04
+  Aqua  rows=  150932  2012-01-04..2021-12-03
+  SNPP  rows=  474946  2012-01-23..2015-12-31
+
+== A. raw hotspots per year and platform (all types)
+  year     Terra     Aqua     SNPP   all VIIRS/all MODIS  SNPP/Aqua
+  2012      8171    11455    72361           3.69           6.32
+  2013      6271     7194    64125           4.76           8.91
+  2014     21964    29508   166968           3.24           5.66
+  2015     22104    26673   171492           3.52           6.43
+
+== B. what is not a vegetation fire (FIRMS 'type'), share of rows, and low confidence
+  Terra type0= 94.2% type1= 0.00% type2=  5.6% type3= 0.11% missing= 0.00% | not-vegetation share by day  3.5%, by night 18.3% | night share of all 15.2% | low-conf  5.2%
+  Aqua  type0= 96.2% type1= 0.00% type2=  3.8% type3= 0.03% missing= 0.00% | not-vegetation share by day  2.2%, by night 43.8% | night share of all  3.9% | low-conf  4.8%
+  SNPP  type0= 82.8% type1= 0.00% type2= 15.2% type3= 2.07% missing= 0.00% | not-vegetation share by day  3.1%, by night 47.2% | night share of all 32.1% | low-conf  5.3%
+
+== C. SNPP / Aqua for vegetation fires (type 0), 2012-2015, by calendar month
+  month   Aqua_n  SNPP_n | raw: all   day  night | 1km cell-days | 11km cell-days | FRP sum | Terra/Aqua day | N20/SNPP 2018-21
+      1       21     290 |    13.81 10.33    n/a |         11.40 |          12.60 |    3.01 |           0.62 |      n/a
+      2      888    5294 |     5.96  5.68 132.50 |          4.86 |           4.85 |    1.92 |           0.25 |      n/a
+      3    22470   87144 |     3.88  3.65 167.19 |          2.92 |           2.78 |    1.34 |           0.49 |      n/a
+      4     6867   32052 |     4.67  4.32  78.94 |          3.59 |           3.71 |    1.46 |           0.66 |      n/a
+      5      604    4832 |     8.00  5.75  38.07 |          6.57 |           6.93 |    1.68 |           0.96 |      n/a
+      6      358    4118 |    11.50  7.03  35.11 |          8.99 |           8.59 |    2.90 |           1.09 |      n/a
+      7     5822   55971 |     9.61  7.16  46.64 |          6.71 |           6.20 |    1.84 |           1.22 |      n/a
+      8     9440   89860 |     9.52  6.75  42.96 |          6.32 |           5.78 |    1.91 |           1.16 |      n/a
+      9     6614   38111 |     5.76  4.33  35.36 |          3.94 |           4.01 |    1.37 |           0.82 |      n/a
+     10    16843   63308 |     3.76  3.28 100.13 |          2.61 |           2.65 |    1.16 |           0.59 |      n/a
+     11     2611   10806 |     4.14  3.68  55.61 |          3.15 |           3.32 |    1.42 |           0.32 |      n/a
+     12      161    1287 |     7.99  6.70 215.00 |          6.62 |           7.23 |    1.89 |           0.44 |      n/a
+  by year: SNPP/Aqua raw | 1km cell-days | 11km cell-days | FRP ;  N20/SNPP raw day, night ;  Terra/Aqua raw day
+  2012    4.48 |   3.37 |   3.50 |   1.44 ;    0.00   0.00 ;    0.65
+  2013    6.32 |   4.77 |   4.84 |   1.72 ;    0.00   0.00 ;    0.75
+  2014    5.09 |   3.62 |   3.55 |   1.41 ;    0.00   0.00 ;    0.67
+  2015    5.91 |   4.08 |   3.92 |   1.50 ;    0.00   0.00 ;    0.73
+  totals of these years, type 0: Terra=55630, Aqua=72699, SNPP=393073 | SNPP/Aqua raw=5.41, 1km cell-days=3.85, FRP=1.48
+
+== E. calibration test: learn on some years, predict the others (monthly, whole Ukraine)
+  Aqua -> SNPP, unit: raw hotspots     [learn 2012-2013, test 2014-2015]  one factor k=5.18
+      one factor               typical month error  36.2% | months within 25%   29% | within 50%   65% | year totals: mean error  7.0%, worst 12.3%  (n=17)
+      factor per month         typical month error   9.5% | months within 25%   76% | within 50%   94% | year totals: mean error  9.9%, worst 13.6%  (n=17)
+      per month x day/night    typical month error  15.4% | months within 25%   65% | within 50%   94% | year totals: mean error  4.2%, worst  7.9%  (n=17)
+      power law                typical month error  23.7% | months within 25%   53% | within 50%   59% | year totals: mean error 28.1%, worst 31.9%  (n=17)
+  Aqua -> SNPP, unit: raw hotspots     [learn 2014-2015, test 2012-2013]  one factor k=5.48
+      one factor               typical month error  51.5% | months within 25%   24% | within 50%   47% | year totals: mean error 17.9%, worst 22.4%  (n=17)
+      factor per month         typical month error   9.3% | months within 25%   76% | within 50%   94% | year totals: mean error  8.1%, worst 16.0%  (n=17)
+      per month x day/night    typical month error  20.5% | months within 25%   71% | within 50%   88% | year totals: mean error  9.7%, worst 16.4%  (n=17)
+      power law                typical month error  48.0% | months within 25%   24% | within 50%   59% | year totals: mean error 15.4%, worst 28.8%  (n=17)
+  Aqua -> SNPP, unit: 1 km cell-days   [learn 2012-2013, test 2014-2015]  one factor k=3.91
+      one factor               typical month error  46.4% | months within 25%   35% | within 50%   59% | year totals: mean error  6.1%, worst  8.0%  (n=17)
+      factor per month         typical month error  10.5% | months within 25%   76% | within 50%   94% | year totals: mean error  4.8%, worst  7.1%  (n=17)
+      per month x day/night    typical month error  22.0% | months within 25%   65% | within 50%   94% | year totals: mean error  6.0%, worst  7.8%  (n=17)
+      power law                typical month error  25.0% | months within 25%   47% | within 50%   71% | year totals: mean error 23.5%, worst 26.3%  (n=17)
+  Aqua -> SNPP, unit: 1 km cell-days   [learn 2014-2015, test 2012-2013]  one factor k=3.84
+      one factor               typical month error  73.3% | months within 25%   35% | within 50%   41% | year totals: mean error 16.7%, worst 19.6%  (n=17)
+      factor per month         typical month error   9.2% | months within 25%   76% | within 50%   94% | year totals: mean error  8.4%, worst 11.2%  (n=17)
+      per month x day/night    typical month error  20.2% | months within 25%   76% | within 50%   88% | year totals: mean error 10.0%, worst 12.7%  (n=17)
+      power law                typical month error  45.2% | months within 25%   35% | within 50%   59% | year totals: mean error 11.5%, worst 23.1%  (n=17)
+  Aqua -> SNPP, unit: 11 km cell-days  [learn 2012-2013, test 2014-2015]  one factor k=4.04
+      one factor               typical month error  39.5% | months within 25%   29% | within 50%   82% | year totals: mean error  8.6%, worst 14.0%  (n=17)
+      factor per month         typical month error  12.1% | months within 25%   76% | within 50%  100% | year totals: mean error  1.3%, worst  1.9%  (n=17)
+      per month x day/night    typical month error  26.3% | months within 25%   47% | within 50%   88% | year totals: mean error  5.2%, worst  9.5%  (n=17)
+      power law                typical month error  18.9% | months within 25%   65% | within 50%   71% | year totals: mean error 16.2%, worst 18.5%  (n=17)
+  Aqua -> SNPP, unit: 11 km cell-days  [learn 2014-2015, test 2012-2013]  one factor k=3.72
+      one factor               typical month error  74.4% | months within 25%   35% | within 50%   41% | year totals: mean error 14.7%, worst 23.0%  (n=17)
+      factor per month         typical month error  16.6% | months within 25%   76% | within 50%   88% | year totals: mean error  7.7%, worst  8.6%  (n=17)
+      per month x day/night    typical month error  19.8% | months within 25%   71% | within 50%   94% | year totals: mean error  9.8%, worst  9.9%  (n=17)
+      power law                typical month error  46.2% | months within 25%   41% | within 50%   59% | year totals: mean error 10.9%, worst 19.8%  (n=17)
+  Aqua -> SNPP, unit: FRP sum          [learn 2012-2013, test 2014-2015]  one factor k=1.56
+      one factor               typical month error  17.1% | months within 25%   71% | within 50%   94% | year totals: mean error  7.2%, worst 10.5%  (n=17)
+      factor per month         typical month error  20.9% | months within 25%   65% | within 50%   94% | year totals: mean error  5.8%, worst  6.4%  (n=17)
+      per month x day/night    typical month error  21.8% | months within 25%   53% | within 50%   94% | year totals: mean error  6.9%, worst  8.1%  (n=17)
+      power law                typical month error 104.6% | months within 25%   18% | within 50%   29% | year totals: mean error 58.4%, worst 58.9%  (n=17)
+  Aqua -> SNPP, unit: FRP sum          [learn 2014-2015, test 2012-2013]  one factor k=1.46
+      one factor               typical month error  18.4% | months within 25%   59% | within 50%   71% | year totals: mean error  8.3%, worst 15.6%  (n=17)
+      factor per month         typical month error  22.1% | months within 25%   59% | within 50%   82% | year totals: mean error  4.9%, worst  7.0%  (n=17)
+      per month x day/night    typical month error  26.9% | months within 25%   41% | within 50%   76% | year totals: mean error  5.9%, worst  6.6%  (n=17)
+      power law                typical month error  29.0% | months within 25%   29% | within 50%   88% | year totals: mean error  6.3%, worst 11.3%  (n=17)
+  -- Aqua -> SNPP, daytime rows only, raw hotspots
+      one factor [2012-2013]   typical month error  33.1% | months within 25%   41% | within 50%   76% | year totals: mean error  3.8%, worst  4.4%  (n=17)
+      per month  [2012-2013]   typical month error  13.6% | months within 25%   82% | within 50%   94% | year totals: mean error  4.7%, worst  5.7%  (n=17)
+      one factor [2014-2015]   typical month error  40.4% | months within 25%   41% | within 50%   59% | year totals: mean error 14.4%, worst 16.4%  (n=17)
+      per month  [2014-2015]   typical month error  11.1% | months within 25%   82% | within 50%   88% | year totals: mean error  8.4%, worst 11.5%  (n=17)
+  -- Terra -> Aqua (ten years of MODIS: 2012-16 <-> 2017-21), raw hotspots
+      all one factor [2012-2016] typical month error  52.1% | months within 25%   30% | within 50%   45% | year totals: mean error  6.7%, worst 18.1%  (n=44)
+      all per month  [2012-2016] typical month error  12.8% | months within 25%   75% | within 50%   86% | year totals: mean error  6.3%, worst 16.0%  (n=44)
+      day one factor [2012-2016] typical month error  47.5% | months within 25%   27% | within 50%   57% | year totals: mean error  4.9%, worst 10.7%  (n=44)
+      day per month  [2012-2016] typical month error  12.0% | months within 25%   77% | within 50%   89% | year totals: mean error  4.3%, worst  8.3%  (n=44)
+      all one factor [2017-2021] typical month error  58.7% | months within 25%   28% | within 50%   40% | year totals: mean error 13.0%, worst 25.9%  (n=43)
+      all per month  [2017-2021] typical month error  14.6% | months within 25%   81% | within 50%   93% | year totals: mean error  6.0%, worst 10.9%  (n=43)
+      day one factor [2017-2021] typical month error  54.7% | months within 25%   27% | within 50%   45% | year totals: mean error 10.4%, worst 26.2%  (n=44)
+      day per month  [2017-2021] typical month error  11.4% | months within 25%   73% | within 50%   91% | year totals: mean error  6.0%, worst  8.2%  (n=44)
+
+== E2. do the calendar colours agree? each sensor against its own normal month (leave-one-year-out)
+  unit: raw hotspots     months= 44  rank correlation=0.976  same colour class=82%  same or neighbour class=100%
+  unit: 1 km cell-days   months= 44  rank correlation=0.978  same colour class=82%  same or neighbour class=100%
+  unit: FRP sum          months= 44  rank correlation=0.972  same colour class=68%  same or neighbour class=98%
+
+== E3. small areas: 1x1 degree boxes, monthly, learn 2012-2013 -> test 2014-2015 (raw hotspots)
+  box-months with 20..100 SNPP hotspots (n=483): typical error national factor  46.1% | own factor  49.5% | own, pulled to national  45.8%
+  box-months with 100..500 SNPP hotspots (n=500): typical error national factor  25.3% | own factor  34.7% | own, pulled to national  26.4%
+  box-months with 500..inf SNPP hotspots (n=169): typical error national factor  24.1% | own factor  33.9% | own, pulled to national  23.4%
+
+== G. at which time scale do two satellites agree? rank correlation of type-0 counts
+  Aqua  vs SNPP : by day corr=0.91, ratio wobble x/÷2.04 (n=912) | by month corr=0.98, ratio wobble x/÷1.63 (n=47)
+  Terra vs Aqua : by day corr=0.82, ratio wobble x/÷1.99 (n=585) | by month corr=0.96, ratio wobble x/÷1.73 (n=44)
+  Terra vs SNPP : by day corr=0.91, ratio wobble x/÷2.00 (n=908) | by month corr=0.98, ratio wobble x/÷1.63 (n=48)
+
+== F. passes at nearly the same minute
+  passes with a hotspot: Terra=5452, Aqua=5007, SNPP=4988
+  SNPP 'scan' quantiles 5/25/50/75/95%: 0.35, 0.39, 0.44, 0.51, 0.62
+  Aqua 'scan' quantiles 5/25/50/75/95%: 1.00, 1.10, 1.30, 1.80, 3.40
+  Aqua pass -> nearest SNPP pass, minutes apart: 0-10: 387, 10-20: 419, 20-30: 374, 30-40: 422, 40-50: 360, 50-60: 62, 60+: 2983
+  Aqua pass -> nearest Terra pass, minutes apart: 0-10: 906, 10-20: 40, 20-30: 0, 30-40: 0, 40-50: 0, 50-60: 0, 60+: 4061
+  days per year with an Aqua and a SNPP pass <=10 min apart (day / night): 2012: 58/20, 2013: 58/26, 2014: 54/29, 2015: 61/48
+  -- share of SNPP fire cells (near SNPP nadir) that Aqua also reports
+  Aqua sees SNPP's, 0-5 min apart    day   cells= 14541  by FRP(MW) <2:  10%  2-5:  20%  5-10:  36%  10-20:  55%  20-50:  72%  50-100:  78%  >100:  86% | all:  33%
+  Aqua sees SNPP's, 0-5 min apart    night cells=  4651  by FRP(MW) <2:   4%  2-5:  12%  5-10:  38%  10-20:  61%  20-50:  79%  50-100:  80%  >100: 100% | all:  11%
+  Aqua sees SNPP's, 0-10 min apart   day   cells= 28237  by FRP(MW) <2:  12%  2-5:  21%  5-10:  37%  10-20:  53%  20-50:  67%  50-100:  74%  >100:  83% | all:  33%
+  Aqua sees SNPP's, 0-10 min apart   night cells=  9086  by FRP(MW) <2:   4%  2-5:  12%  5-10:  36%  10-20:  66%  20-50:  80%  50-100:  87%  >100: 100% | all:  10%
+  Aqua sees SNPP's, 10-30 min apart  day   cells= 50606  by FRP(MW) <2:   9%  2-5:  16%  5-10:  28%  10-20:  40%  20-50:  50%  50-100:  59%  >100:  65% | all:  26%
+  Aqua sees SNPP's, 10-30 min apart  night cells= 14855  by FRP(MW) <2:   4%  2-5:  11%  5-10:  26%  10-20:  50%  20-50:  62%  50-100:  60%  >100: 100% | all:   9%
+  Aqua sees SNPP's, 40-60 min apart  day   cells= 20084  by FRP(MW) <2:   5%  2-5:   8%  5-10:  14%  10-20:  18%  20-50:  24%  50-100:  26%  >100:  28% | all:  12%
+  Aqua sees SNPP's, 40-60 min apart  night cells=  5072  by FRP(MW) <2:   3%  2-5:   9%  5-10:  25%  10-20:  36%  20-50:  53%  50-100:  46%  >100:  33% | all:   7%
+  -- share of Aqua fire cells (Aqua scan <= 1.5) that SNPP also reports
+  SNPP sees Aqua's, 0-5 min apart    day   cells=  5351  by FRP(MW) <2: nan%  2-5:  78%  5-10:  87%  10-20:  94%  20-50:  96%  50-100:  94%  >100:  99% | all:  90%
+  SNPP sees Aqua's, 0-5 min apart    night cells=   257  by FRP(MW) <2: nan%  2-5: 100%  5-10: 100%  10-20:  99%  20-50: 100%  50-100: 100%  >100: 100% | all: 100%
+  SNPP sees Aqua's, 0-10 min apart   day   cells= 10568  by FRP(MW) <2: nan%  2-5:  74%  5-10:  84%  10-20:  90%  20-50:  94%  50-100:  93%  >100:  95% | all:  87%
+  SNPP sees Aqua's, 0-10 min apart   night cells=   416  by FRP(MW) <2: 100%  2-5: 100%  5-10:  99%  10-20:  99%  20-50: 100%  50-100: 100%  >100: 100% | all:  99%
+  SNPP sees Aqua's, 40-60 min apart  day   cells= 12947  by FRP(MW) <2: nan%  2-5:  33%  5-10:  39%  10-20:  46%  20-50:  50%  50-100:  52%  >100:  52% | all:  44%
+  SNPP sees Aqua's, 40-60 min apart  night cells=   932  by FRP(MW) <2: nan%  2-5: 100%  5-10:  92%  10-20:  93%  20-50:  89%  50-100:  95%  >100: 100% | all:  92%
+  per-pass counts Aqua vs SNPP, 0-10 min apart: pairs=219  corr of log counts=0.76  median SNPP/Aqua=5.61  wobble x/÷2.34
+  per-pass counts Aqua vs SNPP, 10-30 min apart: pairs=466  corr of log counts=0.72  median SNPP/Aqua=5.24  wobble x/÷2.57
+  per-pass counts Aqua vs SNPP, 40-60 min apart: pairs=225  corr of log counts=0.48  median SNPP/Aqua=3.99  wobble x/÷3.59
+
+== F2. 'make VIIRS look like MODIS': detection curve from same-minute passes of the learning years, then predict Aqua
+  [learn 2012-2013, test 2014-2015]
+    curve, day, all year : <2:  14%  2-5:  23%  5-10:  37%  10-20:  52%  20-50:  59%  50-100:  66%  >100:  81%
+    curve, day, Oct-Apr  : <2:  17%  2-5:  29%  5-10:  47%  10-20:  62%  20-50:  71%  50-100:  80%  >100:  85%   (cells=5954)
+    curve, day, May-Sep  : <2:   2%  2-5:  10%  5-10:  21%  10-20:  38%  20-50:  45%  50-100:  47%  >100:  73%   (cells=3356)
+      curve x one number (0.84) typical month error  30.7% | months within 25%   47% | within 50%   76% | year totals: mean error  4.5%, worst  5.7%  (n=17)
+      2 season curves (0.86)   typical month error  10.9% | months within 25%   82% | within 50%   88% | year totals: mean error  4.5%, worst  7.1%  (n=17)
+      SNPP cells >= 5 MW (x0.56) typical month error  24.2% | months within 25%   59% | within 50%   71% | year totals: mean error  5.1%, worst  9.8%  (n=17)
+      SNPP cells >= 8 MW (x0.89) typical month error  23.9% | months within 25%   59% | within 50%   76% | year totals: mean error  9.7%, worst 13.9%  (n=17)
+      SNPP->Aqua one factor    typical month error  46.4% | months within 25%   35% | within 50%   59% | year totals: mean error  5.9%, worst  7.4%  (n=17)
+      SNPP->Aqua factor per month typical month error  10.5% | months within 25%   76% | within 50%   94% | year totals: mean error 11.9%, worst 15.8%  (n=17)
+  [learn 2014-2015, test 2012-2013]
+    curve, day, all year : <2:  11%  2-5:  20%  5-10:  36%  10-20:  54%  20-50:  70%  50-100:  77%  >100:  83%
+    curve, day, Oct-Apr  : <2:  12%  2-5:  23%  5-10:  41%  10-20:  58%  20-50:  73%  50-100:  75%  >100:  84%   (cells=11705)
+    curve, day, May-Sep  : <2:   9%  2-5:  13%  5-10:  30%  10-20:  47%  20-50:  65%  50-100:  80%  >100:  81%   (cells=7222)
+      curve x one number (0.83) typical month error  27.8% | months within 25%   47% | within 50%   65% | year totals: mean error 16.4%, worst 17.8%  (n=17)
+      2 season curves (0.83)   typical month error  23.3% | months within 25%   59% | within 50%   82% | year totals: mean error 15.2%, worst 15.8%  (n=17)
+      SNPP cells >= 5 MW (x0.53) typical month error  17.9% | months within 25%   59% | within 50%   71% | year totals: mean error 16.1%, worst 16.9%  (n=17)
+      SNPP cells >= 8 MW (x0.81) typical month error  32.2% | months within 25%   41% | within 50%   71% | year totals: mean error 16.2%, worst 21.0%  (n=17)
+      SNPP->Aqua one factor    typical month error  62.8% | months within 25%   41% | within 50%   47% | year totals: mean error 18.3%, worst 24.4%  (n=17)
+      SNPP->Aqua factor per month typical month error   9.2% | months within 25%   82% | within 50%   94% | year totals: mean error  9.7%, worst 13.6%  (n=17)
+
+== H. spots that 'burn' too often to be vegetation (SNPP, ~1 km cells, all SNPP years loaded)
+  cells with any hotspot: 166189; distinct fire days per cell: median 1, 99th pct 5, max 1013
+  cells with >= 10 fire days: 577 cells (0.35%), hold 21.5% of all SNPP rows; 20% of those rows are labelled type 0 (vegetation) by FIRMS = 20772 rows
+  cells with >= 20 fire days: 279 cells (0.17%), hold 19.7% of all SNPP rows; 14% of those rows are labelled type 0 (vegetation) by FIRMS = 12716 rows
+  cells with >= 40 fire days: 167 cells (0.10%), hold 18.0% of all SNPP rows; 6% of those rows are labelled type 0 (vegetation) by FIRMS = 4754 rows
+  cells with >= 80 fire days: 119 cells (0.07%), hold 17.2% of all SNPP rows; 3% of those rows are labelled type 0 (vegetation) by FIRMS = 2521 rows
+     47.095N  37.597E  days=1013 months=12  rows= 4702  type0=    0 type2= 4702 type3=    0
+     48.165N  30.623E  days= 950 months=12  rows= 2832  type0=   25 type2= 2807 type3=    0
+     47.095N  37.612E  days= 904 months=12  rows= 2551  type0=   34 type2= 2486 type3=   31
+     48.175N  37.703E  days= 820 months=12  rows= 2541  type0=    2 type2= 2539 type3=    0
+     48.215N  38.242E  days= 805 months=12  rows= 2468  type0=   11 type2= 2455 type3=    2
+     48.165N  37.703E  days= 798 months=12  rows= 2107  type0=   21 type2= 2086 type3=    0
+     47.875N  33.398E  days= 788 months=12  rows= 1919  type0=    0 type2= 1415 type3=  504
+     47.865N  35.167E  days= 786 months=12  rows= 1386  type0=    1 type2=  830 type3=  555
+  type-0 SNPP rows within ~1 km of a cell that FIRMS itself marks static: 6670 (1.7% of type-0 rows)
+  SNPP rows: day veg=312736, day other=9944, night veg=80337, night other=71929
+
+== K. holes: 3+ days in a row with no rows at all for one platform, April-October
+  Terra 2013-09-19 x3d, 2013-09-23 x3d, 2013-10-01 x3d, 2013-10-15 x3d, 2014-06-12 x3d, 2015-04-19 x3d
+  Aqua  2013-10-01 x3d, 2014-06-01 x3d
+  SNPP  none

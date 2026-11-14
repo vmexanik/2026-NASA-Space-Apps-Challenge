@@ -1,0 +1,52 @@
+
+== DAY: Aqua 141928 points, Suomi NPP 649298 points in ten years, overall ratio 4.6
+           Jan    Feb    Mar    Apr    May    Jun    Jul    Aug    Sep    Oct    Nov    Dec
+  Aqua     101   1827  35907  23002   1098    667  13061  20752  13588  27768   3935    222
+  SNPP     847  10053 131497  97263   6779   5083  93481 136688  60691  89920  15509   1487
+  ratio    8.4    5.5    3.7    4.2    6.2    7.6    7.2    6.6    4.5    3.2    3.9    6.7
+  year-months with at least 50 Aqua points: 90 of 120
+  year-months with at least 20 Aqua points: 102 of 120
+  year-months with at least 10 Aqua points: 109 of 120
+  Aqua points per year-month:
+    2012       0     17   5244   2164    179     60    763    625    803    856     47      0
+    2013       1    350    608   2078    194     78    952   1002     99    899    300     55
+    2014       4     52   8727    790     79     73   2086   3104   3341   8748   1600     17
+    2015      16    467   7859   1803    110     90   1659   3987   2065   6257    641     88
+    2016       3    129   1326   1515     45     39   2345   3072   1936   1234     78     10
+    2017       4    257   4639   2760    193     62   2054   4284   1602    888     27      2
+    2018      11     40     16   3028    157    102    813   1169    689   3338    283      0
+    2019       0    375   1883   3766     34    103   1458   1424   1554   3207    713     26
+    2020      62    123   4948   4352     33     30    633    804   1012   1067     45     22
+    2021       0     17    657    746     74     30    298   1281    487   1274    201      2
+
+== NIGHT: Aqua 3264 points, Suomi NPP 170935 points in ten years, overall ratio 52.4
+           Jan    Feb    Mar    Apr    May    Jun    Jul    Aug    Sep    Oct    Nov    Dec
+  Aqua       0      9     75    214     56     79    887   1323    449    139     32      1
+  SNPP     219    896   9890  14719   3305   4438  42720  59547  20958  12135   1774    334
+  ratio  219.0   99.6  131.9   68.8   59.0   56.2   48.2   45.0   46.7   87.3   55.4  334.0
+  year-months with at least 50 Aqua points: 14 of 120
+  year-months with at least 20 Aqua points: 28 of 120
+  year-months with at least 10 Aqua points: 44 of 120
+  Aqua points per year-month:
+    2012       0      0     12      8     17     12     48     20     13      9      2      0
+    2013       0      0      6      4     14     16     49     54      5      4      2      0
+    2014       0      0      4      2      8      5    149    159     40     34      4      0
+    2015       0      2     10     18      3     24    116    489    248     36     15      1
+    2016       0      1      5      7      8      5    115     80     48      6      0      0
+    2017       0      0      2      8      1      7    175    359     40      6      0      0
+    2018       0      0      0      7      2      8     36     16      7      4      0      0
+    2019       0      2     10     18      0      0     94     25     11     16      9      0
+    2020       0      4     25    141      2      1     87     76     36     15      0      0
+    2021       0      0      1      1      1      1     18     45      1      9      0      0
+
+== share of night in each sensor's vegetation-fire points, by month (ten years)
+  Aqua    0.0%   0.5%   0.2%   0.9%   4.9%  10.6%   6.4%   6.0%   3.2%   0.5%   0.8%   0.4%
+  SNPP   20.5%   8.2%   7.0%  13.1%  32.8%  46.6%  31.4%  30.3%  25.7%  11.9%  10.3%  18.3%
+
+== factor per calendar month, learn five years, test the other five: typical month error (months within 25%)
+  all MODIS -> all VIIRS (the plan)       11.9% ( 84%)    12.4% ( 84%)   n=44,44
+  day MODIS -> day VIIRS                   8.6% ( 80%)    10.7% ( 82%)   n=44,44
+  night MODIS -> night VIIRS              90.5% ( 11%)    59.5% ( 27%)   n=44,44
+  day MODIS -> night VIIRS                36.4% ( 43%)    40.3% ( 32%)   n=44,44
+  day MODIS -> all VIIRS                  10.8% ( 86%)    12.3% ( 84%)   n=44,44
+  day VIIRS -> night VIIRS (same eyes)    45.0% ( 39%)    46.8% ( 34%)   n=44,44
