@@ -9,7 +9,34 @@
 DO $$
 DECLARE
     item text;
+    outside text;
 BEGIN
+    -- CASCADE is only for what depends on these objects inside the schema. Objects elsewhere (a view of the
+    -- application over firms.coverage, say) stop the restore, so that nothing outside firms is dropped.
+    SELECT string_agg(DISTINCT pg_describe_object(d.classid, d.objid, d.objsubid), '; ')
+      INTO outside
+    FROM pg_depend d
+    WHERE d.deptype = 'n'
+      AND d.refobjid IN (SELECT p.oid FROM pg_proc p WHERE p.pronamespace = 'firms'::regnamespace
+                         UNION ALL
+                         SELECT c.oid FROM pg_class c WHERE c.relnamespace = 'firms'::regnamespace AND c.relkind = 'v')
+      AND coalesce(CASE d.classid
+                       WHEN 'pg_rewrite'::regclass THEN (SELECT c.relnamespace FROM pg_rewrite r
+                                                         JOIN pg_class c ON c.oid = r.ev_class WHERE r.oid = d.objid)
+                       WHEN 'pg_proc'::regclass THEN (SELECT p.pronamespace FROM pg_proc p WHERE p.oid = d.objid)
+                       WHEN 'pg_class'::regclass THEN (SELECT c.relnamespace FROM pg_class c WHERE c.oid = d.objid)
+                       WHEN 'pg_attrdef'::regclass THEN (SELECT c.relnamespace FROM pg_attrdef a
+                                                         JOIN pg_class c ON c.oid = a.adrelid WHERE a.oid = d.objid)
+                       WHEN 'pg_constraint'::regclass THEN (SELECT n.connamespace FROM pg_constraint n
+                                                            WHERE n.oid = d.objid)
+                       WHEN 'pg_trigger'::regclass THEN (SELECT c.relnamespace FROM pg_trigger t
+                                                         JOIN pg_class c ON c.oid = t.tgrelid WHERE t.oid = d.objid)
+                   END, 0) <> 'firms'::regnamespace;
+    IF outside IS NOT NULL THEN
+        RAISE EXCEPTION 'objects outside the schema firms depend on its functions or views: %', outside
+            USING HINT = 'The restore replaces every function and view of firms. Drop these objects, restore, '
+                         'then create them again.';
+    END IF;
     FOREACH item IN ARRAY coalesce((SELECT array_agg(c.oid::regclass::text) FROM pg_class c
                                     WHERE c.relnamespace = 'firms'::regnamespace AND c.relkind = 'v'), '{}')
     LOOP
@@ -49,10 +76,36 @@ CREATE FUNCTION firms.cell_geom(cell_id int) RETURNS geometry
     RETURN ST_MakeEnvelope((cell_id % 1440) * 0.25 - 180, (cell_id / 1440) * 0.25 - 90,
                            (cell_id % 1440) * 0.25 - 179.75, (cell_id / 1440) * 0.25 - 89.75, 4326);
 
--- The zone of a request: a GeoJSON geometry (Polygon or MultiPolygon) in WGS 84, made valid, its areas only.
+-- The zone of a request: a GeoJSON Polygon or MultiPolygon in WGS 84, made valid, its areas only. Anything else,
+-- NULL included, is an error rather than a zone without fires.
 CREATE FUNCTION firms.aoi_geom(aoi text) RETURNS geometry
-    LANGUAGE sql IMMUTABLE STRICT PARALLEL SAFE
-    RETURN ST_CollectionExtract(ST_MakeValid(ST_SetSRID(ST_GeomFromGeoJSON(aoi), 4326)), 3);
+    LANGUAGE plpgsql IMMUTABLE PARALLEL SAFE
+    SET search_path FROM CURRENT
+AS $$
+DECLARE
+    zone geometry;
+BEGIN
+    IF aoi IS NULL THEN
+        RAISE EXCEPTION 'firms: the zone (aoi) is NULL';
+    END IF;
+    zone := ST_SetSRID(ST_GeomFromGeoJSON(aoi), 4326);
+    IF GeometryType(zone) NOT IN ('POLYGON', 'MULTIPOLYGON') THEN
+        RAISE EXCEPTION 'firms: the zone (aoi) must be a GeoJSON Polygon or MultiPolygon, not %', GeometryType(zone);
+    END IF;
+    RETURN ST_CollectionExtract(ST_MakeValid(zone), 3);
+END
+$$;
+
+-- Stops a request for a method version the database does not have: its answer would be empty, not zero.
+CREATE FUNCTION firms.check_version(version text) RETURNS void
+    LANGUAGE plpgsql STABLE PARALLEL SAFE
+AS $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM firms.method m WHERE m.version = check_version.version) THEN
+        RAISE EXCEPTION 'firms: there is no method version %', coalesce(quote_literal(check_version.version), 'NULL');
+    END IF;
+END
+$$;
 
 -- The cells under a zone. The zone covers the inner ones, so they take the ready sums; the fires of the others are
 -- tested one by one.
@@ -146,6 +199,8 @@ DECLARE
     hi date := coalesce((date_trunc('month', build_series.month_to::timestamp) + interval '1 month')::date,
                         'infinity'::date);
     seg record;
+    overlap_rows text[];
+    overlap_count bigint;
     gaps text[] := '{}';
     gap_count bigint := 0;
     found_gaps text[];
@@ -155,6 +210,32 @@ DECLARE
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM firms.method m WHERE m.version = v_version) THEN
         RAISE EXCEPTION 'firms.build_series: there is no method version %', v_version;
+    END IF;
+
+    -- Two rows with a weight above 0 for the same satellite, square and calendar month whose days and day-or-night
+    -- meet would put a fire into the series twice.
+    SELECT count(*), array_agg(format('%s square %s month %s: %s..%s%s and %s..%s%s', st.code, o.cell2_id,
+                                      o.calendar_month, o.from1, coalesce(o.to1::text, ''),
+                                      coalesce(' ' || CASE WHEN o.day1 THEN 'day' ELSE 'night' END, ''),
+                                      o.from2, coalesce(o.to2::text, ''),
+                                      coalesce(' ' || CASE WHEN o.day2 THEN 'day' ELSE 'night' END, ''))
+                               ORDER BY o.satellite, o.cell2_id, o.calendar_month, o.from1)
+      INTO overlap_count, overlap_rows
+    FROM (SELECT w1.satellite, w1.cell2_id, w1.calendar_month, w1.date_from AS from1, w1.date_to AS to1,
+                 w1.is_day AS day1, w2.date_from AS from2, w2.date_to AS to2, w2.is_day AS day2
+          FROM firms.method_weight w1
+          JOIN firms.method_weight w2
+            ON w2.version = w1.version AND w2.satellite = w1.satellite AND w2.cell2_id = w1.cell2_id
+           AND w2.calendar_month = w1.calendar_month AND w1.ctid < w2.ctid
+          WHERE w1.version = v_version AND w1.weight > 0 AND w2.weight > 0
+            AND w1.date_from <= coalesce(w2.date_to, 'infinity'::date)
+            AND w2.date_from <= coalesce(w1.date_to, 'infinity'::date)
+            AND (w1.is_day IS NULL OR w2.is_day IS NULL OR w1.is_day = w2.is_day)) o
+    JOIN firms.satellite st ON st.id = o.satellite;
+    IF overlap_count > 0 THEN
+        RAISE EXCEPTION 'firms.build_series(%): % pairs of weight rows overlap, so their fires would count twice: %',
+            v_version, overlap_count,
+            array_to_string(overlap_rows[1:20], '; ') || CASE WHEN overlap_count > 20 THEN '; ...' ELSE '' END;
     END IF;
 
     -- A range and calendar month whose rows hold all 16 200 squares cannot miss one, so the fires are read only
@@ -268,7 +349,12 @@ DECLARE
     end_day date;
     has_error boolean;
 BEGIN
+    PERFORM firms.check_version(v_version);
     SELECT c.d_from, c.d_to INTO cov_from, cov_to FROM firms.coverage(v_version) c;
+    -- greatest() and least() skip NULLs: without this a version with no days would answer months of zeros.
+    IF cov_from IS NULL THEN
+        RETURN;
+    END IF;
     first_month := date_trunc('month', greatest(monthly_counts.d_from, cov_from)::timestamp)::date;
     last_month := date_trunc('month', least(monthly_counts.d_to, cov_to)::timestamp)::date;
     IF first_month IS NULL OR last_month IS NULL OR first_month > last_month THEN
@@ -357,10 +443,17 @@ DECLARE
     rows_left bigint := hotspots_in.max_rows;
     rows_got bigint;
 BEGIN
-    IF rows_left IS NULL OR rows_left <= 0 THEN
+    IF rows_left IS NULL OR rows_left < 0 THEN
+        RAISE EXCEPTION 'firms.hotspots_in: max_rows must be 0 or more, got %', coalesce(rows_left::text, 'NULL');
+    END IF;
+    PERFORM firms.check_version(v_version);
+    IF rows_left = 0 THEN
         RETURN;
     END IF;
     SELECT c.d_from, c.d_to INTO cov_from, cov_to FROM firms.coverage(v_version) c;
+    IF cov_from IS NULL THEN
+        RETURN;
+    END IF;
     first_day := greatest(hotspots_in.d_from, cov_from);
     last_day := least(hotspots_in.d_to, cov_to);
     IF first_day IS NULL OR last_day IS NULL OR first_day > last_day THEN
@@ -431,6 +524,14 @@ BEGIN
                         '<= 90, got west %, south %, east %, north %',
             map_features.west, map_features.south, map_features.east, map_features.north;
     END IF;
+    IF map_features.zoom IS NULL THEN
+        RAISE EXCEPTION 'firms.map_features: zoom is NULL';
+    END IF;
+    IF map_features.max_points IS NULL OR map_features.max_points < 0 THEN
+        RAISE EXCEPTION 'firms.map_features: max_points must be 0 or more, got %',
+            coalesce(map_features.max_points::text, 'NULL');
+    END IF;
+    PERFORM firms.check_version(v_version);
     ix0 := least(floor((map_features.west + 180) / 0.25), 1439);
     ix1 := least(floor((map_features.east + 180) / 0.25), 1439);
     iy0 := least(floor((map_features.south + 90) / 0.25), 719);

@@ -134,10 +134,10 @@ load_job() {
     say "  loaded $table${arg:+ $arg}"
 }
 
-# Journal rows of the application: one per source of the loaded files, with the period of its files and the rows
-# loaded from them (fires and non-fires), running until the run ends.
+# Journal rows of the application: one per source of the loaded files with the period of its files, running until
+# the run ends. RUN_IDS lists the rows; RUN_SOURCES pairs each with its source for the count at the end.
 start_runs() {
-    local only_year=$1 started=$2 tables batch_file="" i source_id="NULL::bigint" where="true"
+    local only_year=$1 started=$2 tables batch_file="" i source_id="NULL::bigint" where="true" runs id code
     tables=$("${PSQL[@]}" -A -t -F '|' -c "SELECT to_regclass('public.ingest_runs') IS NOT NULL,
                                                   to_regclass('public.data_sources') IS NOT NULL")
     if [[ ${tables%%|*} != t ]]; then
@@ -152,43 +152,74 @@ start_runs() {
         return 0
     fi
     if [[ ${tables#*|} == t ]]; then
-        source_id="(SELECT d.id FROM public.data_sources d WHERE d.code = b.source_code)"
+        source_id="(SELECT d.id FROM public.data_sources d WHERE d.code = s.source_code)"
     fi
     if [[ -n $only_year ]]; then
         where="b.date_from <= DATE '$only_year-12-31' AND b.date_to >= DATE '$only_year-01-01'"
     fi
-    # The journal is the application's: when its table does not take the rows, the data still goes in.
-    if ! RUN_IDS=$("${PSQL[@]}" -A -t -1 \
+    # The ids come from the table's sequence first, so each row is known with its source. The journal is the
+    # application's: when its table does not take the rows, the data still goes in.
+    if ! runs=$("${PSQL[@]}" -A -t -F '|' -1 \
         -c "CREATE TEMP TABLE incoming (LIKE firms.load_batch) ON COMMIT DROP" \
         -c "\\copy incoming FROM PROGRAM 'gzip -dc $batch_file'" \
-        -c "WITH runs AS (
-                INSERT INTO public.ingest_runs (data_source_id, period_from, period_to, status, records_count,
+        -c "WITH s AS (
+                SELECT nextval(pg_get_serial_sequence('public.ingest_runs', 'id')) AS id, x.*
+                FROM (SELECT b.source_code, min(b.date_from) AS date_from, max(b.date_to) AS date_to
+                      FROM incoming b WHERE $where GROUP BY b.source_code ORDER BY b.source_code) AS x
+            ), runs AS (
+                INSERT INTO public.ingest_runs (id, data_source_id, period_from, period_to, status, records_count,
                                                 started_at, created_at, updated_at)
-                SELECT $source_id, min(b.date_from), max(b.date_to), 'running',
-                       coalesce(sum(b.rows_fire), 0) + coalesce(sum(b.rows_static), 0),
+                SELECT s.id, $source_id, s.date_from, s.date_to, 'running', 0,
                        TIMESTAMP '$started', now() AT TIME ZONE 'UTC', now() AT TIME ZONE 'UTC'
-                FROM incoming b
-                WHERE $where
-                GROUP BY b.source_code
-                ORDER BY b.source_code
+                FROM s
                 RETURNING id)
-            SELECT string_agg(id::text, ',' ORDER BY id) FROM runs"); then
+            SELECT s.id, s.source_code FROM s JOIN runs USING (id) ORDER BY s.id"); then
         printf 'restore.sh: warning: public.ingest_runs did not take the journal rows; going on without them\n' >&2
-        RUN_IDS=""
+        RUN_IDS="" RUN_SOURCES=""
+        return 0
     fi
+    RUN_IDS="" RUN_SOURCES=""
+    while IFS='|' read -r id code; do
+        if [[ $id =~ ^[0-9]+$ ]]; then
+            [[ $code =~ ^[A-Za-z0-9_]+$ ]] || code=""  # an odd code is never quoted into SQL; it counts 0
+            RUN_IDS+="${RUN_IDS:+,}$id"
+            RUN_SOURCES+="${RUN_SOURCES:+, }($id, '$code')"
+        fi
+    done <<<"$runs"
 }
 
+# The journal at the end. success counts the rows loaded from each source, fires and non-fires, in what this run
+# loaded (one year with --only-year); failed keeps the count at 0 and writes the reason.
 finish_runs() {
+    local status=$1 error=${2-} only_year=${3-} year_filter="true" sql
     if [[ -z $RUN_IDS ]]; then
         return 0
     fi
-    if ! printf '%s\n' "UPDATE public.ingest_runs SET status = :'status', error = nullif(:'error', ''),
-                           finished_at = now() AT TIME ZONE 'UTC', updated_at = now() AT TIME ZONE 'UTC'
-                       WHERE id IN ($RUN_IDS);" |
-        "${PSQL[@]}" -v status="$1" -v error="${2-}" -f -; then
-        printf 'restore.sh: warning: could not mark the journal rows %s as %s\n' "$RUN_IDS" "$1" >&2
+    if [[ -n $only_year ]]; then
+        year_filter="acq_date >= DATE '$only_year-01-01' AND acq_date < DATE '$((10#$only_year + 1))-01-01'"
     fi
-    RUN_IDS=""
+    if [[ $status == success ]]; then
+        sql="WITH loaded AS (
+                 SELECT batch_id, count(*) AS n FROM firms.hotspot WHERE $year_filter GROUP BY batch_id
+                 UNION ALL
+                 SELECT batch_id, count(*) FROM firms.hotspot_static WHERE $year_filter GROUP BY batch_id
+             ), per_source AS (
+                 SELECT b.source_code, sum(l.n) AS n FROM loaded l JOIN firms.load_batch b ON b.id = l.batch_id
+                 GROUP BY b.source_code
+             )
+             UPDATE public.ingest_runs r SET status = 'success', records_count = coalesce(ps.n, 0),
+                    finished_at = now() AT TIME ZONE 'UTC', updated_at = now() AT TIME ZONE 'UTC'
+             FROM (VALUES $RUN_SOURCES) AS v(id, code) LEFT JOIN per_source ps ON ps.source_code = v.code
+             WHERE r.id = v.id;"
+    else
+        sql="UPDATE public.ingest_runs SET status = :'status', error = nullif(:'error', ''),
+                    finished_at = now() AT TIME ZONE 'UTC', updated_at = now() AT TIME ZONE 'UTC'
+             WHERE id IN ($RUN_IDS);"
+    fi
+    if ! printf '%s\n' "$sql" | "${PSQL[@]}" -v status="$status" -v error="$error" -f -; then
+        printf 'restore.sh: warning: could not mark the journal rows %s as %s\n' "$RUN_IDS" "$status" >&2
+    fi
+    RUN_IDS="" RUN_SOURCES=""
 }
 
 on_exit() {
@@ -272,7 +303,8 @@ main() {
     done <<<"$satellites"
 
     local -a selected=()
-    declare -A carried=()  # method versions the package carries: each one replaces that version as a whole
+    declare -A carried=()  # method versions a full run loads: each one replaces that version as a whole
+    declare -A package_versions=()  # method versions in the package: their series must build
     for i in "${!E_TABLE[@]}"; do
         t=${E_TABLE[i]} part=${E_PART[i]} year=${E_YEAR[i]} sat=${E_SAT[i]} ver=${E_VERSION[i]}
         file=${E_FILE[i]} rows=${E_ROWS[i]}
@@ -292,6 +324,7 @@ main() {
             satellite | load_batch | day_source | archive_cell) ;;
             method | method_weight | method_factor | method_error | method_gap)
                 [[ $ver =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]] || die "manifest.json: bad method version '$ver' of $file"
+                package_versions[$ver]=1
                 if [[ -z $only_year ]]; then
                     carried[$ver]=${carried[$ver]-}
                     if [[ $t == method ]]; then
@@ -325,6 +358,18 @@ main() {
     shopt -s nullglob
     local -a schema_files=(schema/*.sql) applied=()
     ((${#schema_files[@]})) || die "there is no schema/*.sql in the package"
+    # CREATE TABLE IF NOT EXISTS leaves existing tables as they are, so changed tables would fail at \copy later.
+    local recorded=""
+    if [[ -f schema/01_tables.sql &&
+        $("${PSQL[@]}" -A -t -c "SELECT to_regclass('firms.schema_migrations') IS NOT NULL") == t ]]; then
+        recorded=$("${PSQL[@]}" -A -t -c "SELECT sha256 FROM firms.schema_migrations WHERE file = '01_tables.sql'")
+    fi
+    if [[ -n $recorded && $recorded != "$(file_sha256 schema/01_tables.sql)" ]]; then
+        die "schema/01_tables.sql differs from the file the tables of this database were made with (sha256 $recorded
+in firms.schema_migrations), and its CREATE TABLE IF NOT EXISTS does not change existing tables. Change the tables
+to match the new file and delete the row of 01_tables.sql from firms.schema_migrations, or drop the schema firms
+and restore again."
+    fi
     for file in "${schema_files[@]}"; do
         [[ $file =~ ^schema/[A-Za-z0-9_.-]+\.sql$ ]] || die "bad schema file name $file"
         if [[ $file != "$INDEX_FILE" ]]; then
@@ -386,6 +431,25 @@ main() {
     for part in "${!part_files[@]}"; do
         load_jobs+=("replace|$part||${part_files[$part]}")
     done
+    local -a emptied=()
+    if [[ -n $only_year ]]; then
+        # The package replaces the whole year: a part of it that the package lacks would keep old rows.
+        local leaf leaves
+        leaves=$("${PSQL[@]}" -A -t -c "SELECT c.relname FROM pg_partition_tree('firms.hotspot') AS p
+                                        JOIN pg_class c ON c.oid = p.relid
+                                        WHERE p.isleaf AND p.parentrelid = to_regclass('firms.hotspot_$only_year')
+                                        UNION ALL
+                                        SELECT c.relname FROM pg_class c
+                                        WHERE c.oid = to_regclass('firms.hotspot_static_$only_year')")
+        while IFS= read -r leaf; do
+            if [[ -n $leaf && -z ${part_files[$leaf]+set} ]]; then
+                [[ $leaf =~ ^[a-z0-9_]+$ ]] || die "the part firms.$leaf of $only_year has a name restore.sh does not use"
+                load_jobs+=("replace|$leaf||")
+                emptied+=("$leaf")
+                say "  emptied $leaf: the package has no file of it"
+            fi
+        done <<<"$leaves"
+    fi
     # A version the package carries loses its old rows in all five tables, also where it brings no file.
     for ver in "${!carried[@]}"; do
         for t in method method_weight method_factor method_error method_gap; do
@@ -410,18 +474,27 @@ main() {
                              firms.method_error, firms.method_gap, firms.grid_cell"
 
     step "7. series"
-    local versions version
+    local versions version build failure
+    if [[ -n $only_year ]]; then
+        build="SELECT firms.build_series(:'v', DATE '$only_year-01-01', DATE '$only_year-12-01');"
+    else
+        build="SELECT firms.build_series(:'v');"
+    fi
     versions=$("${PSQL[@]}" -A -t -c "SELECT version FROM firms.method ORDER BY version")
     while IFS= read -r version; do
         if [[ -z $version ]]; then
             continue
         fi
-        if [[ -n $only_year ]]; then
-            printf "SELECT firms.build_series(:'v', DATE '%s-01-01', DATE '%s-12-01');\n" "$only_year" "$only_year"
+        if [[ -n ${package_versions[$version]-} ]]; then
+            printf '%s\n' "$build" | "${PSQL[@]}" -A -t -v v="$version" -f - >/dev/null
+            say "  built the series of $version"
+        # A version of an earlier package reads the new fires too, but its failure does not stop this package.
+        elif failure=$(printf '%s\n' "$build" | "${PSQL[@]}" -A -t -v v="$version" -f - 2>&1 >/dev/null); then
+            say "  built the series of $version, which the package does not carry"
         else
-            printf "SELECT firms.build_series(:'v');\n"
-        fi | "${PSQL[@]}" -A -t -v v="$version" -f - >/dev/null
-        say "  built the series of $version"
+            printf 'restore.sh: warning: the series of %s, which the package does not carry, was not rebuilt and keeps the sums of the earlier data: %s\n' \
+                "$version" "$failure" >&2
+        fi
     done <<<"$versions"
     "${PSQL[@]}" -c "ANALYZE firms.cell_month_series, firms.method_month"
 
@@ -445,21 +518,33 @@ main() {
             expected["$t $ver"]=${expected["$t $ver"]:-0}
         done
     done
+    for leaf in "${emptied[@]}"; do
+        expected[$leaf]=0
+    done
+    # Every key of expected is a name checked above, so it goes into SQL as it is.
+    local query="" result got listed_parts=""
     if [[ -z $only_year ]]; then
         # A part the package does not have keeps rows of an older package; they would mix with the new ones.
-        leaves=$("${PSQL[@]}" -A -t -c "SELECT c.relname FROM pg_partition_tree('firms.hotspot') AS p
-                                        JOIN pg_class c ON c.oid = p.relid WHERE p.isleaf
-                                        UNION ALL
-                                        SELECT c.relname FROM pg_partition_tree('firms.hotspot_static') AS p
-                                        JOIN pg_class c ON c.oid = p.relid WHERE p.isleaf")
-        while IFS= read -r leaf; do
-            if [[ -n $leaf && -z ${expected[$leaf]+set} ]]; then
-                expected[$leaf]=0
-                unlisted[$leaf]=1
+        # Its name comes from the catalog, so the count is made in SQL with the name quoted.
+        for key in "${!expected[@]}"; do
+            if [[ $key == hotspot_* ]]; then
+                listed_parts+="${listed_parts:+,}$key"
             fi
-        done <<<"$leaves"
+        done
+        result=$(printf '%s\n' "SELECT c.relname, (xpath('/row/n/text()', query_to_xml(
+                                     format('SELECT count(*) AS n FROM firms.%I', c.relname), false, true, '')))[1]
+                                 FROM (SELECT relid FROM pg_partition_tree('firms.hotspot') WHERE isleaf
+                                       UNION ALL
+                                       SELECT relid FROM pg_partition_tree('firms.hotspot_static') WHERE isleaf) AS p
+                                 JOIN pg_class c ON c.oid = p.relid
+                                 WHERE c.relname <> ALL (string_to_array(:'listed', ','));" |
+            "${PSQL[@]}" -A -t -F '|' -v listed="$listed_parts" -f -)
+        while IFS='|' read -r leaf got; do
+            if [[ -n $leaf && $got != 0 ]]; then
+                unlisted[$leaf]=$got
+            fi
+        done <<<"$result"
     fi
-    local query="" result got
     for key in "${!expected[@]}"; do
         if [[ $key == *" "* ]]; then
             query+="${query:+ UNION ALL }SELECT '$key', count(*) FROM firms.${key%% *} WHERE version = '${key#* }'"
@@ -471,13 +556,12 @@ main() {
     local -a mismatches=()
     while IFS='|' read -r key got; do
         if [[ -n $key && $got != "${expected[$key]}" ]]; then
-            if [[ -n ${unlisted[$key]-} ]]; then
-                mismatches+=("$key: not in manifest.json, $got rows in the database")
-            else
-                mismatches+=("$key: ${expected[$key]} rows in manifest.json, $got in the database")
-            fi
+            mismatches+=("$key: ${expected[$key]} rows in manifest.json, $got in the database")
         fi
     done <<<"$result"
+    for leaf in "${!unlisted[@]}"; do
+        mismatches+=("$leaf: not in manifest.json, ${unlisted[$leaf]} rows in the database")
+    done
     if ((${#mismatches[@]})); then
         printf 'MISMATCH %s\n' "${mismatches[@]}" | sort
         local listed
@@ -487,8 +571,22 @@ main() {
     fi
 
     step "9. dataset"
+    local keep_dataset="false"
+    if [[ -n $only_year ]]; then
+        keep_dataset="true"
+    fi
+    # A package of one year updates the database of the full package: that keeps its name, scope and countries,
+    # takes the newer built_at and lists the update in manifest -> 'updates'.
     manifest_sql "BEGIN;
-                  DELETE FROM firms.dataset;
+                  UPDATE firms.dataset d
+                  SET built_at = (s.m ->> 'built_at')::timestamptz,
+                      manifest = coalesce(d.manifest, '{}'::jsonb) || jsonb_build_object('updates',
+                          coalesce(d.manifest -> 'updates', '[]'::jsonb) || jsonb_build_array(jsonb_build_object(
+                              'name', s.m ->> 'name', 'built_at', s.m -> 'built_at', 'only_year', ${only_year:-0},
+                              'restored_at', now())))
+                  FROM (SELECT :'manifest'::jsonb AS m) AS s
+                  WHERE $keep_dataset;
+                  DELETE FROM firms.dataset WHERE NOT $keep_dataset;
                   INSERT INTO firms.dataset (name, scope, countries, built_at, manifest)
                   SELECT m ->> 'name',
                          coalesce(m ->> 'scope',
@@ -496,11 +594,12 @@ main() {
                          CASE WHEN jsonb_typeof(m -> 'countries') = 'array'
                               THEN ARRAY(SELECT jsonb_array_elements_text(m -> 'countries')) END,
                          (m ->> 'built_at')::timestamptz, m
-                  FROM (SELECT :'manifest'::jsonb AS m) AS s;
+                  FROM (SELECT :'manifest'::jsonb AS m) AS s
+                  WHERE NOT EXISTS (SELECT 1 FROM firms.dataset);
                   COMMIT;" >/dev/null
 
     step "10. journal"
-    finish_runs success
+    finish_runs success "" "$only_year"
     say "OK"
 }
 

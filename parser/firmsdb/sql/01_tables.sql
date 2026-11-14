@@ -112,7 +112,8 @@ CREATE TABLE IF NOT EXISTS firms.method_weight (
     calendar_month smallint NOT NULL,
     is_day         boolean,
     weight         double precision NOT NULL,
-    -- Two rows for one fire would count it twice.
+    -- The key stops identical rows; firms.build_series stops rows whose days meet. Either would count a fire
+    -- twice.
     CONSTRAINT method_weight_key UNIQUE NULLS NOT DISTINCT
         (version, satellite, cell2_id, calendar_month, date_from, is_day)
 );
