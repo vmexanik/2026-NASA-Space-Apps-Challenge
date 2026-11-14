@@ -1,0 +1,38 @@
+{
+  "label": "MODIS to VIIRS factors, 2-degree squares, lambda 300",
+  "params": {
+    "code_version": "uncommitted",
+    "common_days_only": true,
+    "confidence_filter": null,
+    "fallback": [
+      "square8",
+      "world"
+    ],
+    "lambda": 300.0,
+    "neighbourhood": "cross",
+    "noaa20_error_years": [
+      2018,
+      2025
+    ],
+    "reference": "snpp",
+    "square_deg": 2,
+    "terra_only": {
+      "date_from": "2000-11-01",
+      "date_to": "2002-07-03",
+      "note": "Only Terra carries the series from date_from to date_to. On the 2003-2011 days both Terra and Aqua flew, harmonized Terra differs from harmonized Aqua by terra_vs_aqua_2003_2011, so the days from date_from to date_to may be off by about as much.",
+      "terra_vs_aqua_2003_2011": -0.0424
+    },
+    "train_years": {
+      "aqua": [
+        2012,
+        2022
+      ],
+      "terra": [
+        2012,
+        2021
+      ]
+    },
+    "type": 0
+  },
+  "version": "v1-2026-11-14"
+}

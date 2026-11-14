@@ -1,0 +1,3 @@
+version,satellite,cell2_id,calendar_month,factor,own_modis,own_viirs,own_share,cross_factor,cross_modis,square8_factor,world_factor
+vtest,terra,12705,8,1.3,120,156,0.2857142857142857,1.4,800,1.5,1.6
+vtest,aqua,12705,8,2.25,40,90,0.11764705882352941,2.0,350,,2.2

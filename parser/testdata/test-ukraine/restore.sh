@@ -39,6 +39,8 @@ PSQL=(psql -X -q -v ON_ERROR_STOP=1)
 export PGOPTIONS="${PGOPTIONS:-} -c client_min_messages=warning"
 STEP=""
 RUN_IDS=""
+RUN_SOURCES=""
+LOADED_BATCHES=""
 
 die() {
     printf 'restore.sh: %s\n' "$*" >&2
@@ -188,22 +190,17 @@ start_runs() {
     done <<<"$runs"
 }
 
-# The journal at the end. success counts the rows loaded from each source, fires and non-fires, in what this run
-# loaded (one year with --only-year); failed keeps the count at 0 and writes the reason.
+# The journal at the end. success takes the rows loaded from each source, fires and non-fires, from the counts
+# by batch that step 8 made of every part this run loaded (LOADED_BATCHES); failed keeps 0 and writes the reason.
+# A success the table does not take becomes failed with that reason rather than staying running.
 finish_runs() {
-    local status=$1 error=${2-} only_year=${3-} year_filter="true" sql
+    local status=$1 error=${2-} sql failure
     if [[ -z $RUN_IDS ]]; then
         return 0
     fi
-    if [[ -n $only_year ]]; then
-        year_filter="acq_date >= DATE '$only_year-01-01' AND acq_date < DATE '$((10#$only_year + 1))-01-01'"
-    fi
     if [[ $status == success ]]; then
-        sql="WITH loaded AS (
-                 SELECT batch_id, count(*) AS n FROM firms.hotspot WHERE $year_filter GROUP BY batch_id
-                 UNION ALL
-                 SELECT batch_id, count(*) FROM firms.hotspot_static WHERE $year_filter GROUP BY batch_id
-             ), per_source AS (
+        sql="WITH loaded (batch_id, n) AS (${LOADED_BATCHES:-SELECT NULL::integer, NULL::bigint WHERE false}),
+             per_source AS (
                  SELECT b.source_code, sum(l.n) AS n FROM loaded l JOIN firms.load_batch b ON b.id = l.batch_id
                  GROUP BY b.source_code
              )
@@ -211,11 +208,17 @@ finish_runs() {
                     finished_at = now() AT TIME ZONE 'UTC', updated_at = now() AT TIME ZONE 'UTC'
              FROM (VALUES $RUN_SOURCES) AS v(id, code) LEFT JOIN per_source ps ON ps.source_code = v.code
              WHERE r.id = v.id;"
-    else
-        sql="UPDATE public.ingest_runs SET status = :'status', error = nullif(:'error', ''),
-                    finished_at = now() AT TIME ZONE 'UTC', updated_at = now() AT TIME ZONE 'UTC'
-             WHERE id IN ($RUN_IDS);"
+        if failure=$(printf '%s\n' "$sql" | "${PSQL[@]}" -f - 2>&1); then
+            RUN_IDS="" RUN_SOURCES=""
+            return 0
+        fi
+        status=failed
+        error="the data is in and checked, but public.ingest_runs did not take the counts: $failure"
+        printf 'restore.sh: warning: %s\n' "$error" >&2
     fi
+    sql="UPDATE public.ingest_runs SET status = :'status', error = nullif(:'error', ''),
+                finished_at = now() AT TIME ZONE 'UTC', updated_at = now() AT TIME ZONE 'UTC'
+         WHERE id IN ($RUN_IDS);"
     if ! printf '%s\n' "$sql" | "${PSQL[@]}" -v status="$status" -v error="$error" -f -; then
         printf 'restore.sh: warning: could not mark the journal rows %s as %s\n' "$RUN_IDS" "$status" >&2
     fi
@@ -378,6 +381,16 @@ and restore again."
         fi
     done
     record_migrations "${applied[@]}"
+    if [[ -n $only_year ]]; then
+        # A run of one year loads no method tables, so it can build only versions that are already there.
+        declare -A in_database=()
+        while IFS= read -r ver; do
+            in_database[$ver]=1
+        done < <("${PSQL[@]}" -A -t -c "SELECT version FROM firms.method")
+        for ver in "${!package_versions[@]}"; do
+            [[ -n ${in_database[$ver]-} ]] || die "version $ver is not in the database; run a full restore"
+        done
+    fi
     trap 'on_exit $?' EXIT
     start_runs "$only_year" "$started"
 
@@ -496,7 +509,7 @@ and restore again."
                 "$version" "$failure" >&2
         fi
     done <<<"$versions"
-    "${PSQL[@]}" -c "ANALYZE firms.cell_month_series, firms.method_month"
+    "${PSQL[@]}" -c "ANALYZE firms.cell_month_series, firms.square_month_series, firms.method_month"
 
     step "8. row counts"
     declare -A expected=() unlisted=()
@@ -545,20 +558,40 @@ and restore again."
             fi
         done <<<"$result"
     fi
+    # The parts are counted by batch in the same pass: the journal takes its counts from them.
     for key in "${!expected[@]}"; do
         if [[ $key == *" "* ]]; then
-            query+="${query:+ UNION ALL }SELECT '$key', count(*) FROM firms.${key%% *} WHERE version = '${key#* }'"
+            query+="${query:+ UNION ALL }SELECT '$key', NULL, count(*) FROM firms.${key%% *}
+                    WHERE version = '${key#* }'"
+        elif [[ $key == hotspot_* ]]; then
+            query+="${query:+ UNION ALL }SELECT '$key', batch_id, count(*) FROM firms.$key GROUP BY batch_id"
         else
-            query+="${query:+ UNION ALL }SELECT '$key', count(*) FROM firms.$key"
+            query+="${query:+ UNION ALL }SELECT '$key', NULL, count(*) FROM firms.$key"
         fi
     done
     result=$("${PSQL[@]}" -A -t -F '|' -c "$query")
-    local -a mismatches=()
-    while IFS='|' read -r key got; do
-        if [[ -n $key && $got != "${expected[$key]}" ]]; then
-            mismatches+=("$key: ${expected[$key]} rows in manifest.json, $got in the database")
+    declare -A counted=() by_batch=()
+    local batch n
+    while IFS='|' read -r key batch n; do
+        if [[ -n $key ]]; then
+            counted[$key]=$((${counted[$key]:-0} + n))
+            if [[ $batch =~ ^[0-9]+$ ]]; then
+                by_batch[$batch]=$((${by_batch[$batch]:-0} + n))
+            fi
         fi
     done <<<"$result"
+    local -a mismatches=()
+    for key in "${!expected[@]}"; do
+        got=${counted[$key]:-0}
+        if [[ $got != "${expected[$key]}" ]]; then
+            mismatches+=("$key: ${expected[$key]} rows in manifest.json, $got in the database")
+        fi
+    done
+    LOADED_BATCHES=""
+    for batch in "${!by_batch[@]}"; do
+        LOADED_BATCHES+="${LOADED_BATCHES:+, }($batch, ${by_batch[$batch]})"
+    done
+    LOADED_BATCHES=${LOADED_BATCHES:+VALUES $LOADED_BATCHES}
     for leaf in "${!unlisted[@]}"; do
         mismatches+=("$leaf: not in manifest.json, ${unlisted[$leaf]} rows in the database")
     done
@@ -579,7 +612,7 @@ and restore again."
     # takes the newer built_at and lists the update in manifest -> 'updates'.
     manifest_sql "BEGIN;
                   UPDATE firms.dataset d
-                  SET built_at = (s.m ->> 'built_at')::timestamptz,
+                  SET built_at = greatest(d.built_at, (s.m ->> 'built_at')::timestamptz),
                       manifest = coalesce(d.manifest, '{}'::jsonb) || jsonb_build_object('updates',
                           coalesce(d.manifest -> 'updates', '[]'::jsonb) || jsonb_build_array(jsonb_build_object(
                               'name', s.m ->> 'name', 'built_at', s.m -> 'built_at', 'only_year', ${only_year:-0},
@@ -599,7 +632,7 @@ and restore again."
                   COMMIT;" >/dev/null
 
     step "10. journal"
-    finish_runs success "" "$only_year"
+    finish_runs success
     say "OK"
 }
 

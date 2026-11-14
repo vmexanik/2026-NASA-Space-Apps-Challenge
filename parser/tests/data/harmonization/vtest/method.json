@@ -1,0 +1,9 @@
+{
+  "label": "Test version of the exporter tests",
+  "params": {
+    "confidence_filter": null,
+    "lambda": 300.0,
+    "square_deg": 2
+  },
+  "version": "vtest"
+}

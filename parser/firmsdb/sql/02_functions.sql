@@ -12,14 +12,25 @@ DECLARE
     outside text;
 BEGIN
     -- CASCADE is only for what depends on these objects inside the schema. Objects elsewhere (a view of the
-    -- application over firms.coverage, say) stop the restore, so that nothing outside firms is dropped.
+    -- application over firms.coverage, a function returning rows of firms.v_series_point, a column of that type)
+    -- stop the restore, so that nothing outside firms is dropped. A view brings its row type and the array of it.
+    WITH referenced (classid, objid) AS (
+        SELECT 'pg_proc'::regclass, p.oid FROM pg_proc p WHERE p.pronamespace = 'firms'::regnamespace
+        UNION ALL
+        SELECT 'pg_class'::regclass, c.oid FROM pg_class c
+        WHERE c.relnamespace = 'firms'::regnamespace AND c.relkind = 'v'
+        UNION ALL
+        SELECT 'pg_type'::regclass, c.reltype FROM pg_class c
+        WHERE c.relnamespace = 'firms'::regnamespace AND c.relkind = 'v'
+        UNION ALL
+        SELECT 'pg_type'::regclass, t.typarray FROM pg_class c JOIN pg_type t ON t.oid = c.reltype
+        WHERE c.relnamespace = 'firms'::regnamespace AND c.relkind = 'v' AND t.typarray <> 0
+    )
     SELECT string_agg(DISTINCT pg_describe_object(d.classid, d.objid, d.objsubid), '; ')
       INTO outside
     FROM pg_depend d
+    JOIN referenced r ON r.classid = d.refclassid AND r.objid = d.refobjid
     WHERE d.deptype = 'n'
-      AND d.refobjid IN (SELECT p.oid FROM pg_proc p WHERE p.pronamespace = 'firms'::regnamespace
-                         UNION ALL
-                         SELECT c.oid FROM pg_class c WHERE c.relnamespace = 'firms'::regnamespace AND c.relkind = 'v')
       AND coalesce(CASE d.classid
                        WHEN 'pg_rewrite'::regclass THEN (SELECT c.relnamespace FROM pg_rewrite r
                                                          JOIN pg_class c ON c.oid = r.ev_class WHERE r.oid = d.objid)
@@ -31,9 +42,10 @@ BEGIN
                                                             WHERE n.oid = d.objid)
                        WHEN 'pg_trigger'::regclass THEN (SELECT c.relnamespace FROM pg_trigger t
                                                          JOIN pg_class c ON c.oid = t.tgrelid WHERE t.oid = d.objid)
+                       WHEN 'pg_type'::regclass THEN (SELECT t.typnamespace FROM pg_type t WHERE t.oid = d.objid)
                    END, 0) <> 'firms'::regnamespace;
     IF outside IS NOT NULL THEN
-        RAISE EXCEPTION 'objects outside the schema firms depend on its functions or views: %', outside
+        RAISE EXCEPTION 'objects outside the schema firms depend on its functions, views or their row types: %', outside
             USING HINT = 'The restore replaces every function and view of firms. Drop these objects, restore, '
                          'then create them again.';
     END IF;
@@ -183,10 +195,10 @@ BEGIN ATOMIC
     FROM firms.series_segments(coverage.version) sg;
 END;
 
--- Rebuilds firms.cell_month_series and firms.method_month of a version for the months from month_from to month_to
--- (whole months; NULL: no bound). It checks the weight rows first: a fire in the days of its satellite's rows needs
--- a row for its 2-degree square and calendar month, else the build stops with the list of the gaps instead of
--- counting the fire as 0.
+-- Rebuilds firms.cell_month_series, firms.square_month_series and firms.method_month of a version for the months
+-- from month_from to month_to (whole months; NULL: no bound). It checks the weight rows first: a fire in the days
+-- of its satellite's rows needs a row for its 2-degree square and calendar month, else the build stops with the
+-- list of the gaps instead of counting the fire as 0.
 CREATE FUNCTION firms.build_series(version text, month_from date DEFAULT NULL, month_to date DEFAULT NULL)
     RETURNS void
     LANGUAGE plpgsql VOLATILE
@@ -296,6 +308,16 @@ BEGIN
     WHERE p.version = v_version AND p.acq_date >= lo AND p.acq_date < hi
     GROUP BY p.cell_id, date_trunc('month', p.acq_date::timestamp)::date, p.satellite;
 
+    -- The squares of 1 and 2 degrees of the map's small zooms, from the sums just made.
+    DELETE FROM firms.square_month_series s WHERE s.version = v_version AND s.month >= lo AND s.month < hi;
+    INSERT INTO firms.square_month_series (version, side, month, sy, sx, n_raw, n_harm)
+    SELECT v_version, sq.side, c.month, (c.cell_id / 1440) / sq.side, (c.cell_id % 1440) / sq.side, sum(c.n_raw),
+           sum(c.n_harm)
+    FROM firms.cell_month_series c
+    CROSS JOIN (VALUES (4), (8)) AS sq(side)
+    WHERE c.version = v_version AND c.month >= lo AND c.month < hi
+    GROUP BY sq.side, c.month, (c.cell_id / 1440) / sq.side, (c.cell_id % 1440) / sq.side;
+
     DELETE FROM firms.method_month mm WHERE mm.version = v_version AND mm.month >= lo AND mm.month < hi;
     SELECT c.d_from, c.d_to INTO cov_from, cov_to FROM firms.coverage(v_version) c;
     IF cov_from IS NOT NULL THEN
@@ -321,7 +343,9 @@ $$;
 
 -- ---------------------------------------------------------------------------------------------------------------
 -- What the application calls (design, 6.6). The PL/pgSQL ones switch JIT off: PostGIS functions declare a high
--- cost, so each of their short queries would spend about 0.3 s compiling (measured on 2 million fires).
+-- cost, so each of their short queries would spend about 0.3 s compiling (measured on 2 million fires). They also
+-- plan every query for its own values: after five calls in one connection PL/pgSQL would otherwise keep a generic
+-- plan, which made map_features four to five times slower (measured on Brazil).
 
 -- Monthly counts of a zone for the calendar. Months are whole: every month that meets [d_from, d_to] inside the
 -- coverage of the version, with 0 when it has no fire. count is the rounded sum of weights and count_raw the number
@@ -336,6 +360,7 @@ CREATE FUNCTION firms.monthly_counts(aoi text, d_from date, d_to date, version t
     LANGUAGE plpgsql STABLE
     SET search_path FROM CURRENT
     SET jit = off
+    SET plan_cache_mode = force_custom_plan
 AS $$
 DECLARE
     v_version text := monthly_counts.version;
@@ -428,6 +453,7 @@ CREATE FUNCTION firms.hotspots_in(aoi text, d_from date, d_to date, version text
     LANGUAGE plpgsql STABLE
     SET search_path FROM CURRENT
     SET jit = off
+    SET plan_cache_mode = force_custom_plan
 AS $$
 DECLARE
     v_version text := hotspots_in.version;
@@ -494,10 +520,13 @@ END
 $$;
 
 -- What the map shows in a bbox and dates. From zoom 9 on, the fires of the series, exact to the day, at most
--- max_points in date order: kind 'point', lon, lat, satellite (the FIRMS value), acq_date, frp, weight and the
--- own_share of the MODIS factor (NULL without a row of firms.method_factor). Below zoom 9, the sums of whole
--- months in cells of 0.25 degrees (zoom 7-8), 0.5 (6), 1 (5) or 2 (4 and below) that the bbox touches: kind
--- 'cell', the centre, the cell_* bounds, n_raw and n_harm, at most max_points with the largest n_harm first.
+-- max_points, the newest first: kind 'point', lon, lat, satellite (the FIRMS value), acq_date, frp, weight and the
+-- own_share of the MODIS factor (NULL without a row of firms.method_factor). The fires are read month by month from
+-- the end, so a cut at max_points keeps the fresh ones and stops reading; a bbox that touches more than 20 000 cells
+-- of 0.25 degrees is an error. Below zoom 9, the sums of whole months in cells of 0.25 degrees (zoom 7-8), 0.5 (6),
+-- 1 (5) or 2 (4 and below) that the bbox touches: kind 'cell', the centre, the cell_* bounds, n_raw and n_harm, at
+-- most max_points with the largest n_harm first. Cells of 1 and 2 degrees come from firms.square_month_series, the
+-- others from firms.cell_month_series.
 CREATE FUNCTION firms.map_features(west float8, south float8, east float8, north float8, zoom int,
                                    d_from date, d_to date, version text, max_points int)
     RETURNS TABLE(kind text, lon float8, lat float8, cell_west float8, cell_south float8, cell_east float8,
@@ -506,11 +535,19 @@ CREATE FUNCTION firms.map_features(west float8, south float8, east float8, north
     LANGUAGE plpgsql STABLE
     SET search_path FROM CURRENT
     SET jit = off
+    SET plan_cache_mode = force_custom_plan
 AS $$
 DECLARE
     v_version text := map_features.version;
     first_day date := coalesce(map_features.d_from, '-infinity'::date);
     last_day date := coalesce(map_features.d_to, 'infinity'::date);
+    cov_from date;
+    cov_to date;
+    mon date;
+    mon_from date;
+    mon_to date;
+    points_left bigint := map_features.max_points;
+    points_got bigint;
     ix0 int;
     ix1 int;
     iy0 int;
@@ -538,24 +575,45 @@ BEGIN
     iy1 := least(floor((map_features.north + 90) / 0.25), 719);
 
     IF map_features.zoom >= 9 THEN
-        RETURN QUERY
-        SELECT 'point'::text, pt.lon_e5::float8 / 100000, pt.lat_e5::float8 / 100000,
-               NULL::float8, NULL::float8, NULL::float8, NULL::float8,
-               st.firms_value, pt.acq_date, pt.frp, pt.weight, NULL::bigint, NULL::float8, f.own_share
-        FROM (SELECT p.satellite, p.cell_id, p.lat_e5, p.lon_e5, p.acq_date, p.acq_time, p.frp, p.weight
-              FROM firms.v_series_point p
-              WHERE p.version = v_version AND p.acq_date >= first_day AND p.acq_date <= last_day
-                AND p.cell_id IN (SELECT r.iy * 1440 + c.ix
-                                  FROM generate_series(iy0, iy1) AS r(iy), generate_series(ix0, ix1) AS c(ix))
-                AND p.lon_e5 >= map_features.west * 100000 AND p.lon_e5 <= map_features.east * 100000
-                AND p.lat_e5 >= map_features.south * 100000 AND p.lat_e5 <= map_features.north * 100000
-              ORDER BY p.acq_date, p.acq_time, p.satellite, p.lat_e5, p.lon_e5
-              LIMIT map_features.max_points) pt
-        JOIN firms.satellite st ON st.id = pt.satellite
-        LEFT JOIN firms.method_factor f
-               ON f.version = v_version AND f.satellite = pt.satellite AND f.cell2_id = firms.cell2_id(pt.cell_id)
-              AND f.calendar_month = extract(month FROM pt.acq_date)::int
-        ORDER BY pt.acq_date, pt.acq_time, pt.satellite, pt.lat_e5, pt.lon_e5;
+        -- Each month reads the fires of every cell the bbox touches: a world bbox took seconds. A 4K screen at zoom
+        -- 9 touches about 1 000 cells.
+        IF (ix1 - ix0 + 1) * (iy1 - iy0 + 1) > 20000 THEN
+            RAISE EXCEPTION 'firms.map_features: from zoom 9 on, the bbox may touch at most 20000 cells of 0.25 '
+                            'degrees, got % at zoom %', (ix1 - ix0 + 1) * (iy1 - iy0 + 1), map_features.zoom;
+        END IF;
+        -- The months to walk are those of the coverage: open dates would never end the walk.
+        SELECT c.d_from, c.d_to INTO cov_from, cov_to FROM firms.coverage(v_version) c;
+        first_day := greatest(first_day, cov_from);
+        last_day := least(last_day, cov_to);
+        IF cov_from IS NULL OR first_day > last_day THEN
+            RETURN;
+        END IF;
+        mon := date_trunc('month', last_day::timestamp)::date;
+        WHILE mon >= date_trunc('month', first_day::timestamp)::date AND points_left > 0 LOOP
+            mon_from := greatest(mon, first_day);
+            mon_to := least((mon + interval '1 month' - interval '1 day')::date, last_day);
+            RETURN QUERY
+            SELECT 'point'::text, pt.lon_e5::float8 / 100000, pt.lat_e5::float8 / 100000,
+                   NULL::float8, NULL::float8, NULL::float8, NULL::float8,
+                   st.firms_value, pt.acq_date, pt.frp, pt.weight, NULL::bigint, NULL::float8, f.own_share
+            FROM (SELECT p.satellite, p.cell_id, p.lat_e5, p.lon_e5, p.acq_date, p.acq_time, p.frp, p.weight
+                  FROM firms.v_series_point p
+                  WHERE p.version = v_version AND p.acq_date >= mon_from AND p.acq_date <= mon_to
+                    AND p.cell_id IN (SELECT r.iy * 1440 + c.ix
+                                      FROM generate_series(iy0, iy1) AS r(iy), generate_series(ix0, ix1) AS c(ix))
+                    AND p.lon_e5 >= map_features.west * 100000 AND p.lon_e5 <= map_features.east * 100000
+                    AND p.lat_e5 >= map_features.south * 100000 AND p.lat_e5 <= map_features.north * 100000
+                  ORDER BY p.acq_date DESC, p.acq_time DESC, p.satellite, p.lat_e5, p.lon_e5
+                  LIMIT points_left) pt
+            JOIN firms.satellite st ON st.id = pt.satellite
+            LEFT JOIN firms.method_factor f
+                   ON f.version = v_version AND f.satellite = pt.satellite AND f.cell2_id = firms.cell2_id(pt.cell_id)
+                  AND f.calendar_month = extract(month FROM pt.acq_date)::int
+            ORDER BY pt.acq_date DESC, pt.acq_time DESC, pt.satellite, pt.lat_e5, pt.lon_e5;
+            GET DIAGNOSTICS points_got = ROW_COUNT;
+            points_left := points_left - points_got;
+            mon := (mon - interval '1 month')::date;
+        END LOOP;
         RETURN;
     END IF;
 
@@ -566,6 +624,9 @@ BEGIN
     iy0 := iy0 / step * step;
     ix1 := ix1 / step * step + step - 1;
     iy1 := iy1 / step * step + step - 1;
+    mon_from := date_trunc('month', first_day::timestamp)::date;
+    mon_to := date_trunc('month', last_day::timestamp)::date;
+    -- Each query is planned for its step, so only one branch of the UNION is read.
     RETURN QUERY
     SELECT 'cell'::text, ((q.cx + 0.5) * step * 0.25 - 180)::float8, ((q.cy + 0.5) * step * 0.25 - 90)::float8,
            (q.cx * step * 0.25 - 180)::float8, (q.cy * step * 0.25 - 90)::float8,
@@ -574,12 +635,19 @@ BEGIN
     FROM (SELECT (cs.cell_id % 1440) / step AS cx, (cs.cell_id / 1440) / step AS cy,
                  sum(cs.n_raw)::bigint AS n_raw, sum(cs.n_harm) AS n_harm
           FROM firms.cell_month_series cs
-          WHERE cs.version = v_version
-            AND cs.month >= date_trunc('month', first_day::timestamp)::date
-            AND cs.month <= date_trunc('month', last_day::timestamp)::date
+          WHERE step < 4 AND cs.version = v_version
+            AND cs.month >= mon_from AND cs.month <= mon_to
             AND cs.cell_id BETWEEN iy0 * 1440 AND iy1 * 1440 + 1439
             AND cs.cell_id / 1440 BETWEEN iy0 AND iy1
             AND cs.cell_id % 1440 BETWEEN ix0 AND ix1
+          GROUP BY 1, 2
+          UNION ALL
+          SELECT sq.sx, sq.sy, sum(sq.n_raw)::bigint, sum(sq.n_harm)
+          FROM firms.square_month_series sq
+          WHERE step >= 4 AND sq.version = v_version AND sq.side = step
+            AND sq.month >= mon_from AND sq.month <= mon_to
+            AND sq.sy BETWEEN iy0 / step AND iy1 / step
+            AND sq.sx BETWEEN ix0 / step AND ix1 / step
           GROUP BY 1, 2) q
     WHERE q.n_raw > 0
     ORDER BY q.n_harm DESC, q.cy, q.cx
