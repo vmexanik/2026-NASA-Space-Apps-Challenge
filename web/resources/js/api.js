@@ -38,7 +38,7 @@ export const api = {
     summary: (query) => request('POST', '/api/summary', query).then((r) => r.json()),
     /** Fires in the visible box: { bbox: [w, s, e, n], zoom, date_from, date_to } → GeoJSON + truncated. */
     /** Admin only: save the drawn shape as a quick area. */
-    savePreset: (name, geometry) => request('POST', '/presets', { name, geometry }).then((r) => r.json()),
+    savePreset: (name, geometry, nameUk = null) => request('POST', '/presets', { name, name_uk: nameUk, geometry }).then((r) => r.json()),
     map: (query, signal) => request('POST', '/api/map', query, signal).then((r) => r.json()),
 
     /** Downloads the CSV and returns { truncated, expected, max }. */

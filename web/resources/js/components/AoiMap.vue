@@ -238,8 +238,31 @@ async function loadFires() {
     }
 }
 
+// A fire is drawn as the square ground pixel of its sensor (nominal size at nadir), so zooming in shows
+// how much ground one detection covers. Zoomed out, the square never gets smaller than MIN_PX on screen.
+const PIXEL_M = { modis: 1000, viirs: 375 };
+const MIN_PX = 9;
+let points = []; // { layer, lat, lon, sizeM }
+
+function metresPerPixel(lat) {
+    return (40075016.686 * Math.cos((lat * Math.PI) / 180)) / 2 ** (map.getZoom() + 8);
+}
+
+function pixelBounds(lat, lon, sizeM) {
+    const half = Math.max(sizeM, MIN_PX * metresPerPixel(lat)) / 2;
+    const dLat = half / 111320;
+    const dLon = half / (111320 * Math.cos((lat * Math.PI) / 180));
+    return [[lat - dLat, lon - dLon], [lat + dLat, lon + dLon]];
+}
+
+// Between the end of a zoom and the next response, resize what is already drawn.
+function resizePoints() {
+    for (const p of points) p.layer.setBounds(pixelBounds(p.lat, p.lon, p.sizeM));
+}
+
 function drawFires(data) {
     fires.clearLayers();
+    points = [];
     const maxCell = Math.max(0, ...data.features.filter((f) => f.properties.kind === 'cell').map((f) => f.properties.n_harm));
     for (const f of data.features) {
         const p = f.properties;
@@ -252,16 +275,20 @@ function drawFires(data) {
                 t('fires.weight', { w: num(p.weight, 2) }),
             ];
             if (p.own_share != null) lines.push(t('fires.ownShare', { p: `${num(p.own_share * 100)} %` }));
-            L.circleMarker([lat, lon], {
+            const sizeM = modis ? PIXEL_M.modis : PIXEL_M.viirs;
+            lines.push(t('fires.pixel', { size: modis ? '1 km' : '375 m' }));
+            const color = modis ? POINT_COLOR.modis : POINT_COLOR.viirs;
+            const layer = L.rectangle(pixelBounds(lat, lon, sizeM), {
                 renderer,
-                radius: 4,
-                weight: 1,
-                color: '#ffffff',
-                fillColor: modis ? POINT_COLOR.modis : POINT_COLOR.viirs,
-                fillOpacity: 0.9,
+                weight: 1.5,
+                color,
+                opacity: 0.95,
+                fillColor: color,
+                fillOpacity: 0.45,
             })
                 .bindTooltip(lines.join('<br>'))
                 .addTo(fires);
+            points.push({ layer, lat, lon, sizeM });
         } else {
             const ring = f.geometry.coordinates[0];
             L.rectangle([[ring[0][1], ring[0][0]], [ring[2][1], ring[2][0]]], {
@@ -314,6 +341,7 @@ onMounted(async () => {
     fires = L.layerGroup().addTo(map);
     // moveend also fires after every zoom, so a zoomend listener would double the requests.
     map.on('moveend', scheduleFires);
+    map.on('zoomend', resizePoints); // only resizes what is drawn; no request
     scheduleFires();
 
     shrinkHandles();

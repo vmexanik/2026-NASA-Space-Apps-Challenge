@@ -24,7 +24,6 @@ const loading = ref(false);
 const error = ref('');
 const metaError = ref(''); // the app cannot start: no data in the database, server down
 const notice = ref('');
-const mode = ref('counts');
 const selectedYear = ref(null);
 
 const mapRef = ref(null);
@@ -132,19 +131,6 @@ async function draw(kind) {
 }
 
 // --- derived ------------------------------------------------------------------------
-const current = computed(() => summary.value?.current_month);
-const statusStyle = {
-    above: 'bg-[#e08214] text-[#1d1b19]',
-    normal: 'bg-[#d8daeb] text-[#1d1b19]',
-    below: 'bg-[#542788] text-white',
-    unknown: 'bg-line text-ink',
-};
-const statusIcon = { above: '▲', normal: '●', below: '▼', unknown: '?' };
-const trendText = computed(() => {
-    const tr = summary.value?.trend;
-    if (!tr) return t('kpi.trendNone');
-    return `${t('kpi.' + tr.direction)} · ${t('kpi.trendValue', { pct: pct(tr.pct_per_decade) })}`;
-});
 const fireSeason = computed(() => (summary.value?.fire_season ?? []).map((m) => monthName(m)).join(', '));
 const methodName = computed(() => meta.value?.method.name?.[locale.value] ?? meta.value?.method.label ?? '');
 const qualityFilter = computed(() => {
@@ -179,8 +165,18 @@ async function exportHotspots() {
 }
 
 function exportCalendarTable() {
-    const rows = [['year', 'month', 'hotspots_harmonized', 'hotspots_error', 'detections_raw', 'source', 'partial', 'incomplete', 'anomaly_vs_mean', 'anomaly_pct', 'z_score']];
-    for (const c of calendar.value.cells) rows.push([c.year, c.month, c.count, c.count_error, c.count_raw, c.source, c.partial, c.incomplete, c.anomaly, c.anomaly_pct, c.z]);
+    const base = calendar.value.baseline.by_month;
+    const flag = (c) => {
+        const b = base[c.month - 1];
+        if (c.partial) return '';
+        return b.p90 != null && c.count > b.p90 ? 'above_p90' : b.p10 != null && c.count < b.p10 ? 'below_p10' : '';
+    };
+    const rows = [['year', 'month', 'hotspots_harmonized', 'hotspots_error', 'detections_raw', 'source', 'partial', 'incomplete', 'median_same_month', 'p10', 'p90', 'vs_median_pct', 'flag', 'rank_among_same_month', 'of']];
+    for (const c of calendar.value.cells) {
+        const b = base[c.month - 1];
+        const vs = c.median_to_date ? Math.round((c.count / c.median_to_date - 1) * 1000) / 10 : '';
+        rows.push([c.year, c.month, c.count, c.count_error, c.count_raw, c.source, c.partial, c.incomplete, c.median_to_date, b.p10, b.p90, vs, flag(c), c.rank, c.rank_of]);
+    }
     downloadCsv(rows, `calendar_${calendar.value.range.from}_${calendar.value.range.to}`);
 }
 
@@ -368,28 +364,10 @@ const btn = 'rounded-md border border-line px-2.5 py-1 text-sm hover:border-acce
                             <p class="text-xs text-muted tabular-nums">{{ num(summary.totals.peak_month?.count) }}</p>
                         </div>
                         <div class="rounded-lg border border-line p-3">
-                            <p class="text-xs text-muted">{{ t('kpi.trend') }}</p>
-                            <p class="text-sm font-semibold">{{ summary.trend ? { up: '↗', down: '↘', flat: '→' }[summary.trend.direction] : '' }} {{ trendText }}</p>
+                            <p class="text-xs text-muted">{{ t('kpi.peakYear') }}</p>
+                            <p class="text-sm font-semibold">{{ summary.totals.peak_year?.year ?? '—' }}</p>
+                            <p class="text-xs text-muted tabular-nums">{{ num(summary.totals.peak_year?.count) }}<template v-if="summary.totals.peak_year?.count_error"> ± {{ num(summary.totals.peak_year.count_error) }}</template></p>
                         </div>
-                    </div>
-
-                    <!-- Current month vs median -->
-                    <div v-if="current" class="rounded-lg border border-line p-3">
-                        <div class="flex items-start justify-between gap-2">
-                            <p class="text-xs text-muted">{{ t('current.title') }} · {{ monthYear(current.year, current.month) }}</p>
-                            <span class="inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold" :class="statusStyle[current.status]">
-                                <span aria-hidden="true">{{ statusIcon[current.status] }}</span>{{ t('current.status.' + current.status) }}
-                            </span>
-                        </div>
-                        <p class="mt-1 text-lg font-semibold tabular-nums">
-                            {{ current.partial ? t('current.soFar', { count: num(current.count), days: current.days_elapsed, total: current.days_in_month }) : t('current.full', { count: num(current.count) }) }}
-                        </p>
-                        <p class="text-sm text-muted">
-                            {{ current.partial
-                                ? t('current.median', { month: monthName(current.month, 'long'), median: num(current.median_to_date) })
-                                : t('current.medianFull', { month: monthName(current.month, 'long'), years: current.baseline_years, median: num(current.median) }) }}
-                            <template v-if="current.ratio !== null"> · {{ t('current.ratio', { ratio: num(current.ratio, 2) }) }}</template>
-                        </p>
                     </div>
 
                     <!-- Season + top months -->
@@ -424,15 +402,11 @@ const btn = 'rounded-md border border-line px-2.5 py-1 text-sm hover:border-acce
                             <p class="text-sm text-muted">{{ t('calendar.desc') }}</p>
                         </div>
                         <div class="flex flex-wrap items-center gap-2">
-                            <div role="group" class="flex overflow-hidden rounded-md border border-line text-sm">
-                                <button type="button" class="px-3 py-1" :class="mode === 'counts' ? 'bg-ink text-page' : 'hover:bg-line'" :aria-pressed="mode === 'counts'" @click="mode = 'counts'">{{ t('calendar.modeCounts') }}</button>
-                                <button type="button" class="px-3 py-1" :class="mode === 'anomaly' ? 'bg-ink text-page' : 'hover:bg-line'" :aria-pressed="mode === 'anomaly'" @click="mode = 'anomaly'">{{ t('calendar.modeAnomaly') }}</button>
-                            </div>
                             <button type="button" :class="btn" @click="downloadPng(heatmap.svg, fname('calendar'))">{{ t('export.png') }}</button>
                             <button type="button" :class="btn" @click="downloadSvg(heatmap.svg, fname('calendar'))">{{ t('export.svg') }}</button>
                         </div>
                     </div>
-                    <CalendarHeatmap ref="heatmap" :data="calendar" :mode="mode" @select="selectedYear = $event" />
+                    <CalendarHeatmap ref="heatmap" :data="calendar" @select="selectedYear = $event" />
                 </section>
 
                 <div class="grid gap-6 xl:grid-cols-2">
@@ -488,7 +462,7 @@ const btn = 'rounded-md border border-line px-2.5 py-1 text-sm hover:border-acce
                                 <td>{{ monthYear(m.year, m.month) }}</td>
                                 <td class="text-right font-medium tabular-nums">{{ num(m.count) }}<span v-if="m.count_error" class="font-normal text-muted"> ± {{ num(m.count_error) }}</span></td>
                                 <td class="text-right text-muted tabular-nums">{{ num(m.count_raw) }}</td>
-                                <td class="text-right text-xs text-muted">{{ m.source === 'modis' ? 'MODIS*' : 'VIIRS' }}</td>
+                                <td class="text-right text-xs text-muted">{{ m.source === 'modis' ? t('calendar.modis') : t('calendar.viirs') }}</td>
                             </tr>
                         </tbody>
                     </table>

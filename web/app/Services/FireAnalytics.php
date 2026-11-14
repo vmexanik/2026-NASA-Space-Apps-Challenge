@@ -23,10 +23,20 @@ final class FireAnalytics
         [$series, $baseline] = $this->load($aoi);
         $cells = $this->inRange($series, $from, $to);
 
-        $cells = array_map(function (array $row) use ($baseline) {
+        $lastDay = $this->repository->coverage()['to'];
+        $cells = array_map(function (array $row) use ($baseline, $lastDay) {
             $b = $baseline[$row['month']];
+            $values = $this->baselineValues[$row['month']] ?? [];
+            $daysInMonth = CarbonImmutable::create($row['year'], $row['month'], 1)->daysInMonth;
 
             return $row + [
+                // Place among the complete months of the same calendar month (1 = most fires).
+                'rank' => $row['partial'] || $values === [] ? null : 1 + count(array_filter($values, fn ($v) => $v > $row['count'])),
+                'rank_of' => count($values),
+                // A month in progress is compared with the median scaled to the days so far.
+                'days_elapsed' => $row['partial'] ? $lastDay->day : $daysInMonth,
+                'days_in_month' => $daysInMonth,
+                'median_to_date' => $row['partial'] && $b['median'] !== null ? round($b['median'] * $lastDay->day / $daysInMonth, 1) : $b['median'],
                 'anomaly' => $row['partial'] || $b['mean'] === null ? null : round($row['count'] - $b['mean'], 1),
                 'anomaly_pct' => $row['partial'] || ! $b['mean'] ? null : round(($row['count'] / $b['mean'] - 1) * 100, 1),
                 'z' => $row['partial'] || ! $b['std'] ? null : round(($row['count'] - $b['mean']) / $b['std'], 2),

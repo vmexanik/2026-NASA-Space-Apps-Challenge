@@ -15,6 +15,7 @@ class AreaPresetController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:80'],
+            'name_uk' => ['nullable', 'string', 'max:80'],
             'geometry' => ['required', 'array'],
         ]);
 
@@ -26,6 +27,7 @@ class AreaPresetController extends Controller
 
         $preset = AreaPreset::query()->create([
             'name_en' => $data['name'],
+            'name_uk' => $data['name_uk'] ?? null,
             'geometry' => $aoi->toGeoJson(),
             'sort' => (int) AreaPreset::query()->max('sort') + 1,
         ]);

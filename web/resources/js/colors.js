@@ -37,7 +37,8 @@ export function diverging(pct) {
 /** Black or white text, whichever contrasts better with the fill. */
 export function textOn(fill) {
     if (!fill) return 'currentColor';
-    const [r, g, b] = fill.match(/\d+/g).map(Number).map((v) => {
+    const rgb = fill.startsWith('#') ? hexToRgb(fill) : fill.match(/\d+/g).map(Number);
+    const [r, g, b] = rgb.map((v) => {
         const c = v / 255;
         return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
     });
@@ -46,3 +47,45 @@ export function textOn(fill) {
 }
 
 export const legendStops = { sequential: INFERNO, diverging: PUOR };
+
+// --- Discrete classes for the calendar -------------------------------------------------
+// Five classes above zero with round, readable limits, spaced evenly on a log scale up to the
+// largest month of the area (1–10, 11–50, 51–200, …). A legend of ranges reads faster than a ramp.
+const NICE = [1, 2, 5];
+const CLASS_COLORS = ['#fcffa4', '#fca50a', '#dd513a', '#932667', '#420a68'];
+
+function niceAtLeast(v) {
+    for (let p = 1; ; p *= 10) for (const n of NICE) if (n * p >= v) return n * p;
+}
+
+/** Upper limits of classes 1–4; class 5 is everything above. */
+export function classBreaks(max) {
+    if (!max || max <= 5) return [1, 2, 3, 4];
+    const out = [];
+    for (let k = 1; k <= 4; k++) {
+        const b = niceAtLeast(Math.round(max ** (k / 5)));
+        out.push(Math.max(b, (out.at(-1) ?? 0) + 1));
+    }
+    return out;
+}
+
+/** 0 for no fires, 1–5 for the classes. */
+export function classOf(value, breaks) {
+    if (!value) return 0;
+    const i = breaks.findIndex((b) => value <= b);
+    return i === -1 ? 5 : i + 1;
+}
+
+export function classColor(k) {
+    return k === 0 ? null : CLASS_COLORS[k - 1];
+}
+
+/** [{ k, color, from, to }] for the legend; to is null for the open last class. */
+export function classLegend(breaks) {
+    return CLASS_COLORS.map((color, i) => ({
+        k: i + 1,
+        color,
+        from: i === 0 ? 1 : breaks[i - 1] + 1,
+        to: i < 4 ? breaks[i] : null,
+    }));
+}

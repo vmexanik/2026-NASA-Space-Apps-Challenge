@@ -1,6 +1,6 @@
 <script setup>
 // Quick areas and a typed bounding box: the keyboard-friendly way to set the AOI.
-import { reactive, ref, watch } from 'vue';
+import { nextTick, reactive, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { api, isAdmin } from '../api';
 
@@ -16,17 +16,34 @@ const admin = isAdmin();
 const saving = ref(false);
 const saved = ref('');
 
-async function savePreset() {
-    const name = window.prompt(t('aoi.presetName'))?.trim();
-    if (!name) return;
-    saving.value = true;
+// "Save as quick area": a native modal <dialog> (top layer above the map, Esc closes, focus stays inside).
+const dialog = ref(null);
+const nameEn = ref(null);
+const draft = reactive({ en: '', uk: '', error: '' });
+
+function openSave() {
+    Object.assign(draft, { en: '', uk: '', error: '' });
     saved.value = '';
+    dialog.value?.showModal();
+    nextTick(() => nameEn.value?.focus());
+}
+
+async function savePreset() {
+    const en = draft.en.trim();
+    if (!en) {
+        draft.error = t('aoi.presetNameRequired');
+        nameEn.value?.focus();
+        return;
+    }
+    saving.value = true;
+    draft.error = '';
     try {
-        const preset = await api.savePreset(name, props.modelValue);
+        const preset = await api.savePreset(en, props.modelValue, draft.uk.trim() || null);
         emit('preset-saved', preset);
-        saved.value = t('aoi.presetSaved', { name });
+        saved.value = t('aoi.presetSaved', { name: preset.name[locale.value] ?? en });
+        dialog.value?.close();
     } catch (e) {
-        saved.value = e.message || t('errors.generic');
+        draft.error = e.message || t('errors.generic');
     } finally {
         saving.value = false;
     }
@@ -87,9 +104,45 @@ function apply() {
                     type="button"
                     class="rounded-md border border-dashed border-line px-2.5 py-1 text-sm hover:border-accent disabled:opacity-60"
                     :disabled="saving"
-                    @click="savePreset"
+                    @click="openSave"
                 >＋ {{ t('aoi.savePreset') }}</button>
                 <p v-if="saved" class="mt-1 text-xs text-muted" role="status">{{ saved }}</p>
+
+                <dialog
+                    ref="dialog"
+                    class="m-auto w-[min(360px,calc(100%-2rem))] rounded-xl border border-line bg-panel p-0 text-ink shadow-xl backdrop:bg-black/40"
+                    aria-labelledby="preset-dialog-title"
+                    @click.self="dialog.close()"
+                >
+                    <form class="space-y-3 p-4" @submit.prevent="savePreset">
+                        <h2 id="preset-dialog-title" class="text-base font-semibold">{{ t('aoi.savePreset') }}</h2>
+                        <p class="text-xs text-muted">{{ t('aoi.presetHelp') }}</p>
+                        <label class="block text-sm">
+                            {{ t('aoi.presetNameEn') }}
+                            <input
+                                ref="nameEn"
+                                v-model="draft.en"
+                                type="text"
+                                maxlength="80"
+                                required
+                                class="mt-1 w-full rounded-md border border-line bg-panel px-2 py-1.5 text-sm"
+                                :aria-invalid="!!draft.error"
+                                aria-describedby="preset-dialog-error"
+                            />
+                        </label>
+                        <label class="block text-sm">
+                            {{ t('aoi.presetNameUk') }} <span class="text-xs text-muted">({{ t('aoi.optional') }})</span>
+                            <input v-model="draft.uk" type="text" maxlength="80" class="mt-1 w-full rounded-md border border-line bg-panel px-2 py-1.5 text-sm" />
+                        </label>
+                        <p v-if="draft.error" id="preset-dialog-error" class="text-sm text-red-700 dark:text-red-300" role="alert">{{ draft.error }}</p>
+                        <div class="flex justify-end gap-2 pt-1">
+                            <button type="button" class="rounded-md border border-line px-3 py-1.5 text-sm hover:border-accent" @click="dialog.close()">{{ t('aoi.cancel') }}</button>
+                            <button type="submit" class="rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-accent-ink disabled:opacity-60" :disabled="saving">
+                                {{ saving ? t('loading') : t('aoi.save') }}
+                            </button>
+                        </div>
+                    </form>
+                </dialog>
             </div>
         </div>
 

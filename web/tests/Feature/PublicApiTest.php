@@ -261,6 +261,10 @@ class PublicApiTest extends TestCase
             ->assertJsonPath('name.uk', 'Polissia');
         $this->assertDatabaseHas('area_presets', ['name_en' => 'Polissia']);
 
+        $this->postJson('/presets', ['name' => 'Polissia 2', 'name_uk' => 'Полісся', 'geometry' => self::KYIV_REGION])
+            ->assertCreated()
+            ->assertJsonPath('name.uk', 'Полісся');
+
         $this->postJson('/presets', ['name' => 'Bad', 'geometry' => ['type' => 'Polygon', 'coordinates' => [[[0, 0], [1, 1]]]]])
             ->assertUnprocessable();
     }
