@@ -19,7 +19,8 @@ takes about 5 GB. Two scripts fill it:
 | Folder | What it holds | Script that fills it |
 |---|---|---|
 | [`data/raw/archive/`](../data/raw/archive/) | One zip per sensor and year, all countries, standard processing | `python3 fetch_archive.py` |
-| [`data/raw/nrt/`](../data/raw/nrt/) | Area extracts from the FIRMS API, last 1–5 days | `python3 firms_client.py area ...` |
+| [`data/raw/api/`](../data/raw/api/) | The current year for the whole world from the FIRMS area API: one folder per source (`MODIS_SP`, `VIIRS_SNPP_NRT`, …), one file per chunk of 1–5 days (`<start>_<days>d.csv`) | `python3 fetch_current_year.py` |
+| [`data/raw/nrt/`](../data/raw/nrt/) | Small area samples from the FIRMS API, last 1–5 days, shown on this page | `python3 firms_client.py area ...` |
 
 Inside each archive zip, every country has its own CSV, for example
 `modis/2021/modis_2021_Ukraine.csv` inside `modis_2021_all_countries.zip`. To read one without
@@ -54,7 +55,7 @@ the NRT API.
 
 ## Archive files and NRT files differ in two columns
 
-Both forms share 14 columns. The archive adds a 15th column, `type`. The `version` column also
+Both forms share 14 columns. The archive and the API files of a standard-processing (SP) source add a 15th column, `type`. The `version` column also
 takes different values in each form.
 
 | Column | Archive | NRT |
@@ -159,8 +160,15 @@ latitude,longitude,bright_ti4,scan,track,acq_date,acq_time,satellite,instrument,
 
 The project's code must handle these cases. Each one was checked in the files listed above.
 
-- **`acq_time` loses its leading zeros in NRT files.** The archive writes `0049`. The NRT API
-  writes `28` for 00:28 UTC. Pad the value to four digits before parsing it.
+- **`acq_time` loses its leading zeros in every file of the area API, SP and NRT alike.** The
+  archive writes `0049`. The API writes `28` for 00:28 UTC. Pad the value to four digits before
+  parsing it.
+- **A coordinate closer to 0 than 0.0001 is written in exponent form**, for example `4e-05`. The
+  Suomi NPP archive has 341 such rows, the NOAA-20 archive 146, and the API files 53. Read both the
+  plain and the exponent form.
+- The archive files are cut by country, so they hold no point in the open sea. The API files cover
+  the whole area and hold open-sea points, all of `type` 3. In the central North Sea the NOAA-20
+  archive of 2025 has 0 points, and the NOAA-20 SP files of 2026 have 120.
 - The MODIS `satellite` column holds `Terra` and `Aqua`, not the `T` and `A` that [A] lists.
 - VIIRS `confidence` is lowercase (`l`, `n`, `h`) in FIRMS files and uppercase in [G-V].
 - MODIS `confidence` can be 0. Such a row is a low-confidence detection, not a missing value.
