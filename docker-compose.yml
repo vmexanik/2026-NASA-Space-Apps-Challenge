@@ -1,0 +1,59 @@
+name: we-charge
+
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: wc_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./web:/var/www/html:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - php
+    restart: unless-stopped
+
+  php:
+    build: ./docker/php
+    container_name: wc_php
+    volumes:
+      - ./web:/var/www/html
+    environment:
+      - DB_HOST=db
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    build: ./docker/db
+    container_name: wc_db
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-we_charge}
+      POSTGRES_USER: ${DB_USERNAME:-we_charge}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  # Vite dev server for the SPA (hot reload). Run: docker compose --profile dev up -d
+  node:
+    image: node:22-alpine
+    container_name: wc_node
+    working_dir: /app
+    volumes:
+      - ./web:/app
+    ports:
+      - "5173:5173"
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    profiles: ["dev"]
+
+volumes:
+  db_data:
