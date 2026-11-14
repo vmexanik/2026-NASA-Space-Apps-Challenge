@@ -12,14 +12,25 @@ DECLARE
     outside text;
 BEGIN
     -- CASCADE is only for what depends on these objects inside the schema. Objects elsewhere (a view of the
-    -- application over firms.coverage, say) stop the restore, so that nothing outside firms is dropped.
+    -- application over firms.coverage, a function returning rows of firms.v_series_point, a column of that type)
+    -- stop the restore, so that nothing outside firms is dropped. A view brings its row type and the array of it.
+    WITH referenced (classid, objid) AS (
+        SELECT 'pg_proc'::regclass, p.oid FROM pg_proc p WHERE p.pronamespace = 'firms'::regnamespace
+        UNION ALL
+        SELECT 'pg_class'::regclass, c.oid FROM pg_class c
+        WHERE c.relnamespace = 'firms'::regnamespace AND c.relkind = 'v'
+        UNION ALL
+        SELECT 'pg_type'::regclass, c.reltype FROM pg_class c
+        WHERE c.relnamespace = 'firms'::regnamespace AND c.relkind = 'v'
+        UNION ALL
+        SELECT 'pg_type'::regclass, t.typarray FROM pg_class c JOIN pg_type t ON t.oid = c.reltype
+        WHERE c.relnamespace = 'firms'::regnamespace AND c.relkind = 'v' AND t.typarray <> 0
+    )
     SELECT string_agg(DISTINCT pg_describe_object(d.classid, d.objid, d.objsubid), '; ')
       INTO outside
     FROM pg_depend d
+    JOIN referenced r ON r.classid = d.refclassid AND r.objid = d.refobjid
     WHERE d.deptype = 'n'
-      AND d.refobjid IN (SELECT p.oid FROM pg_proc p WHERE p.pronamespace = 'firms'::regnamespace
-                         UNION ALL
-                         SELECT c.oid FROM pg_class c WHERE c.relnamespace = 'firms'::regnamespace AND c.relkind = 'v')
       AND coalesce(CASE d.classid
                        WHEN 'pg_rewrite'::regclass THEN (SELECT c.relnamespace FROM pg_rewrite r
                                                          JOIN pg_class c ON c.oid = r.ev_class WHERE r.oid = d.objid)
@@ -31,9 +42,10 @@ BEGIN
                                                             WHERE n.oid = d.objid)
                        WHEN 'pg_trigger'::regclass THEN (SELECT c.relnamespace FROM pg_trigger t
                                                          JOIN pg_class c ON c.oid = t.tgrelid WHERE t.oid = d.objid)
+                       WHEN 'pg_type'::regclass THEN (SELECT t.typnamespace FROM pg_type t WHERE t.oid = d.objid)
                    END, 0) <> 'firms'::regnamespace;
     IF outside IS NOT NULL THEN
-        RAISE EXCEPTION 'objects outside the schema firms depend on its functions or views: %', outside
+        RAISE EXCEPTION 'objects outside the schema firms depend on its functions, views or their row types: %', outside
             USING HINT = 'The restore replaces every function and view of firms. Drop these objects, restore, '
                          'then create them again.';
     END IF;
