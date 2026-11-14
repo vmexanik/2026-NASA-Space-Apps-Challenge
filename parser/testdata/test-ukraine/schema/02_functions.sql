@@ -522,10 +522,11 @@ $$;
 -- What the map shows in a bbox and dates. From zoom 9 on, the fires of the series, exact to the day, at most
 -- max_points, the newest first: kind 'point', lon, lat, satellite (the FIRMS value), acq_date, frp, weight and the
 -- own_share of the MODIS factor (NULL without a row of firms.method_factor). The fires are read month by month from
--- the end, so a cut at max_points keeps the fresh ones and stops reading. Below zoom 9, the sums of whole months in
--- cells of 0.25 degrees (zoom 7-8), 0.5 (6), 1 (5) or 2 (4 and below) that the bbox touches: kind 'cell', the
--- centre, the cell_* bounds, n_raw and n_harm, at most max_points with the largest n_harm first. Cells of 1 and 2
--- degrees come from firms.square_month_series, the others from firms.cell_month_series.
+-- the end, so a cut at max_points keeps the fresh ones and stops reading; a bbox that touches more than 20 000 cells
+-- of 0.25 degrees is an error. Below zoom 9, the sums of whole months in cells of 0.25 degrees (zoom 7-8), 0.5 (6),
+-- 1 (5) or 2 (4 and below) that the bbox touches: kind 'cell', the centre, the cell_* bounds, n_raw and n_harm, at
+-- most max_points with the largest n_harm first. Cells of 1 and 2 degrees come from firms.square_month_series, the
+-- others from firms.cell_month_series.
 CREATE FUNCTION firms.map_features(west float8, south float8, east float8, north float8, zoom int,
                                    d_from date, d_to date, version text, max_points int)
     RETURNS TABLE(kind text, lon float8, lat float8, cell_west float8, cell_south float8, cell_east float8,
@@ -574,6 +575,12 @@ BEGIN
     iy1 := least(floor((map_features.north + 90) / 0.25), 719);
 
     IF map_features.zoom >= 9 THEN
+        -- Each month reads the fires of every cell the bbox touches: a world bbox took seconds. A 4K screen at zoom
+        -- 9 touches about 1 000 cells.
+        IF (ix1 - ix0 + 1) * (iy1 - iy0 + 1) > 20000 THEN
+            RAISE EXCEPTION 'firms.map_features: from zoom 9 on, the bbox may touch at most 20000 cells of 0.25 '
+                            'degrees, got % at zoom %', (ix1 - ix0 + 1) * (iy1 - iy0 + 1), map_features.zoom;
+        END IF;
         -- The months to walk are those of the coverage: open dates would never end the walk.
         SELECT c.d_from, c.d_to INTO cov_from, cov_to FROM firms.coverage(v_version) c;
         first_day := greatest(first_day, cov_from);

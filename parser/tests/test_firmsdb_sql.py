@@ -646,6 +646,25 @@ class TestFunctions(unittest.TestCase):
                 self.assertNotEqual(result.returncode, 0)
                 self.assertIn("firms.map_features: bbox", result.stderr)
 
+    def test_map_points_bbox_limit(self):
+        # From zoom 9 on, a bbox may touch at most 20 000 cells of 0.25 degrees: a world bbox would walk every
+        # month with an IN list of a million cells. The bboxes below end just inside a cell edge, so they touch
+        # 100 x 200 = 20 000 and 113 x 177 = 20 001 cells.
+        def call(bbox: str, zoom: int):
+            return psql(f"SELECT count(*) FROM firms.map_features({bbox}, {zoom}, DATE '2021-08-01', "
+                        f"DATE '2021-08-31', 'v0-raw', 100)")
+
+        for bbox, zoom, cells in (("-180, -90, 180, 90", 9, 1440 * 720), ("-180, -90, 180, 90", 12, 1440 * 720),
+                                  ("0, 0, 28.15, 44.15", 9, 20001)):
+            with self.subTest(bbox=bbox, zoom=zoom):
+                result = call(bbox, zoom)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn(f"firms.map_features: from zoom 9 on, the bbox may touch at most 20000 cells of "
+                              f"0.25 degrees, got {cells} at zoom {zoom}", result.stderr)
+        result = call("0, 0, 24.9, 49.9", 9)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(self.map_features("-180, -90, 180, 90", 8, "2021-01-01", "2021-12-31", "v0-raw"))
+
     def test_confidence_filter(self):
         def series_count(params: str) -> int:
             result = psql(f"""
