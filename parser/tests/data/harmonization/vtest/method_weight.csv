@@ -1,0 +1,5 @@
+version,satellite,date_from,date_to,cell2_id,calendar_month,is_day,weight
+vtest,terra,2000-11-01,2002-07-03,12705,8,,1.3
+vtest,aqua,2002-07-04,2012-01-19,12705,8,,2.25
+vtest,snpp,2012-01-20,2026-11-02,12705,8,,1.0
+vtest,noaa20,2026-11-03,,12705,8,,1.0
