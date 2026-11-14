@@ -1,0 +1,2243 @@
+{
+ "format": 1,
+ "name": "test-ukraine",
+ "built_at": "2026-11-14T22:12:00Z",
+ "scope": "countries",
+ "countries": [
+  "Ukraine"
+ ],
+ "years": [
+  2000,
+  2026
+ ],
+ "methods": [
+  "v0-raw",
+  "v1-2026-11-14"
+ ],
+ "files": [
+  {
+   "table": "satellite",
+   "file": "data/satellite.tsv.gz",
+   "rows": 5
+  },
+  {
+   "table": "load_batch",
+   "file": "data/load_batch.tsv.gz",
+   "rows": 239
+  },
+  {
+   "table": "day_source",
+   "file": "data/day_source.tsv.gz",
+   "rows": 26269
+  },
+  {
+   "table": "archive_cell",
+   "file": "data/archive_cell.tsv.gz",
+   "rows": 1326
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2000_terra",
+   "year": 2000,
+   "satellite": "terra",
+   "file": "data/hotspot/2000_terra.tsv.gz",
+   "rows": 53
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2001_terra",
+   "year": 2001,
+   "satellite": "terra",
+   "file": "data/hotspot/2001_terra.tsv.gz",
+   "rows": 27321
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2002_terra",
+   "year": 2002,
+   "satellite": "terra",
+   "file": "data/hotspot/2002_terra.tsv.gz",
+   "rows": 20164
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2002_aqua",
+   "year": 2002,
+   "satellite": "aqua",
+   "file": "data/hotspot/2002_aqua.tsv.gz",
+   "rows": 7718
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2003_terra",
+   "year": 2003,
+   "satellite": "terra",
+   "file": "data/hotspot/2003_terra.tsv.gz",
+   "rows": 5637
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2003_aqua",
+   "year": 2003,
+   "satellite": "aqua",
+   "file": "data/hotspot/2003_aqua.tsv.gz",
+   "rows": 6572
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2004_terra",
+   "year": 2004,
+   "satellite": "terra",
+   "file": "data/hotspot/2004_terra.tsv.gz",
+   "rows": 10644
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2004_aqua",
+   "year": 2004,
+   "satellite": "aqua",
+   "file": "data/hotspot/2004_aqua.tsv.gz",
+   "rows": 9744
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2005_terra",
+   "year": 2005,
+   "satellite": "terra",
+   "file": "data/hotspot/2005_terra.tsv.gz",
+   "rows": 20766
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2005_aqua",
+   "year": 2005,
+   "satellite": "aqua",
+   "file": "data/hotspot/2005_aqua.tsv.gz",
+   "rows": 21240
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2006_terra",
+   "year": 2006,
+   "satellite": "terra",
+   "file": "data/hotspot/2006_terra.tsv.gz",
+   "rows": 13628
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2006_aqua",
+   "year": 2006,
+   "satellite": "aqua",
+   "file": "data/hotspot/2006_aqua.tsv.gz",
+   "rows": 12655
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2007_terra",
+   "year": 2007,
+   "satellite": "terra",
+   "file": "data/hotspot/2007_terra.tsv.gz",
+   "rows": 16098
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2007_aqua",
+   "year": 2007,
+   "satellite": "aqua",
+   "file": "data/hotspot/2007_aqua.tsv.gz",
+   "rows": 18127
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2008_terra",
+   "year": 2008,
+   "satellite": "terra",
+   "file": "data/hotspot/2008_terra.tsv.gz",
+   "rows": 27556
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2008_aqua",
+   "year": 2008,
+   "satellite": "aqua",
+   "file": "data/hotspot/2008_aqua.tsv.gz",
+   "rows": 24179
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2009_terra",
+   "year": 2009,
+   "satellite": "terra",
+   "file": "data/hotspot/2009_terra.tsv.gz",
+   "rows": 18677
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2009_aqua",
+   "year": 2009,
+   "satellite": "aqua",
+   "file": "data/hotspot/2009_aqua.tsv.gz",
+   "rows": 19163
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2010_terra",
+   "year": 2010,
+   "satellite": "terra",
+   "file": "data/hotspot/2010_terra.tsv.gz",
+   "rows": 8413
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2010_aqua",
+   "year": 2010,
+   "satellite": "aqua",
+   "file": "data/hotspot/2010_aqua.tsv.gz",
+   "rows": 10194
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2011_terra",
+   "year": 2011,
+   "satellite": "terra",
+   "file": "data/hotspot/2011_terra.tsv.gz",
+   "rows": 11551
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2011_aqua",
+   "year": 2011,
+   "satellite": "aqua",
+   "file": "data/hotspot/2011_aqua.tsv.gz",
+   "rows": 14561
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2012_terra",
+   "year": 2012,
+   "satellite": "terra",
+   "file": "data/hotspot/2012_terra.tsv.gz",
+   "rows": 7425
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2012_aqua",
+   "year": 2012,
+   "satellite": "aqua",
+   "file": "data/hotspot/2012_aqua.tsv.gz",
+   "rows": 10899
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2012_snpp",
+   "year": 2012,
+   "satellite": "snpp",
+   "file": "data/hotspot/2012_snpp.tsv.gz",
+   "rows": 48789
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2013_terra",
+   "year": 2013,
+   "satellite": "terra",
+   "file": "data/hotspot/2013_terra.tsv.gz",
+   "rows": 5708
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2013_aqua",
+   "year": 2013,
+   "satellite": "aqua",
+   "file": "data/hotspot/2013_aqua.tsv.gz",
+   "rows": 6770
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2013_snpp",
+   "year": 2013,
+   "satellite": "snpp",
+   "file": "data/hotspot/2013_snpp.tsv.gz",
+   "rows": 42806
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2014_terra",
+   "year": 2014,
+   "satellite": "terra",
+   "file": "data/hotspot/2014_terra.tsv.gz",
+   "rows": 21350
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2014_aqua",
+   "year": 2014,
+   "satellite": "aqua",
+   "file": "data/hotspot/2014_aqua.tsv.gz",
+   "rows": 29026
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2014_snpp",
+   "year": 2014,
+   "satellite": "snpp",
+   "file": "data/hotspot/2014_snpp.tsv.gz",
+   "rows": 147810
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2015_terra",
+   "year": 2015,
+   "satellite": "terra",
+   "file": "data/hotspot/2015_terra.tsv.gz",
+   "rows": 21147
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2015_aqua",
+   "year": 2015,
+   "satellite": "aqua",
+   "file": "data/hotspot/2015_aqua.tsv.gz",
+   "rows": 26004
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2015_snpp",
+   "year": 2015,
+   "satellite": "snpp",
+   "file": "data/hotspot/2015_snpp.tsv.gz",
+   "rows": 153668
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2016_terra",
+   "year": 2016,
+   "satellite": "terra",
+   "file": "data/hotspot/2016_terra.tsv.gz",
+   "rows": 12878
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2016_aqua",
+   "year": 2016,
+   "satellite": "aqua",
+   "file": "data/hotspot/2016_aqua.tsv.gz",
+   "rows": 12007
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2016_snpp",
+   "year": 2016,
+   "satellite": "snpp",
+   "file": "data/hotspot/2016_snpp.tsv.gz",
+   "rows": 81445
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2017_terra",
+   "year": 2017,
+   "satellite": "terra",
+   "file": "data/hotspot/2017_terra.tsv.gz",
+   "rows": 16596
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2017_aqua",
+   "year": 2017,
+   "satellite": "aqua",
+   "file": "data/hotspot/2017_aqua.tsv.gz",
+   "rows": 17370
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2017_snpp",
+   "year": 2017,
+   "satellite": "snpp",
+   "file": "data/hotspot/2017_snpp.tsv.gz",
+   "rows": 103479
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2018_terra",
+   "year": 2018,
+   "satellite": "terra",
+   "file": "data/hotspot/2018_terra.tsv.gz",
+   "rows": 7505
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2018_aqua",
+   "year": 2018,
+   "satellite": "aqua",
+   "file": "data/hotspot/2018_aqua.tsv.gz",
+   "rows": 9726
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2018_snpp",
+   "year": 2018,
+   "satellite": "snpp",
+   "file": "data/hotspot/2018_snpp.tsv.gz",
+   "rows": 53860
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2018_noaa20",
+   "year": 2018,
+   "satellite": "noaa20",
+   "file": "data/hotspot/2018_noaa20.tsv.gz",
+   "rows": 51528
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2019_terra",
+   "year": 2019,
+   "satellite": "terra",
+   "file": "data/hotspot/2019_terra.tsv.gz",
+   "rows": 11789
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2019_aqua",
+   "year": 2019,
+   "satellite": "aqua",
+   "file": "data/hotspot/2019_aqua.tsv.gz",
+   "rows": 14728
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2019_snpp",
+   "year": 2019,
+   "satellite": "snpp",
+   "file": "data/hotspot/2019_snpp.tsv.gz",
+   "rows": 80317
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2019_noaa20",
+   "year": 2019,
+   "satellite": "noaa20",
+   "file": "data/hotspot/2019_noaa20.tsv.gz",
+   "rows": 79882
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2020_terra",
+   "year": 2020,
+   "satellite": "terra",
+   "file": "data/hotspot/2020_terra.tsv.gz",
+   "rows": 11184
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2020_aqua",
+   "year": 2020,
+   "satellite": "aqua",
+   "file": "data/hotspot/2020_aqua.tsv.gz",
+   "rows": 13518
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2020_snpp",
+   "year": 2020,
+   "satellite": "snpp",
+   "file": "data/hotspot/2020_snpp.tsv.gz",
+   "rows": 76623
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2020_noaa20",
+   "year": 2020,
+   "satellite": "noaa20",
+   "file": "data/hotspot/2020_noaa20.tsv.gz",
+   "rows": 77269
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2021_terra",
+   "year": 2021,
+   "satellite": "terra",
+   "file": "data/hotspot/2021_terra.tsv.gz",
+   "rows": 4474
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2021_aqua",
+   "year": 2021,
+   "satellite": "aqua",
+   "file": "data/hotspot/2021_aqua.tsv.gz",
+   "rows": 5144
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2021_snpp",
+   "year": 2021,
+   "satellite": "snpp",
+   "file": "data/hotspot/2021_snpp.tsv.gz",
+   "rows": 31436
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2021_noaa20",
+   "year": 2021,
+   "satellite": "noaa20",
+   "file": "data/hotspot/2021_noaa20.tsv.gz",
+   "rows": 31572
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2022_terra",
+   "year": 2022,
+   "satellite": "terra",
+   "file": "data/hotspot/2022_terra.tsv.gz",
+   "rows": 6380
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2022_aqua",
+   "year": 2022,
+   "satellite": "aqua",
+   "file": "data/hotspot/2022_aqua.tsv.gz",
+   "rows": 7968
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2022_snpp",
+   "year": 2022,
+   "satellite": "snpp",
+   "file": "data/hotspot/2022_snpp.tsv.gz",
+   "rows": 47142
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2022_noaa20",
+   "year": 2022,
+   "satellite": "noaa20",
+   "file": "data/hotspot/2022_noaa20.tsv.gz",
+   "rows": 54343
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2023_terra",
+   "year": 2023,
+   "satellite": "terra",
+   "file": "data/hotspot/2023_terra.tsv.gz",
+   "rows": 4715
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2023_aqua",
+   "year": 2023,
+   "satellite": "aqua",
+   "file": "data/hotspot/2023_aqua.tsv.gz",
+   "rows": 6508
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2023_snpp",
+   "year": 2023,
+   "satellite": "snpp",
+   "file": "data/hotspot/2023_snpp.tsv.gz",
+   "rows": 37131
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2023_noaa20",
+   "year": 2023,
+   "satellite": "noaa20",
+   "file": "data/hotspot/2023_noaa20.tsv.gz",
+   "rows": 36414
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2024_terra",
+   "year": 2024,
+   "satellite": "terra",
+   "file": "data/hotspot/2024_terra.tsv.gz",
+   "rows": 9097
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2024_aqua",
+   "year": 2024,
+   "satellite": "aqua",
+   "file": "data/hotspot/2024_aqua.tsv.gz",
+   "rows": 13738
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2024_snpp",
+   "year": 2024,
+   "satellite": "snpp",
+   "file": "data/hotspot/2024_snpp.tsv.gz",
+   "rows": 79257
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2024_noaa20",
+   "year": 2024,
+   "satellite": "noaa20",
+   "file": "data/hotspot/2024_noaa20.tsv.gz",
+   "rows": 88071
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2025_terra",
+   "year": 2025,
+   "satellite": "terra",
+   "file": "data/hotspot/2025_terra.tsv.gz",
+   "rows": 5288
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2025_aqua",
+   "year": 2025,
+   "satellite": "aqua",
+   "file": "data/hotspot/2025_aqua.tsv.gz",
+   "rows": 10893
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2025_snpp",
+   "year": 2025,
+   "satellite": "snpp",
+   "file": "data/hotspot/2025_snpp.tsv.gz",
+   "rows": 59675
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2025_noaa20",
+   "year": 2025,
+   "satellite": "noaa20",
+   "file": "data/hotspot/2025_noaa20.tsv.gz",
+   "rows": 60963
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2026_terra",
+   "year": 2026,
+   "satellite": "terra",
+   "file": "data/hotspot/2026_terra.tsv.gz",
+   "rows": 6625
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2026_aqua",
+   "year": 2026,
+   "satellite": "aqua",
+   "file": "data/hotspot/2026_aqua.tsv.gz",
+   "rows": 12248
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2026_snpp",
+   "year": 2026,
+   "satellite": "snpp",
+   "file": "data/hotspot/2026_snpp.tsv.gz",
+   "rows": 77766
+  },
+  {
+   "table": "hotspot",
+   "partition": "hotspot_2026_noaa20",
+   "year": 2026,
+   "satellite": "noaa20",
+   "file": "data/hotspot/2026_noaa20.tsv.gz",
+   "rows": 82575
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2000",
+   "year": 2000,
+   "file": "data/hotspot_static/2000_modis.tsv.gz",
+   "rows": 26
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2001",
+   "year": 2001,
+   "file": "data/hotspot_static/2001_modis.tsv.gz",
+   "rows": 631
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2002",
+   "year": 2002,
+   "file": "data/hotspot_static/2002_modis.tsv.gz",
+   "rows": 1879
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2003",
+   "year": 2003,
+   "file": "data/hotspot_static/2003_modis.tsv.gz",
+   "rows": 1413
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2004",
+   "year": 2004,
+   "file": "data/hotspot_static/2004_modis.tsv.gz",
+   "rows": 1264
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2005",
+   "year": 2005,
+   "file": "data/hotspot_static/2005_modis.tsv.gz",
+   "rows": 1282
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2006",
+   "year": 2006,
+   "file": "data/hotspot_static/2006_modis.tsv.gz",
+   "rows": 1594
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2007",
+   "year": 2007,
+   "file": "data/hotspot_static/2007_modis.tsv.gz",
+   "rows": 1680
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2008",
+   "year": 2008,
+   "file": "data/hotspot_static/2008_modis.tsv.gz",
+   "rows": 1339
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2009",
+   "year": 2009,
+   "file": "data/hotspot_static/2009_modis.tsv.gz",
+   "rows": 991
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2010",
+   "year": 2010,
+   "file": "data/hotspot_static/2010_modis.tsv.gz",
+   "rows": 1177
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2011",
+   "year": 2011,
+   "file": "data/hotspot_static/2011_modis.tsv.gz",
+   "rows": 1107
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2012",
+   "year": 2012,
+   "file": "data/hotspot_static/2012_modis.tsv.gz",
+   "rows": 1302
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2012",
+   "year": 2012,
+   "file": "data/hotspot_static/2012_snpp.tsv.gz",
+   "rows": 23572
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2013",
+   "year": 2013,
+   "file": "data/hotspot_static/2013_modis.tsv.gz",
+   "rows": 987
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2013",
+   "year": 2013,
+   "file": "data/hotspot_static/2013_snpp.tsv.gz",
+   "rows": 21319
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2014",
+   "year": 2014,
+   "file": "data/hotspot_static/2014_modis.tsv.gz",
+   "rows": 1096
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2014",
+   "year": 2014,
+   "file": "data/hotspot_static/2014_snpp.tsv.gz",
+   "rows": 19158
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2015",
+   "year": 2015,
+   "file": "data/hotspot_static/2015_modis.tsv.gz",
+   "rows": 1626
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2015",
+   "year": 2015,
+   "file": "data/hotspot_static/2015_snpp.tsv.gz",
+   "rows": 17824
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2016",
+   "year": 2016,
+   "file": "data/hotspot_static/2016_modis.tsv.gz",
+   "rows": 978
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2016",
+   "year": 2016,
+   "file": "data/hotspot_static/2016_snpp.tsv.gz",
+   "rows": 17198
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2017",
+   "year": 2017,
+   "file": "data/hotspot_static/2017_modis.tsv.gz",
+   "rows": 872
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2017",
+   "year": 2017,
+   "file": "data/hotspot_static/2017_snpp.tsv.gz",
+   "rows": 15833
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2018",
+   "year": 2018,
+   "file": "data/hotspot_static/2018_modis.tsv.gz",
+   "rows": 1702
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2018",
+   "year": 2018,
+   "file": "data/hotspot_static/2018_snpp.tsv.gz",
+   "rows": 18761
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2018",
+   "year": 2018,
+   "file": "data/hotspot_static/2018_noaa20.tsv.gz",
+   "rows": 18392
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2019",
+   "year": 2019,
+   "file": "data/hotspot_static/2019_modis.tsv.gz",
+   "rows": 1684
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2019",
+   "year": 2019,
+   "file": "data/hotspot_static/2019_snpp.tsv.gz",
+   "rows": 19335
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2019",
+   "year": 2019,
+   "file": "data/hotspot_static/2019_noaa20.tsv.gz",
+   "rows": 19857
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2020",
+   "year": 2020,
+   "file": "data/hotspot_static/2020_modis.tsv.gz",
+   "rows": 1647
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2020",
+   "year": 2020,
+   "file": "data/hotspot_static/2020_snpp.tsv.gz",
+   "rows": 17535
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2020",
+   "year": 2020,
+   "file": "data/hotspot_static/2020_noaa20.tsv.gz",
+   "rows": 17519
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2021",
+   "year": 2021,
+   "file": "data/hotspot_static/2021_modis.tsv.gz",
+   "rows": 1178
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2021",
+   "year": 2021,
+   "file": "data/hotspot_static/2021_snpp.tsv.gz",
+   "rows": 15490
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2021",
+   "year": 2021,
+   "file": "data/hotspot_static/2021_noaa20.tsv.gz",
+   "rows": 15246
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2022",
+   "year": 2022,
+   "file": "data/hotspot_static/2022_modis.tsv.gz",
+   "rows": 979
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2022",
+   "year": 2022,
+   "file": "data/hotspot_static/2022_snpp.tsv.gz",
+   "rows": 4608
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2022",
+   "year": 2022,
+   "file": "data/hotspot_static/2022_noaa20.tsv.gz",
+   "rows": 5200
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2023",
+   "year": 2023,
+   "file": "data/hotspot_static/2023_modis.tsv.gz",
+   "rows": 537
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2023",
+   "year": 2023,
+   "file": "data/hotspot_static/2023_snpp.tsv.gz",
+   "rows": 6274
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2023",
+   "year": 2023,
+   "file": "data/hotspot_static/2023_noaa20.tsv.gz",
+   "rows": 6276
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2024",
+   "year": 2024,
+   "file": "data/hotspot_static/2024_modis.tsv.gz",
+   "rows": 1100
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2024",
+   "year": 2024,
+   "file": "data/hotspot_static/2024_snpp.tsv.gz",
+   "rows": 7238
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2024",
+   "year": 2024,
+   "file": "data/hotspot_static/2024_noaa20.tsv.gz",
+   "rows": 8126
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2025",
+   "year": 2025,
+   "file": "data/hotspot_static/2025_modis.tsv.gz",
+   "rows": 944
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2025",
+   "year": 2025,
+   "file": "data/hotspot_static/2025_snpp.tsv.gz",
+   "rows": 7847
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2025",
+   "year": 2025,
+   "file": "data/hotspot_static/2025_noaa20.tsv.gz",
+   "rows": 7906
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2026",
+   "year": 2026,
+   "file": "data/hotspot_static/2026_modis.tsv.gz",
+   "rows": 532
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2026",
+   "year": 2026,
+   "file": "data/hotspot_static/2026_snpp.tsv.gz",
+   "rows": 3212
+  },
+  {
+   "table": "hotspot_static",
+   "partition": "hotspot_static_2026",
+   "year": 2026,
+   "file": "data/hotspot_static/2026_noaa20.tsv.gz",
+   "rows": 3750
+  },
+  {
+   "table": "method",
+   "version": "v0-raw",
+   "file": "data/method/v0-raw/method.tsv.gz",
+   "rows": 1
+  },
+  {
+   "table": "method_weight",
+   "version": "v0-raw",
+   "file": "data/method/v0-raw/method_weight.tsv.gz",
+   "rows": 777600
+  },
+  {
+   "table": "method",
+   "version": "v1-2026-11-14",
+   "file": "data/method/v1-2026-11-14/method.tsv.gz",
+   "rows": 1
+  },
+  {
+   "table": "method_weight",
+   "version": "v1-2026-11-14",
+   "file": "data/method/v1-2026-11-14/method_weight.tsv.gz",
+   "rows": 1036800
+  },
+  {
+   "table": "method_factor",
+   "version": "v1-2026-11-14",
+   "file": "data/method/v1-2026-11-14/method_factor.tsv.gz",
+   "rows": 388800
+  },
+  {
+   "table": "method_error",
+   "version": "v1-2026-11-14",
+   "file": "data/method/v1-2026-11-14/method_error.tsv.gz",
+   "rows": 22
+  },
+  {
+   "table": "method_gap",
+   "version": "v1-2026-11-14",
+   "file": "data/method/v1-2026-11-14/method_gap.tsv.gz",
+   "rows": 26
+  }
+ ],
+ "sources": [
+  {
+   "file": "data/raw/api/MODIS_NRT/2026-09-01_5d.csv",
+   "size": 6963928,
+   "mtime": "2026-11-14T18:15:27.292358Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_NRT/2026-09-06_5d.csv",
+   "size": 4671073,
+   "mtime": "2026-11-14T18:15:34.306903Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_NRT/2026-09-11_5d.csv",
+   "size": 5560127,
+   "mtime": "2026-11-14T18:15:43.167062Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_NRT/2026-09-16_5d.csv",
+   "size": 5283565,
+   "mtime": "2026-11-14T18:15:47.627142Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_NRT/2026-09-21_5d.csv",
+   "size": 4401915,
+   "mtime": "2026-11-14T18:15:50.981313Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_NRT/2026-09-26_5d.csv",
+   "size": 4039985,
+   "mtime": "2026-11-14T18:15:58.208364Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_NRT/2026-10-01_5d.csv",
+   "size": 3519295,
+   "mtime": "2026-11-14T18:17:06.076188Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_NRT/2026-10-06_5d.csv",
+   "size": 4480354,
+   "mtime": "2026-11-14T18:17:10.971368Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_NRT/2026-10-11_5d.csv",
+   "size": 4269239,
+   "mtime": "2026-11-14T18:17:15.256387Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_NRT/2026-10-16_5d.csv",
+   "size": 3809161,
+   "mtime": "2026-11-14T18:17:23.233921Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_NRT/2026-10-21_5d.csv",
+   "size": 5172898,
+   "mtime": "2026-11-14T18:17:26.887296Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_NRT/2026-10-26_5d.csv",
+   "size": 3829339,
+   "mtime": "2026-11-14T18:17:31.048277Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_NRT/2026-10-31_5d.csv",
+   "size": 3986116,
+   "mtime": "2026-11-14T18:17:34.741329Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_NRT/2026-11-05_5d.csv",
+   "size": 5056779,
+   "mtime": "2026-11-14T18:17:38.255528Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_NRT/2026-11-10_5d.csv",
+   "size": 4000161,
+   "mtime": "2026-11-14T18:17:46.519837Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-01-01_5d.csv",
+   "size": 3281797,
+   "mtime": "2026-11-14T17:54:41.705617Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-01-06_5d.csv",
+   "size": 4065997,
+   "mtime": "2026-11-14T17:54:45.909291Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-01-11_5d.csv",
+   "size": 3751889,
+   "mtime": "2026-11-14T17:54:49.337215Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-01-16_5d.csv",
+   "size": 3585925,
+   "mtime": "2026-11-14T17:54:56.683042Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-01-21_5d.csv",
+   "size": 3333834,
+   "mtime": "2026-11-14T17:55:03.592670Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-01-26_5d.csv",
+   "size": 3176012,
+   "mtime": "2026-11-14T17:55:16.658604Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-01-31_5d.csv",
+   "size": 2626628,
+   "mtime": "2026-11-14T17:55:19.659111Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-02-05_5d.csv",
+   "size": 2678825,
+   "mtime": "2026-11-14T17:55:27.736959Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-02-10_5d.csv",
+   "size": 2567692,
+   "mtime": "2026-11-14T17:55:30.743215Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-02-15_5d.csv",
+   "size": 2965152,
+   "mtime": "2026-11-14T17:55:34.237648Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-02-20_5d.csv",
+   "size": 2990176,
+   "mtime": "2026-11-14T17:55:37.663933Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-02-25_5d.csv",
+   "size": 3432799,
+   "mtime": "2026-11-14T17:55:41.101010Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-03-02_5d.csv",
+   "size": 3060522,
+   "mtime": "2026-11-14T17:55:44.358019Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-03-07_5d.csv",
+   "size": 2881171,
+   "mtime": "2026-11-14T17:55:47.438908Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-03-12_5d.csv",
+   "size": 2597930,
+   "mtime": "2026-11-14T17:55:50.727244Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-03-17_5d.csv",
+   "size": 2547679,
+   "mtime": "2026-11-14T17:55:54.187891Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-03-22_5d.csv",
+   "size": 3429052,
+   "mtime": "2026-11-14T17:55:59.017130Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-03-27_5d.csv",
+   "size": 2912403,
+   "mtime": "2026-11-14T17:56:01.883950Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-04-01_5d.csv",
+   "size": 3080353,
+   "mtime": "2026-11-14T17:56:05.397868Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-04-06_5d.csv",
+   "size": 3044176,
+   "mtime": "2026-11-14T17:56:10.057020Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-04-11_5d.csv",
+   "size": 3730469,
+   "mtime": "2026-11-14T17:56:14.067617Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-04-16_5d.csv",
+   "size": 2627670,
+   "mtime": "2026-11-14T17:56:24.664964Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-04-21_5d.csv",
+   "size": 2460827,
+   "mtime": "2026-11-14T17:56:27.631773Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-04-26_5d.csv",
+   "size": 2257484,
+   "mtime": "2026-11-14T17:56:31.252802Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-05-01_5d.csv",
+   "size": 2260389,
+   "mtime": "2026-11-14T18:04:47.524123Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-05-06_5d.csv",
+   "size": 1907461,
+   "mtime": "2026-11-14T18:04:50.158623Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-05-11_5d.csv",
+   "size": 2094630,
+   "mtime": "2026-11-14T18:04:52.878875Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-05-16_5d.csv",
+   "size": 1796741,
+   "mtime": "2026-11-14T18:04:55.678142Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-05-21_5d.csv",
+   "size": 1949571,
+   "mtime": "2026-11-14T18:04:58.481615Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-05-26_5d.csv",
+   "size": 2198825,
+   "mtime": "2026-11-14T18:05:00.999125Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-05-31_5d.csv",
+   "size": 2348143,
+   "mtime": "2026-11-14T18:06:04.436212Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-06-05_5d.csv",
+   "size": 2368992,
+   "mtime": "2026-11-14T18:06:07.443783Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-06-10_5d.csv",
+   "size": 2964612,
+   "mtime": "2026-11-14T18:06:37.178753Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-06-15_5d.csv",
+   "size": 3068393,
+   "mtime": "2026-11-14T18:06:40.846972Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-06-20_5d.csv",
+   "size": 4083455,
+   "mtime": "2026-11-14T18:06:44.827921Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-06-25_5d.csv",
+   "size": 4493547,
+   "mtime": "2026-11-14T18:06:48.471924Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-06-30_5d.csv",
+   "size": 4822361,
+   "mtime": "2026-11-14T18:06:53.442593Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-07-05_5d.csv",
+   "size": 3963644,
+   "mtime": "2026-11-14T18:06:56.800924Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-07-10_5d.csv",
+   "size": 4625627,
+   "mtime": "2026-11-14T18:07:10.135221Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-07-15_5d.csv",
+   "size": 6516019,
+   "mtime": "2026-11-14T18:07:15.634181Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-07-20_5d.csv",
+   "size": 5836670,
+   "mtime": "2026-11-14T18:07:20.952312Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-07-25_5d.csv",
+   "size": 5587568,
+   "mtime": "2026-11-14T18:07:25.026695Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-07-30_5d.csv",
+   "size": 6635828,
+   "mtime": "2026-11-14T18:07:29.866666Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-08-04_5d.csv",
+   "size": 7510314,
+   "mtime": "2026-11-14T18:07:34.697636Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-08-09_5d.csv",
+   "size": 5662739,
+   "mtime": "2026-11-14T18:07:38.541613Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-08-14_5d.csv",
+   "size": 6565642,
+   "mtime": "2026-11-14T18:07:42.482306Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-08-19_5d.csv",
+   "size": 7790824,
+   "mtime": "2026-11-14T18:07:48.962551Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-08-24_5d.csv",
+   "size": 7969129,
+   "mtime": "2026-11-14T18:08:04.375460Z"
+  },
+  {
+   "file": "data/raw/api/MODIS_SP/2026-08-29_3d.csv",
+   "size": 4042267,
+   "mtime": "2026-11-14T18:08:07.617173Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_NRT/2026-08-01_5d.csv",
+   "size": 35297697,
+   "mtime": "2026-11-14T19:04:13.743427Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_NRT/2026-08-06_5d.csv",
+   "size": 38348283,
+   "mtime": "2026-11-14T19:04:29.160368Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_NRT/2026-08-11_5d.csv",
+   "size": 31675305,
+   "mtime": "2026-11-14T19:04:46.774302Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_NRT/2026-08-16_5d.csv",
+   "size": 42498592,
+   "mtime": "2026-11-14T19:05:00.824249Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_NRT/2026-08-21_5d.csv",
+   "size": 47932166,
+   "mtime": "2026-11-14T19:05:22.639167Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_NRT/2026-08-26_5d.csv",
+   "size": 43871451,
+   "mtime": "2026-11-14T19:06:42.739868Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_NRT/2026-08-31_5d.csv",
+   "size": 43279038,
+   "mtime": "2026-11-14T19:07:26.619705Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_NRT/2026-09-05_5d.csv",
+   "size": 24156291,
+   "mtime": "2026-11-14T19:09:38.424640Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_NRT/2026-09-10_5d.csv",
+   "size": 27896213,
+   "mtime": "2026-11-14T19:09:49.993653Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_NRT/2026-09-15_5d.csv",
+   "size": 32449494,
+   "mtime": "2026-11-14T19:10:00.938663Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_NRT/2026-09-20_5d.csv",
+   "size": 23233108,
+   "mtime": "2026-11-14T19:11:17.056712Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_NRT/2026-09-25_5d.csv",
+   "size": 23422853,
+   "mtime": "2026-11-14T19:11:27.735715Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_NRT/2026-09-30_5d.csv",
+   "size": 17461014,
+   "mtime": "2026-11-14T19:11:35.449718Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_NRT/2026-10-05_5d.csv",
+   "size": 25251349,
+   "mtime": "2026-11-14T19:11:47.667720Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_NRT/2026-10-10_5d.csv",
+   "size": 22094951,
+   "mtime": "2026-11-14T19:11:58.362722Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_NRT/2026-10-15_5d.csv",
+   "size": 24207634,
+   "mtime": "2026-11-14T19:12:13.205723Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_NRT/2026-10-20_5d.csv",
+   "size": 30157242,
+   "mtime": "2026-11-14T19:12:21.279723Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_NRT/2026-10-25_5d.csv",
+   "size": 22756752,
+   "mtime": "2026-11-14T19:12:40.989722Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_NRT/2026-10-30_5d.csv",
+   "size": 20217082,
+   "mtime": "2026-11-14T19:12:48.557721Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_NRT/2026-11-04_5d.csv",
+   "size": 25621383,
+   "mtime": "2026-11-14T19:13:09.006716Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_NRT/2026-11-09_5d.csv",
+   "size": 22712695,
+   "mtime": "2026-11-14T19:13:22.981712Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_NRT/2026-11-14_1d.csv",
+   "size": 2806451,
+   "mtime": "2026-11-14T19:13:26.220688Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-01-01_5d.csv",
+   "size": 17934808,
+   "mtime": "2026-11-14T18:48:23.321458Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-01-06_5d.csv",
+   "size": 22348976,
+   "mtime": "2026-11-14T18:49:28.465376Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-01-11_5d.csv",
+   "size": 21527521,
+   "mtime": "2026-11-14T18:49:45.755049Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-01-16_5d.csv",
+   "size": 18883343,
+   "mtime": "2026-11-14T18:49:59.621982Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-01-21_5d.csv",
+   "size": 19050017,
+   "mtime": "2026-11-14T18:50:23.337868Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-01-26_5d.csv",
+   "size": 19417648,
+   "mtime": "2026-11-14T18:50:35.570810Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-01-31_5d.csv",
+   "size": 15579814,
+   "mtime": "2026-11-14T18:50:48.830155Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-02-05_5d.csv",
+   "size": 14742383,
+   "mtime": "2026-11-14T18:50:55.556716Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-02-10_5d.csv",
+   "size": 14736021,
+   "mtime": "2026-11-14T18:51:10.434646Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-02-15_5d.csv",
+   "size": 17237863,
+   "mtime": "2026-11-14T18:51:17.357614Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-02-20_5d.csv",
+   "size": 17419004,
+   "mtime": "2026-11-14T18:51:29.743557Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-02-25_5d.csv",
+   "size": 20740202,
+   "mtime": "2026-11-14T18:51:41.545503Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-03-02_5d.csv",
+   "size": 18541675,
+   "mtime": "2026-11-14T18:51:50.920460Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-03-07_5d.csv",
+   "size": 17865850,
+   "mtime": "2026-11-14T18:51:59.284421Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-03-12_5d.csv",
+   "size": 14323818,
+   "mtime": "2026-11-14T18:52:05.738392Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-03-17_5d.csv",
+   "size": 14320819,
+   "mtime": "2026-11-14T18:52:23.264313Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-03-22_5d.csv",
+   "size": 18142285,
+   "mtime": "2026-11-14T18:52:30.845279Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-03-27_5d.csv",
+   "size": 18339864,
+   "mtime": "2026-11-14T18:52:41.116233Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-04-01_5d.csv",
+   "size": 16763520,
+   "mtime": "2026-11-14T18:52:49.692194Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-04-06_5d.csv",
+   "size": 17260025,
+   "mtime": "2026-11-14T18:52:57.978158Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-04-11_5d.csv",
+   "size": 20645942,
+   "mtime": "2026-11-14T18:54:07.781852Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-04-16_5d.csv",
+   "size": 15286653,
+   "mtime": "2026-11-14T18:54:24.052068Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-04-21_5d.csv",
+   "size": 14709961,
+   "mtime": "2026-11-14T18:54:31.781748Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-04-26_5d.csv",
+   "size": 12440847,
+   "mtime": "2026-11-14T18:54:37.205725Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-05-01_5d.csv",
+   "size": 12266086,
+   "mtime": "2026-11-14T18:58:45.394700Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-05-06_5d.csv",
+   "size": 11249956,
+   "mtime": "2026-11-14T18:58:50.588679Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-05-11_5d.csv",
+   "size": 12392152,
+   "mtime": "2026-11-14T18:58:56.954654Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-05-16_5d.csv",
+   "size": 10015102,
+   "mtime": "2026-11-14T19:00:13.680350Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-05-21_5d.csv",
+   "size": 11028807,
+   "mtime": "2026-11-14T19:00:33.467119Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-05-26_5d.csv",
+   "size": 13832377,
+   "mtime": "2026-11-14T19:00:44.880228Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-05-31_5d.csv",
+   "size": 12944527,
+   "mtime": "2026-11-14T19:00:54.783190Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-06-05_5d.csv",
+   "size": 12776292,
+   "mtime": "2026-11-14T19:01:01.340164Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-06-10_5d.csv",
+   "size": 15535237,
+   "mtime": "2026-11-14T19:01:11.942123Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-06-15_5d.csv",
+   "size": 16047739,
+   "mtime": "2026-11-14T19:01:32.225044Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-06-20_5d.csv",
+   "size": 19131533,
+   "mtime": "2026-11-14T19:01:46.610988Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-06-25_5d.csv",
+   "size": 22046652,
+   "mtime": "2026-11-14T19:01:59.169940Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-06-30_5d.csv",
+   "size": 24283609,
+   "mtime": "2026-11-14T19:02:15.887876Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-07-05_5d.csv",
+   "size": 23672469,
+   "mtime": "2026-11-14T19:02:33.875807Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-07-10_5d.csv",
+   "size": 22420443,
+   "mtime": "2026-11-14T19:02:51.106741Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-07-15_5d.csv",
+   "size": 36847004,
+   "mtime": "2026-11-14T19:03:16.132645Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-07-20_5d.csv",
+   "size": 31910278,
+   "mtime": "2026-11-14T19:03:38.183561Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-07-25_5d.csv",
+   "size": 27883080,
+   "mtime": "2026-11-14T19:03:54.573499Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_NOAA20_SP/2026-07-30_2d.csv",
+   "size": 13099478,
+   "mtime": "2026-11-14T19:04:01.594472Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_NRT/2026-08-01_5d.csv",
+   "size": 23570741,
+   "mtime": "2026-11-14T18:39:02.031023Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_NRT/2026-08-06_5d.csv",
+   "size": 37710863,
+   "mtime": "2026-11-14T18:39:13.674928Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_NRT/2026-08-11_5d.csv",
+   "size": 30829947,
+   "mtime": "2026-11-14T18:39:31.115789Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_NRT/2026-08-16_5d.csv",
+   "size": 37333960,
+   "mtime": "2026-11-14T18:39:41.718705Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_NRT/2026-08-21_5d.csv",
+   "size": 47447274,
+   "mtime": "2026-11-14T18:39:57.081586Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_NRT/2026-08-26_5d.csv",
+   "size": 43599914,
+   "mtime": "2026-11-14T18:41:15.235008Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_NRT/2026-08-31_5d.csv",
+   "size": 43240024,
+   "mtime": "2026-11-14T18:41:45.419797Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_NRT/2026-09-05_5d.csv",
+   "size": 24604874,
+   "mtime": "2026-11-14T18:41:54.172737Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_NRT/2026-09-10_5d.csv",
+   "size": 27275839,
+   "mtime": "2026-11-14T18:42:04.022670Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_NRT/2026-09-15_5d.csv",
+   "size": 32469637,
+   "mtime": "2026-11-14T18:42:15.646591Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_NRT/2026-09-20_5d.csv",
+   "size": 23631172,
+   "mtime": "2026-11-14T18:42:24.294533Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_NRT/2026-09-25_5d.csv",
+   "size": 22935976,
+   "mtime": "2026-11-14T18:42:31.876483Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_NRT/2026-09-30_5d.csv",
+   "size": 16158561,
+   "mtime": "2026-11-14T18:42:44.511400Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_NRT/2026-10-05_5d.csv",
+   "size": 24983018,
+   "mtime": "2026-11-14T18:42:52.830346Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_NRT/2026-10-10_5d.csv",
+   "size": 17988178,
+   "mtime": "2026-11-14T18:43:14.913204Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_NRT/2026-10-15_5d.csv",
+   "size": 22887265,
+   "mtime": "2026-11-14T18:43:29.033115Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_NRT/2026-10-20_5d.csv",
+   "size": 28527384,
+   "mtime": "2026-11-14T18:43:39.107052Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_NRT/2026-10-25_5d.csv",
+   "size": 21723776,
+   "mtime": "2026-11-14T18:43:48.112996Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_NRT/2026-10-30_4d.csv",
+   "size": 13282606,
+   "mtime": "2026-11-14T18:48:03.635559Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-01-01_5d.csv",
+   "size": 17624564,
+   "mtime": "2026-11-14T18:17:57.544332Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-01-06_5d.csv",
+   "size": 22094882,
+   "mtime": "2026-11-14T18:18:08.184759Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-01-11_5d.csv",
+   "size": 20287756,
+   "mtime": "2026-11-14T18:18:16.202731Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-01-16_5d.csv",
+   "size": 18465286,
+   "mtime": "2026-11-14T18:18:23.665705Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-01-21_5d.csv",
+   "size": 18209105,
+   "mtime": "2026-11-14T18:18:35.991662Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-01-26_5d.csv",
+   "size": 19100174,
+   "mtime": "2026-11-14T18:18:45.064630Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-01-31_5d.csv",
+   "size": 14557150,
+   "mtime": "2026-11-14T18:18:52.542604Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-02-05_5d.csv",
+   "size": 14643363,
+   "mtime": "2026-11-14T18:18:59.305581Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-02-10_5d.csv",
+   "size": 14720616,
+   "mtime": "2026-11-14T18:19:05.936558Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-02-15_5d.csv",
+   "size": 16975467,
+   "mtime": "2026-11-14T18:19:19.196513Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-02-20_5d.csv",
+   "size": 16962662,
+   "mtime": "2026-11-14T18:26:32.767162Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-02-25_5d.csv",
+   "size": 21184661,
+   "mtime": "2026-11-14T18:26:41.631137Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-03-02_5d.csv",
+   "size": 18708421,
+   "mtime": "2026-11-14T18:26:50.141112Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-03-07_5d.csv",
+   "size": 10590582,
+   "mtime": "2026-11-14T18:26:56.432094Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-03-12_5d.csv",
+   "size": 10186397,
+   "mtime": "2026-11-14T18:27:01.121184Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-03-17_5d.csv",
+   "size": 13520964,
+   "mtime": "2026-11-14T18:27:07.921350Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-03-22_5d.csv",
+   "size": 17588670,
+   "mtime": "2026-11-14T18:27:18.845030Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-03-27_5d.csv",
+   "size": 18489532,
+   "mtime": "2026-11-14T18:27:29.583999Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-04-01_5d.csv",
+   "size": 16850189,
+   "mtime": "2026-11-14T18:27:36.873978Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-04-06_5d.csv",
+   "size": 17061560,
+   "mtime": "2026-11-14T18:27:50.190940Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-04-11_5d.csv",
+   "size": 20371432,
+   "mtime": "2026-11-14T18:28:04.954898Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-04-16_5d.csv",
+   "size": 14958747,
+   "mtime": "2026-11-14T18:28:14.023873Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-04-21_5d.csv",
+   "size": 14705235,
+   "mtime": "2026-11-14T18:28:22.172850Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-04-26_5d.csv",
+   "size": 4536580,
+   "mtime": "2026-11-14T18:28:25.884839Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-05-01_5d.csv",
+   "size": 11714459,
+   "mtime": "2026-11-14T18:28:35.179741Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-05-06_5d.csv",
+   "size": 10907856,
+   "mtime": "2026-11-14T18:28:46.380782Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-05-11_5d.csv",
+   "size": 12529912,
+   "mtime": "2026-11-14T18:28:58.623793Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-05-16_5d.csv",
+   "size": 9778985,
+   "mtime": "2026-11-14T18:29:04.314885Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-05-21_5d.csv",
+   "size": 10938468,
+   "mtime": "2026-11-14T18:29:10.549714Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-05-26_5d.csv",
+   "size": 13512556,
+   "mtime": "2026-11-14T18:29:19.469780Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-05-31_5d.csv",
+   "size": 7550080,
+   "mtime": "2026-11-14T18:29:25.602013Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-06-05_5d.csv",
+   "size": 12530811,
+   "mtime": "2026-11-14T18:29:31.152356Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-06-10_5d.csv",
+   "size": 15171277,
+   "mtime": "2026-11-14T18:29:46.593613Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-06-15_5d.csv",
+   "size": 15772310,
+   "mtime": "2026-11-14T18:29:54.769986Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-06-20_5d.csv",
+   "size": 18811221,
+   "mtime": "2026-11-14T18:30:02.478570Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-06-25_5d.csv",
+   "size": 21999066,
+   "mtime": "2026-11-14T18:37:31.894798Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-06-30_5d.csv",
+   "size": 23925753,
+   "mtime": "2026-11-14T18:37:45.026680Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-07-05_5d.csv",
+   "size": 23194550,
+   "mtime": "2026-11-14T18:37:55.248589Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-07-10_5d.csv",
+   "size": 1234961,
+   "mtime": "2026-11-14T18:37:57.532569Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-07-15_5d.csv",
+   "size": 19407394,
+   "mtime": "2026-11-14T18:38:19.487238Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-07-20_5d.csv",
+   "size": 31004995,
+   "mtime": "2026-11-14T18:38:34.771249Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-07-25_5d.csv",
+   "size": 27860197,
+   "mtime": "2026-11-14T18:38:45.621158Z"
+  },
+  {
+   "file": "data/raw/api/VIIRS_SNPP_SP/2026-07-30_2d.csv",
+   "size": 12984839,
+   "mtime": "2026-11-14T18:38:53.235358Z"
+  },
+  {
+   "file": "data/raw/archive/modis_2000_all_countries.zip",
+   "size": 4658057,
+   "mtime": "2026-11-14T10:44:35.181346Z"
+  },
+  {
+   "file": "data/raw/archive/modis_2001_all_countries.zip",
+   "size": 31545201,
+   "mtime": "2026-11-14T10:48:23.599360Z"
+  },
+  {
+   "file": "data/raw/archive/modis_2002_all_countries.zip",
+   "size": 65275966,
+   "mtime": "2026-11-14T10:52:47.511679Z"
+  },
+  {
+   "file": "data/raw/archive/modis_2003_all_countries.zip",
+   "size": 90378077,
+   "mtime": "2026-11-14T11:32:33.716648Z"
+  },
+  {
+   "file": "data/raw/archive/modis_2004_all_countries.zip",
+   "size": 89357956,
+   "mtime": "2026-11-14T11:42:56.718437Z"
+  },
+  {
+   "file": "data/raw/archive/modis_2005_all_countries.zip",
+   "size": 89941181,
+   "mtime": "2026-11-14T11:44:39.280931Z"
+  },
+  {
+   "file": "data/raw/archive/modis_2006_all_countries.zip",
+   "size": 82443496,
+   "mtime": "2026-11-14T11:11:01.026337Z"
+  },
+  {
+   "file": "data/raw/archive/modis_2007_all_countries.zip",
+   "size": 90015477,
+   "mtime": "2026-11-14T11:12:02.742433Z"
+  },
+  {
+   "file": "data/raw/archive/modis_2008_all_countries.zip",
+   "size": 84590452,
+   "mtime": "2026-11-14T11:09:49.438236Z"
+  },
+  {
+   "file": "data/raw/archive/modis_2009_all_countries.zip",
+   "size": 78288906,
+   "mtime": "2026-11-14T11:24:08.188705Z"
+  },
+  {
+   "file": "data/raw/archive/modis_2010_all_countries.zip",
+   "size": 82694466,
+   "mtime": "2026-11-14T11:27:20.861154Z"
+  },
+  {
+   "file": "data/raw/archive/modis_2011_all_countries.zip",
+   "size": 82526410,
+   "mtime": "2026-11-14T11:28:22.945299Z"
+  },
+  {
+   "file": "data/raw/archive/modis_2012_all_countries.zip",
+   "size": 87107469,
+   "mtime": "2026-11-14T11:41:23.207812Z"
+  },
+  {
+   "file": "data/raw/archive/modis_2013_all_countries.zip",
+   "size": 74279102,
+   "mtime": "2026-11-14T11:38:07.603694Z"
+  },
+  {
+   "file": "data/raw/archive/modis_2014_all_countries.zip",
+   "size": 77920777,
+   "mtime": "2026-11-14T11:43:42.886759Z"
+  },
+  {
+   "file": "data/raw/archive/modis_2015_all_countries.zip",
+   "size": 83177469,
+   "mtime": "2026-11-14T11:49:45.165447Z"
+  },
+  {
+   "file": "data/raw/archive/modis_2016_all_countries.zip",
+   "size": 77490915,
+   "mtime": "2026-11-14T11:52:49.240754Z"
+  },
+  {
+   "file": "data/raw/archive/modis_2017_all_countries.zip",
+   "size": 78290700,
+   "mtime": "2026-11-14T11:54:57.210882Z"
+  },
+  {
+   "file": "data/raw/archive/modis_2018_all_countries.zip",
+   "size": 73887176,
+   "mtime": "2026-11-14T11:53:23.371254Z"
+  },
+  {
+   "file": "data/raw/archive/modis_2019_all_countries.zip",
+   "size": 80447291,
+   "mtime": "2026-11-14T11:55:20.384543Z"
+  },
+  {
+   "file": "data/raw/archive/modis_2020_all_countries.zip",
+   "size": 77958638,
+   "mtime": "2026-11-14T11:55:45.001184Z"
+  },
+  {
+   "file": "data/raw/archive/modis_2021_all_countries.zip",
+   "size": 77277752,
+   "mtime": "2026-11-14T12:00:08.623331Z"
+  },
+  {
+   "file": "data/raw/archive/modis_2022_all_countries.zip",
+   "size": 66472304,
+   "mtime": "2026-11-14T11:58:51.775454Z"
+  },
+  {
+   "file": "data/raw/archive/modis_2023_all_countries.zip",
+   "size": 81766470,
+   "mtime": "2026-11-14T12:02:24.046353Z"
+  },
+  {
+   "file": "data/raw/archive/modis_2024_all_countries.zip",
+   "size": 84548676,
+   "mtime": "2026-11-14T12:06:36.518943Z"
+  },
+  {
+   "file": "data/raw/archive/modis_2025_all_countries.zip",
+   "size": 64771492,
+   "mtime": "2026-11-14T12:07:12.225356Z"
+  },
+  {
+   "file": "data/raw/archive/viirs-jpss1_2018_all_countries.zip",
+   "size": 259896539,
+   "mtime": "2026-11-14T17:44:30.151521Z"
+  },
+  {
+   "file": "data/raw/archive/viirs-jpss1_2019_all_countries.zip",
+   "size": 370806690,
+   "mtime": "2026-11-14T17:46:57.038598Z"
+  },
+  {
+   "file": "data/raw/archive/viirs-jpss1_2020_all_countries.zip",
+   "size": 365551116,
+   "mtime": "2026-11-14T17:46:28.410900Z"
+  },
+  {
+   "file": "data/raw/archive/viirs-jpss1_2021_all_countries.zip",
+   "size": 358433386,
+   "mtime": "2026-11-14T17:46:38.962785Z"
+  },
+  {
+   "file": "data/raw/archive/viirs-jpss1_2022_all_countries.zip",
+   "size": 324844239,
+   "mtime": "2026-11-14T17:48:40.686714Z"
+  },
+  {
+   "file": "data/raw/archive/viirs-jpss1_2023_all_countries.zip",
+   "size": 379557198,
+   "mtime": "2026-11-14T17:49:54.009243Z"
+  },
+  {
+   "file": "data/raw/archive/viirs-jpss1_2024_all_countries.zip",
+   "size": 401156384,
+   "mtime": "2026-11-14T17:49:46.186288Z"
+  },
+  {
+   "file": "data/raw/archive/viirs-jpss1_2025_all_countries.zip",
+   "size": 328649496,
+   "mtime": "2026-11-14T17:50:25.119071Z"
+  },
+  {
+   "file": "data/raw/archive/viirs-snpp_2012_all_countries.zip",
+   "size": 369758237,
+   "mtime": "2026-11-14T17:29:17.784294Z"
+  },
+  {
+   "file": "data/raw/archive/viirs-snpp_2013_all_countries.zip",
+   "size": 344965208,
+   "mtime": "2026-11-14T17:28:18.875072Z"
+  },
+  {
+   "file": "data/raw/archive/viirs-snpp_2014_all_countries.zip",
+   "size": 360173547,
+   "mtime": "2026-11-14T17:28:41.713190Z"
+  },
+  {
+   "file": "data/raw/archive/viirs-snpp_2015_all_countries.zip",
+   "size": 379963894,
+   "mtime": "2026-11-14T17:29:45.836347Z"
+  },
+  {
+   "file": "data/raw/archive/viirs-snpp_2016_all_countries.zip",
+   "size": 361719272,
+   "mtime": "2026-11-14T17:30:22.572402Z"
+  },
+  {
+   "file": "data/raw/archive/viirs-snpp_2017_all_countries.zip",
+   "size": 356194900,
+   "mtime": "2026-11-14T17:29:50.506354Z"
+  },
+  {
+   "file": "data/raw/archive/viirs-snpp_2018_all_countries.zip",
+   "size": 340393945,
+   "mtime": "2026-11-14T17:36:43.805910Z"
+  },
+  {
+   "file": "data/raw/archive/viirs-snpp_2019_all_countries.zip",
+   "size": 373189317,
+   "mtime": "2026-11-14T17:39:04.406096Z"
+  },
+  {
+   "file": "data/raw/archive/viirs-snpp_2020_all_countries.zip",
+   "size": 367548957,
+   "mtime": "2026-11-14T17:38:01.057013Z"
+  },
+  {
+   "file": "data/raw/archive/viirs-snpp_2021_all_countries.zip",
+   "size": 359617758,
+   "mtime": "2026-11-14T17:39:06.200099Z"
+  },
+  {
+   "file": "data/raw/archive/viirs-snpp_2022_all_countries.zip",
+   "size": 307250332,
+   "mtime": "2026-11-14T17:36:07.216862Z"
+  },
+  {
+   "file": "data/raw/archive/viirs-snpp_2023_all_countries.zip",
+   "size": 385385667,
+   "mtime": "2026-11-14T17:39:38.607142Z"
+  },
+  {
+   "file": "data/raw/archive/viirs-snpp_2024_all_countries.zip",
+   "size": 371870408,
+   "mtime": "2026-11-14T17:44:36.166421Z"
+  },
+  {
+   "file": "data/raw/archive/viirs-snpp_2025_all_countries.zip",
+   "size": 327260243,
+   "mtime": "2026-11-14T17:43:48.398276Z"
+  }
+ ]
+}
