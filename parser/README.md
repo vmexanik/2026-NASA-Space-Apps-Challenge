@@ -11,7 +11,7 @@
 | Шлях | Що робить |
 |---|---|
 | `fetch_archive.py` | Завантажує річні архіви FIRMS усього світу в `data/raw/archive/`. MAP_KEY не потрібен |
-| `fetch_current_year.py` | Завантажує поточний рік з API FIRMS у `data/raw/api/`. Потрібен `FIRMS_MAP_KEY` у `.env` |
+| `fetch_current_year.py` | Завантажує поточний рік з API FIRMS у `data/raw/api/`. Потрібен `FIRMS_MAP_KEY` у змінній середовища або в `parser/.env` |
 | `firms_client.py` | Командний рядок для API FIRMS: стан ключа, доступні дати, точки однієї області |
 | `build_factors.py` | Рахує множники гармонізації й пише версію методу в `data/harmonization/<версія>/` |
 | `export_dump.py` | Збирає пакет дампу для світу або вибраних країн у `data/dump/<назва>/` |

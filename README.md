@@ -83,7 +83,7 @@ we_charge/
 
 **Дані поки синтетичні.** `WE_CHARGE_DATA_DRIVER=fake` віддає детерміновані демо-дані (`FakeHotspotRepository`), у UI показано банер «Demo data». Коли схема БД парсера буде готова, треба додати реалізацію `HotspotRepository` на PostGIS і перемкнути драйвер. Аналітика, API й фронтенд при цьому не змінюються.
 
-**MAP_KEY** зберігається в таблиці `settings` зашифрованим (`APP_KEY`). Якщо там порожньо, береться `FIRMS_MAP_KEY` з `.env`. Як парсер читатиме налаштування, ще не вирішено.
+**MAP_KEY** зберігається в таблиці `settings` зашифрованим (`APP_KEY`). Якщо там порожньо, береться `FIRMS_MAP_KEY` з `.env`. Скрипти даних у `parser/` цього налаштування не читають: ключ вони беруть зі змінної середовища `FIRMS_MAP_KEY`, а якщо її нема, то з `parser/.env` (`parser/firms/config.py`). Докладніше — у розділі MAP_KEY [parser/docs/deploy.md](parser/docs/deploy.md#map_key).
 
 **Підкладки карти** (без ключів): OpenStreetMap (за замовчуванням), Esri Light Gray і Esri World Imagery. CARTO basemaps тепер вимагають API-ключ, тому їх не використовуємо.
 

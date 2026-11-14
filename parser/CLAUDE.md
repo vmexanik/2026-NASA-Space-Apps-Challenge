@@ -18,7 +18,7 @@ The scripts stay apart from the Laravel application, in this folder, for three r
 | Path | What it does |
 |---|---|
 | `fetch_archive.py` | Downloads the yearly world archives of FIRMS (MODIS from 2000, VIIRS Suomi NPP from 2012, VIIRS NOAA-20 from 2018) into `data/raw/archive/`. Needs no MAP_KEY. A second run resumes an interrupted download. |
-| `fetch_current_year.py` | Downloads the current year for the whole world from the FIRMS area API into `data/raw/api/<SOURCE>/`. Needs `FIRMS_MAP_KEY` in `.env`. |
+| `fetch_current_year.py` | Downloads the current year for the whole world from the FIRMS area API into `data/raw/api/<SOURCE>/`. Needs `FIRMS_MAP_KEY` in the environment or in `parser/.env`. |
 | `firms_client.py` | Command line for the FIRMS API: key status, data availability, the hotspots of one area. |
 | `firms/` | The package behind these scripts: the API client, the archive download, the data models. |
 | `build_factors.py` | Computes the harmonization factors (MODIS points to VIIRS Suomi NPP points, per 2-degree square and calendar month), assembles the series with backup satellites for the days a satellite was silent, checks itself year by year and writes the method version files into `data/harmonization/<version>/` for the dump. Reads `data/raw/archive/` and `data/raw/api/`. |
