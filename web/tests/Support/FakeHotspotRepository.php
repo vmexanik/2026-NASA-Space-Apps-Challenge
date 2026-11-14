@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repositories;
+namespace Tests\Support;
 
 use App\Contracts\HotspotRepository;
 use App\Support\Aoi;
@@ -9,7 +9,8 @@ use Random\Engine\Mt19937;
 use Random\Randomizer;
 
 /**
- * Deterministic synthetic hotspots for UI development, until the real schema exists.
+ * Test double: deterministic synthetic hotspots, so API tests run without the firms schema.
+ * To be replaced by fixtures shaped like the real data once the test package exists.
  *
  * Same AOI → same numbers. Mimics what real data looks like:
  *  - latitude-dependent fire season, year-to-year variability, occasional extreme years;
@@ -25,11 +26,53 @@ final class FakeHotspotRepository implements HotspotRepository
 
     private const VIIRS_START = '2012-01-01';
 
-    public function __construct(private readonly ?CarbonImmutable $today = null) {}
+    /** @param bool $harmonized false gives months without error figures (as raw, unharmonized data would) */
+    public function __construct(private readonly ?CarbonImmutable $today = null, private readonly bool $harmonized = true) {}
 
-    public function isDemo(): bool
+    public function method(): array
     {
-        return true;
+        return [
+            'version' => 'v1-2026-11-14',
+            'label' => 'Test method',
+            'params' => ['confidence_filter' => null],
+            'created_at' => '2026-11-14T00:00:00+00:00',
+        ];
+    }
+
+    public function dataset(): ?array
+    {
+        return ['name' => 'test', 'scope' => 'countries', 'countries' => ['Ukraine'], 'built_at' => '2026-11-14T00:00:00+00:00'];
+    }
+
+    public function hotspotCount(Aoi $aoi, CarbonImmutable $from, CarbonImmutable $to, int $limit): int
+    {
+        $n = 0;
+        foreach ($this->hotspots($aoi, $from, $to, $limit) as $_) {
+            $n++;
+        }
+
+        return $n;
+    }
+
+    public function mapFeatures(float $west, float $south, float $east, float $north, int $zoom,
+        CarbonImmutable $from, CarbonImmutable $to, int $maxPoints): array
+    {
+        $out = [];
+        $rnd = new Randomizer(new Mt19937(crc32("$west,$south,$east,$north,$zoom")));
+        for ($i = 0; $i < min(50, $maxPoints); $i++) {
+            $lon = $rnd->getFloat($west, $east);
+            $lat = $rnd->getFloat($south, $north);
+            $out[] = $zoom >= 9
+                ? ['kind' => 'point', 'lon' => $lon, 'lat' => $lat, 'cell_west' => null, 'cell_south' => null,
+                    'cell_east' => null, 'cell_north' => null, 'satellite' => $i % 2 ? 'Aqua' : 'N',
+                    'acq_date' => $from->toDateString(), 'frp' => 10.0, 'weight' => $i % 2 ? 2.6 : 1.0,
+                    'n_raw' => null, 'n_harm' => null, 'own_share' => $i % 2 ? 0.4 : null]
+                : ['kind' => 'cell', 'lon' => null, 'lat' => null, 'cell_west' => $lon, 'cell_south' => $lat,
+                    'cell_east' => $lon + 0.25, 'cell_north' => $lat + 0.25, 'satellite' => null, 'acq_date' => null,
+                    'frp' => null, 'weight' => null, 'n_raw' => 10, 'n_harm' => 14.5, 'own_share' => null];
+        }
+
+        return $out;
     }
 
     public function coverage(): array
@@ -57,8 +100,9 @@ final class FakeHotspotRepository implements HotspotRepository
         return $rows;
     }
 
-    public function hotspots(Aoi $aoi, CarbonImmutable $from, CarbonImmutable $to): iterable
+    public function hotspots(Aoi $aoi, CarbonImmutable $from, CarbonImmutable $to, int $maxRows): iterable
     {
+        $n = 0;
         $bbox = $aoi->bbox();
         $from = $from->startOfDay();
         $to = $to->endOfDay();
@@ -87,6 +131,9 @@ final class FakeHotspotRepository implements HotspotRepository
                     continue;
                 }
 
+                if ($n++ >= $maxRows) {
+                    return;
+                }
                 yield $this->detection($rnd, $row['source'], $date, $point);
             }
         }
@@ -121,7 +168,7 @@ final class FakeHotspotRepository implements HotspotRepository
         ];
     }
 
-    /** @return array{year: int, month: int, count: int, count_raw: int, source: string, partial: bool} */
+    /** @return array<string, mixed> one monthlyCounts row */
     private function month(int $year, int $month, array $profile, string $seed, CarbonImmutable $lastDay): array
     {
         $yearFactor = exp(0.35 * $this->normal($seed, "y$year"));
@@ -145,6 +192,8 @@ final class FakeHotspotRepository implements HotspotRepository
                 'count_raw' => $raw,
                 'source' => 'modis',
                 'partial' => $partial,
+                'count_error' => $this->harmonized ? (int) round($raw * self::MODIS_TO_VIIRS * 0.2) : null,
+                'incomplete' => $year <= 2002 && $month === 6, // a Terra gap
             ];
         }
 
@@ -155,6 +204,8 @@ final class FakeHotspotRepository implements HotspotRepository
             'count' => $count, 'count_raw' => $count,
             'source' => 'viirs',
             'partial' => $partial,
+            'count_error' => $this->harmonized ? 0 : null,
+            'incomplete' => false,
         ];
     }
 
@@ -182,6 +233,12 @@ final class FakeHotspotRepository implements HotspotRepository
             'frp' => round(exp($rnd->getFloat(log(1), log($modis ? 400 : 150))), 1),
             'daynight' => $day ? 'D' : 'N',
             'source' => $source,
+            'brightness' => 320.5,
+            'brightness_2' => 290.1,
+            'scan' => $modis ? 1.2 : 0.4,
+            'track' => $modis ? 1.1 : 0.4,
+            'firms_version' => $modis ? '6.03' : '2.0NRT',
+            'weight' => $modis ? self::MODIS_TO_VIIRS : 1.0,
         ];
     }
 

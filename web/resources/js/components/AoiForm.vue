@@ -2,18 +2,35 @@
 // Quick areas and a typed bounding box: the keyboard-friendly way to set the AOI.
 import { reactive, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { api, isAdmin } from '../api';
 
-const props = defineProps({ modelValue: { type: Object, default: null } });
-const emit = defineEmits(['update:modelValue']);
-const { t } = useI18n();
+const props = defineProps({
+    modelValue: { type: Object, default: null },
+    // Quick areas from /api/meta (saved by admins): [{ id, name: { en, uk }, geometry }].
+    presets: { type: Array, default: () => [] },
+});
+const emit = defineEmits(['update:modelValue', 'preset-saved']);
+const { t, locale } = useI18n();
 
-const PRESETS = [
-    { name: 'Kyiv region', bbox: [29.2, 49.2, 32.2, 51.6] },
-    { name: 'Ukraine', bbox: [22.1, 44.3, 40.2, 52.4] },
-    { name: 'California', bbox: [-124.5, 32.5, -114.1, 42.0] },
-    { name: 'Rondônia, BR', bbox: [-66.8, -13.7, -59.8, -7.9] },
-    { name: 'New South Wales', bbox: [141.0, -37.5, 153.6, -28.2] },
-];
+const admin = isAdmin();
+const saving = ref(false);
+const saved = ref('');
+
+async function savePreset() {
+    const name = window.prompt(t('aoi.presetName'))?.trim();
+    if (!name) return;
+    saving.value = true;
+    saved.value = '';
+    try {
+        const preset = await api.savePreset(name, props.modelValue);
+        emit('preset-saved', preset);
+        saved.value = t('aoi.presetSaved', { name });
+    } catch (e) {
+        saved.value = e.message || t('errors.generic');
+    } finally {
+        saving.value = false;
+    }
+}
 
 const box = reactive({ west: null, south: null, east: null, north: null });
 const error = ref('');
@@ -56,14 +73,23 @@ function apply() {
             <p class="mb-1 text-xs font-medium tracking-wide text-muted uppercase">{{ t('aoi.presets') }}</p>
             <div class="flex flex-wrap gap-1.5">
                 <button
-                    v-for="p in PRESETS"
-                    :key="p.name"
+                    v-for="p in presets"
+                    :key="p.id"
                     type="button"
                     class="rounded-full border border-line bg-panel px-2.5 py-0.5 text-sm hover:border-accent"
-                    @click="emit('update:modelValue', bboxPolygon(p.bbox))"
+                    @click="emit('update:modelValue', JSON.parse(JSON.stringify(p.geometry)))"
                 >
-                    {{ p.name }}
+                    {{ p.name[locale] ?? p.name.en }}
                 </button>
+            </div>
+            <div v-if="admin && modelValue" class="mt-2">
+                <button
+                    type="button"
+                    class="rounded-md border border-dashed border-line px-2.5 py-1 text-sm hover:border-accent disabled:opacity-60"
+                    :disabled="saving"
+                    @click="savePreset"
+                >＋ {{ t('aoi.savePreset') }}</button>
+                <p v-if="saved" class="mt-1 text-xs text-muted" role="status">{{ saved }}</p>
             </div>
         </div>
 

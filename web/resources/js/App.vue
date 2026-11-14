@@ -22,6 +22,7 @@ const calendar = ref(null);
 const summary = ref(null);
 const loading = ref(false);
 const error = ref('');
+const metaError = ref(''); // the app cannot start: no data in the database, server down
 const notice = ref('');
 const mode = ref('counts');
 const selectedYear = ref(null);
@@ -118,8 +119,8 @@ onMounted(async () => {
         meta.value = await api.meta();
         dateFrom.value = meta.value.data.from;
         dateTo.value = meta.value.data.to;
-    } catch {
-        error.value = t('errors.generic');
+    } catch (e) {
+        metaError.value = e instanceof ApiError && e.status === 503 ? t('errors.noData') : t('errors.generic');
     }
 });
 onBeforeUnmount(() => window.removeEventListener('resize', onResize));
@@ -145,6 +146,21 @@ const trendText = computed(() => {
     return `${t('kpi.' + tr.direction)} · ${t('kpi.trendValue', { pct: pct(tr.pct_per_decade) })}`;
 });
 const fireSeason = computed(() => (summary.value?.fire_season ?? []).map((m) => monthName(m)).join(', '));
+const methodName = computed(() => meta.value?.method.name?.[locale.value] ?? meta.value?.method.label ?? '');
+const qualityFilter = computed(() => {
+    const f = meta.value?.method.params?.confidence_filter;
+    if (!f) return t('method.noFilter');
+    const parts = [];
+    if (f.modis_min_confidence != null) parts.push(`MODIS confidence ≥ ${f.modis_min_confidence}`);
+    if (f.viirs_confidence_levels) parts.push(`VIIRS confidence ${f.viirs_confidence_levels.join(', ')}`);
+    return parts.join('; ');
+});
+const coverageNote = computed(() => {
+    const d = meta.value?.dataset;
+    if (d?.scope !== 'countries' || !d.countries?.length) return '';
+    const names = d.countries.map((c) => (t(`countries.${c}`) === `countries.${c}` ? c : t(`countries.${c}`)));
+    return t('app.coverage', { countries: names.join(', ') });
+});
 const tooLarge = computed(() => summary.value && meta.value && summary.value.totals.hotspots_raw > meta.value.limits.csv_export_max_rows);
 
 // --- exports ------------------------------------------------------------------------
@@ -163,8 +179,8 @@ async function exportHotspots() {
 }
 
 function exportCalendarTable() {
-    const rows = [['year', 'month', 'hotspots_harmonized', 'detections_raw', 'source', 'partial', 'anomaly_vs_mean', 'anomaly_pct', 'z_score']];
-    for (const c of calendar.value.cells) rows.push([c.year, c.month, c.count, c.count_raw, c.source, c.partial, c.anomaly, c.anomaly_pct, c.z]);
+    const rows = [['year', 'month', 'hotspots_harmonized', 'hotspots_error', 'detections_raw', 'source', 'partial', 'incomplete', 'anomaly_vs_mean', 'anomaly_pct', 'z_score']];
+    for (const c of calendar.value.cells) rows.push([c.year, c.month, c.count, c.count_error, c.count_raw, c.source, c.partial, c.incomplete, c.anomaly, c.anomaly_pct, c.z]);
     downloadCsv(rows, `calendar_${calendar.value.range.from}_${calendar.value.range.to}`);
 }
 
@@ -172,7 +188,7 @@ function exportRankings() {
     const s = summary.value;
     const rows = [['section', 'year', 'month', 'hotspots', 'extra']];
     s.top_months.forEach((m) => rows.push(['top_month', m.year, m.month, m.count, m.source]));
-    s.top_years.forEach((y) => rows.push(['top_year', y.year, '', y.count, y.complete ? 'complete' : 'incomplete']));
+    s.top_years.forEach((y) => rows.push(['top_year', y.year, '', y.count, `${y.complete ? 'complete' : 'incomplete'};error=${y.count_error ?? ''}`]));
     s.yearly.forEach((y) => rows.push(['yearly_anomaly_pct', y.year, '', y.count, y.anomaly_pct]));
     calendar.value.baseline.by_month.forEach((b) => rows.push(['baseline_month', '', b.month, b.median, `mean=${b.mean};p10=${b.p10};p90=${b.p90}`]));
     downloadCsv(rows, `analytics_${s.range.from}_${s.range.to}`);
@@ -197,7 +213,6 @@ const btn = 'rounded-md border border-line px-2.5 py-1 text-sm hover:border-acce
                     <h1 class="truncate text-base leading-tight font-semibold">{{ t('app.title') }}</h1>
                     <p class="hidden truncate text-xs text-muted sm:block">{{ t('app.subtitle') }}</p>
                 </div>
-                <span v-if="meta?.demo" class="ml-1 hidden shrink-0 rounded-full bg-warn px-2 py-0.5 text-xs md:inline" :title="t('app.demo')">⚠ Demo data</span>
             </div>
             <div class="flex shrink-0 items-center gap-3">
                 <a href="#method" class="hidden text-sm underline decoration-line underline-offset-4 hover:decoration-accent sm:inline">{{ t('method.title') }}</a>
@@ -223,12 +238,27 @@ const btn = 'rounded-md border border-line px-2.5 py-1 text-sm hover:border-acce
                 <AoiMap
                     ref="mapRef"
                     v-model="aoi"
+                    :date-from="meta ? dateFrom : ''"
+                    :date-to="meta ? dateTo : ''"
                     :insets="insets"
                     :confirm-delete="confirmingDelete"
                     @delete="askDelete"
                     @delete-confirm="clearAoi"
                     @delete-cancel="cancelDelete"
                     class="absolute inset-0 z-0" />
+
+                <p
+                    v-if="metaError"
+                    class="absolute bottom-6 left-1/2 z-[500] max-w-[90%] -translate-x-1/2 rounded-md bg-red-50 px-3 py-1.5 text-center text-sm text-red-800 shadow dark:bg-red-950 dark:text-red-200"
+                    role="alert"
+                >{{ metaError }}</p>
+
+                <!-- The database covers only some countries -->
+                <p
+                    v-if="coverageNote"
+                    class="pointer-events-none absolute bottom-6 left-1/2 z-[500] max-w-[90%] -translate-x-1/2 rounded-md bg-warn px-3 py-1.5 text-center text-xs shadow"
+                    role="note"
+                >{{ coverageNote }}</p>
 
                 <!-- Controls (left) -->
                 <div class="absolute top-3 left-3 z-[500] w-[min(320px,calc(100%-4.5rem))] rounded-xl border border-line bg-panel/95 shadow-lg backdrop-blur">
@@ -267,7 +297,7 @@ const btn = 'rounded-md border border-line px-2.5 py-1 text-sm hover:border-acce
                             </button>
                         </div>
 
-                        <AoiForm v-model="aoi" />
+                        <AoiForm v-model="aoi" :presets="meta?.presets ?? []" @preset-saved="meta.presets.push($event)" />
 
                         <form class="space-y-2 border-t border-line pt-3" @submit.prevent="run">
                             <p class="text-xs font-medium tracking-wide text-muted uppercase">{{ t('dates.title') }}</p>
@@ -322,6 +352,8 @@ const btn = 'rounded-md border border-line px-2.5 py-1 text-sm hover:border-acce
                         <div class="rounded-lg border border-line p-3">
                             <p class="text-xs text-muted">{{ t('kpi.total') }}</p>
                             <p class="text-xl font-semibold tabular-nums">{{ num(summary.totals.hotspots) }}</p>
+                            <p v-if="summary.totals.hotspots_error" class="text-xs text-muted tabular-nums">{{ t('calendar.error', { err: num(summary.totals.hotspots_error) }) }}</p>
+                            <p class="text-xs text-muted tabular-nums">{{ t('kpi.detected', { n: num(summary.totals.hotspots_raw) }) }}</p>
                         </div>
                         <div class="rounded-lg border border-line p-3">
                             <p class="text-xs text-muted">{{ t('kpi.perYear') }}</p>
@@ -433,45 +465,34 @@ const btn = 'rounded-md border border-line px-2.5 py-1 text-sm hover:border-acce
                             </div>
                             <button type="button" :class="btn" @click="downloadPng(anomalies.svg, fname('anomalies'))">{{ t('export.png') }}</button>
                         </div>
-                        <YearlyAnomalies ref="anomalies" :yearly="summary.yearly" @select="selectedYear = $event" />
+                        <YearlyAnomalies ref="anomalies" :yearly="summary.yearly" :mean="summary.totals.mean_per_year" :selected="selectedYear" @select="selectedYear = $event" />
                     </section>
                 </div>
 
-                <!-- Rankings -->
-                <div class="grid gap-6 md:grid-cols-2">
-                    <section class="rounded-xl border border-line bg-panel p-4">
-                        <h2 class="mb-2 text-base font-semibold">{{ t('rank.months') }}</h2>
-                        <table class="w-full text-sm">
-                            <thead class="text-left text-xs text-muted">
-                                <tr><th class="py-1 font-medium">#</th><th class="font-medium">{{ t('rank.month') }}</th><th class="text-right font-medium">{{ t('rank.count') }}</th><th class="text-right font-medium">{{ t('rank.source') }}</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="(m, i) in summary.top_months" :key="`${m.year}-${m.month}`" class="border-t border-line">
-                                    <td class="py-1.5 text-muted tabular-nums">{{ i + 1 }}</td>
-                                    <td>{{ monthYear(m.year, m.month) }}</td>
-                                    <td class="text-right font-medium tabular-nums">{{ num(m.count) }}</td>
-                                    <td class="text-right text-xs text-muted">{{ m.source === 'modis' ? 'MODIS*' : 'VIIRS' }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </section>
-                    <section class="rounded-xl border border-line bg-panel p-4">
-                        <h2 class="mb-2 text-base font-semibold">{{ t('rank.years') }}</h2>
-                        <table class="w-full text-sm">
-                            <thead class="text-left text-xs text-muted">
-                                <tr><th class="py-1 font-medium">#</th><th class="font-medium">{{ t('rank.year') }}</th><th class="text-right font-medium">{{ t('rank.count') }}</th><th></th></tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="(y, i) in summary.top_years" :key="y.year" class="border-t border-line">
-                                    <td class="py-1.5 text-muted tabular-nums">{{ i + 1 }}</td>
-                                    <td>{{ y.year }}</td>
-                                    <td class="text-right font-medium tabular-nums">{{ num(y.count) }}</td>
-                                    <td class="text-right text-xs text-muted">{{ y.complete ? '' : t('anomalies.incomplete') }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </section>
-                </div>
+                <!-- Most active months (the years are in "Fires per year") -->
+                <section class="rounded-xl border border-line bg-panel p-4">
+                    <h2 class="mb-2 text-base font-semibold">{{ t('rank.months') }}</h2>
+                    <table class="w-full text-sm">
+                        <thead class="text-left text-xs text-muted">
+                            <tr>
+                                <th class="py-1 font-medium">#</th>
+                                <th class="font-medium">{{ t('rank.month') }}</th>
+                                <th class="text-right font-medium">{{ t('rank.count') }}</th>
+                                <th class="text-right font-medium">{{ t('rank.detections') }}</th>
+                                <th class="text-right font-medium">{{ t('rank.source') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(m, i) in summary.top_months" :key="`${m.year}-${m.month}`" class="border-t border-line">
+                                <td class="py-1.5 text-muted tabular-nums">{{ i + 1 }}</td>
+                                <td>{{ monthYear(m.year, m.month) }}</td>
+                                <td class="text-right font-medium tabular-nums">{{ num(m.count) }}<span v-if="m.count_error" class="font-normal text-muted"> ± {{ num(m.count_error) }}</span></td>
+                                <td class="text-right text-muted tabular-nums">{{ num(m.count_raw) }}</td>
+                                <td class="text-right text-xs text-muted">{{ m.source === 'modis' ? 'MODIS*' : 'VIIRS' }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
 
                 <!-- Downloads -->
                 <section class="rounded-xl border border-line bg-panel p-4" aria-labelledby="dl-h">
@@ -494,11 +515,10 @@ const btn = 'rounded-md border border-line px-2.5 py-1 text-sm hover:border-acce
             <!-- Methodology -->
             <section id="method" class="rounded-xl border border-line bg-panel p-4 text-sm leading-relaxed" aria-labelledby="method-h">
                 <h2 id="method-h" class="mb-2 text-base font-semibold">{{ t('method.title') }}</h2>
-                <p v-if="meta?.demo" class="mb-2 rounded-md bg-warn p-2">⚠ {{ t('app.demo') }}</p>
                 <template v-if="meta">
                     <p class="mb-2">{{ t('method.p1') }}</p>
-                    <p class="mb-2">{{ t('method.p2', { grid: meta.method.grid_step }) }}</p>
-                    <p class="mb-2">{{ t('method.p3', { modis: meta.method.modis_min_confidence, viirs: meta.method.viirs_confidence_levels.join(', '), version: meta.method.version }) }}</p>
+                    <p class="mb-2">{{ t('method.p2') }}</p>
+                    <p class="mb-2">{{ t('method.p3', { name: methodName, filter: qualityFilter }) }}</p>
                     <p class="mb-2">{{ t('method.p4') }}</p>
                     <p class="mb-1 font-medium">{{ t('method.sources') }}</p>
                     <ul class="mb-2 flex flex-wrap gap-1.5">

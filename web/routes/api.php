@@ -8,5 +8,6 @@ Route::middleware('throttle:public-api')->group(function () {
     Route::get('/meta', [AnalyticsController::class, 'meta']);
     Route::post('/calendar', [AnalyticsController::class, 'calendar']);
     Route::post('/summary', [AnalyticsController::class, 'summary']);
+    Route::post('/map', [AnalyticsController::class, 'map']);
     Route::post('/export/csv', [ExportController::class, 'csv']);
 });

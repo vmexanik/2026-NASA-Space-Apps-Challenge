@@ -6,6 +6,9 @@ import { useI18n } from 'vue-i18n';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
+import { api } from '../api';
+import { sequential } from '../colors';
+import { date, num } from '../format';
 
 // Leaflet.draw uses 20 px vertex handles on touch-capable browsers (most desktops today); halve them.
 const HANDLE = 10;
@@ -52,6 +55,9 @@ const props = defineProps({
     insets: { type: Array, default: () => [0, 0] },
     // The parent is asking "delete the shape?": show the confirmation bar next to the trash button.
     confirmDelete: { type: Boolean, default: false },
+    // Dates of the fires layer (YYYY-MM-DD); empty until the app knows the data range.
+    dateFrom: { type: String, default: '' },
+    dateTo: { type: String, default: '' },
 });
 // 'delete' asks to remove the shape, 'delete-confirm' confirms it, 'delete-cancel' (trash clicked again) backs out.
 const emit = defineEmits(['update:modelValue', 'delete', 'delete-confirm', 'delete-cancel']);
@@ -197,6 +203,82 @@ function startDraw(kind = 'rectangle') {
 
 defineExpose({ startDraw });
 
+// --- fires layer --------------------------------------------------------------------
+// Drawn on canvas: points from zoom 9, grid cells below (POST /api/map). MODIS points get their
+// own colour, since their weight comes from the harmonization factor.
+const MODIS = new Set(['Terra', 'Aqua']);
+const POINT_COLOR = { modis: '#1b7f8c', viirs: '#bc3754' };
+let fires = null;
+let renderer = null;
+let firesTimer = null;
+let firesAbort = null;
+const firesNote = ref('');
+
+function scheduleFires() {
+    clearTimeout(firesTimer);
+    firesTimer = setTimeout(loadFires, 300); // the API is rate-limited per IP
+}
+
+async function loadFires() {
+    if (!map || !props.dateFrom || !props.dateTo) return;
+    firesAbort?.abort();
+    firesAbort = new AbortController();
+    const b = map.getBounds();
+    const clip = (v, lim) => Math.max(-lim, Math.min(lim, v));
+    const bbox = [clip(b.getWest(), 180), clip(b.getSouth(), 90), clip(b.getEast(), 180), clip(b.getNorth(), 90)];
+    if (bbox[0] >= bbox[2] || bbox[1] >= bbox[3]) return;
+
+    firesNote.value = t('fires.loading');
+    try {
+        const data = await api.map({ bbox, zoom: map.getZoom(), date_from: props.dateFrom, date_to: props.dateTo }, firesAbort.signal);
+        drawFires(data);
+        firesNote.value = data.truncated ? t('fires.zoomIn') : '';
+    } catch (e) {
+        if (e.name !== 'AbortError') firesNote.value = '';
+    }
+}
+
+function drawFires(data) {
+    fires.clearLayers();
+    const maxCell = Math.max(0, ...data.features.filter((f) => f.properties.kind === 'cell').map((f) => f.properties.n_harm));
+    for (const f of data.features) {
+        const p = f.properties;
+        if (p.kind === 'point') {
+            const [lon, lat] = f.geometry.coordinates;
+            const modis = MODIS.has(p.satellite);
+            const lines = [
+                `<strong>${modis ? t('fires.modis') : t('fires.viirs')}</strong> · ${p.satellite}`,
+                date(p.acq_date) + (p.frp != null ? ` · FRP ${num(p.frp, 1)} MW` : ''),
+                t('fires.weight', { w: num(p.weight, 2) }),
+            ];
+            if (p.own_share != null) lines.push(t('fires.ownShare', { p: `${num(p.own_share * 100)} %` }));
+            L.circleMarker([lat, lon], {
+                renderer,
+                radius: 4,
+                weight: 1,
+                color: '#ffffff',
+                fillColor: modis ? POINT_COLOR.modis : POINT_COLOR.viirs,
+                fillOpacity: 0.9,
+            })
+                .bindTooltip(lines.join('<br>'))
+                .addTo(fires);
+        } else {
+            const ring = f.geometry.coordinates[0];
+            L.rectangle([[ring[0][1], ring[0][0]], [ring[2][1], ring[2][0]]], {
+                renderer,
+                weight: 0,
+                fillColor: sequential(p.n_harm, maxCell) ?? 'transparent',
+                fillOpacity: 0.45,
+                interactive: true,
+            })
+                .bindTooltip(t('fires.cell', { n: num(p.n_harm), raw: num(p.n_raw) }))
+                .addTo(fires);
+        }
+    }
+}
+
+watch(() => [props.dateFrom, props.dateTo], scheduleFires);
+
 onMounted(async () => {
     // leaflet-draw expects a global L.
     window.L = L;
@@ -228,6 +310,12 @@ onMounted(async () => {
     Object.values(layers)[0].addTo(map);
     L.control.layers(layers, null, { position: 'topright' }).addTo(map);
 
+    renderer = L.canvas({ padding: 0.2 });
+    fires = L.layerGroup().addTo(map);
+    // moveend also fires after every zoom, so a zoomend listener would double the requests.
+    map.on('moveend', scheduleFires);
+    scheduleFires();
+
     shrinkHandles();
     drawn = new L.FeatureGroup().addTo(map);
     buildControls();
@@ -251,7 +339,11 @@ onMounted(async () => {
     redraw(true);
 });
 
-onBeforeUnmount(() => map?.remove());
+onBeforeUnmount(() => {
+    clearTimeout(firesTimer);
+    firesAbort?.abort();
+    map?.remove();
+});
 
 watch(
     () => props.modelValue,
@@ -274,5 +366,12 @@ watch(locale, () => {
 </script>
 
 <template>
-    <div ref="el" class="h-full w-full" role="application" :aria-label="t('aoi.title')"></div>
+    <div class="h-full w-full">
+        <div ref="el" class="h-full w-full" role="application" :aria-label="t('aoi.title')"></div>
+        <p
+            v-if="firesNote"
+            class="pointer-events-none absolute top-3 left-1/2 z-[500] -translate-x-1/2 rounded-md bg-panel/95 px-3 py-1 text-xs shadow"
+            role="status"
+        >{{ firesNote }}</p>
+    </div>
 </template>

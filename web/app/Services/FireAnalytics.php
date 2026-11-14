@@ -46,7 +46,6 @@ final class FireAnalytics
             ],
             'scale' => ['min' => 0, 'max' => $counts === [] ? 0 : max($counts)],
             'sources' => $this->sourceSummary($cells),
-            'demo' => $this->repository->isDemo(),
         ];
     }
 
@@ -59,8 +58,15 @@ final class FireAnalytics
         // Annual totals within the range.
         $years = [];
         foreach ($cells as $row) {
-            $years[$row['year']] ??= ['year' => $row['year'], 'count' => 0, 'months' => 0, 'complete' => true];
+            $years[$row['year']] ??= ['year' => $row['year'], 'count' => 0, 'count_error' => 0, 'count_raw' => 0, 'source' => $row['source'], 'months' => 0, 'complete' => true, 'incomplete' => false];
             $years[$row['year']]['count'] += $row['count'];
+            $years[$row['year']]['count_raw'] += $row['count_raw'];
+            if ($years[$row['year']]['source'] !== $row['source']) {
+                $years[$row['year']]['source'] = 'mixed'; // the year where VIIRS takes over
+            }
+            // Upper bound of the year's error: the sum of the months' errors (null when the method has none).
+            $years[$row['year']]['count_error'] = self::addError($years[$row['year']]['count_error'], $row['count_error'] ?? null);
+            $years[$row['year']]['incomplete'] = $years[$row['year']]['incomplete'] || ($row['incomplete'] ?? false);
             $years[$row['year']]['months']++;
             if ($row['partial']) {
                 $years[$row['year']]['complete'] = false;
@@ -90,6 +96,7 @@ final class FireAnalytics
             'range' => $this->rangeInfo($cells, $from, $to),
             'totals' => [
                 'hotspots' => $total,
+                'hotspots_error' => array_reduce($cells, fn ($sum, $row) => self::addError($sum, $row['count_error'] ?? null), $cells === [] ? null : 0),
                 'hotspots_raw' => array_sum(array_column($cells, 'count_raw')),
                 'months' => count($cells),
                 'mean_per_year' => $yearMean === null ? null : round($yearMean, 1),
@@ -107,11 +114,16 @@ final class FireAnalytics
                 ? array_keys(array_filter($medians, fn ($m) => $m >= 0.5 * $maxMedian))
                 : [],
             'sources' => $this->sourceSummary($cells),
-            'demo' => $this->repository->isDemo(),
         ];
     }
 
     // --- internals -----------------------------------------------------------------
+
+    /** Sum of errors that stays null once any part is null (a version without harmonization has no error). */
+    private static function addError(?int $sum, ?int $error): ?int
+    {
+        return $sum === null || $error === null ? null : $sum + $error;
+    }
 
     /** @return array{0: list<array>, 1: array<int, array>} full series + baseline keyed by month 1..12 */
     private function load(Aoi $aoi): array

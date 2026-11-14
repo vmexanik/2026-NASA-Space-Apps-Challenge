@@ -4,12 +4,11 @@ namespace App\Providers;
 
 use App\Contracts\HotspotRepository;
 use App\Models\Setting;
-use App\Repositories\FakeHotspotRepository;
+use App\Repositories\PostgisHotspotRepository;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
-use InvalidArgumentException;
 use Throwable;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,13 +18,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(HotspotRepository::class, function () {
-            return match (config('we_charge.data_driver')) {
-                'fake' => new FakeHotspotRepository,
-                // 'postgis' => new PostgisHotspotRepository(...),  // once the parser schema is fixed
-                default => throw new InvalidArgumentException('Unknown WE_CHARGE_DATA_DRIVER: '.config('we_charge.data_driver')),
-            };
-        });
+        $this->app->singleton(HotspotRepository::class, PostgisHotspotRepository::class);
     }
 
     /**

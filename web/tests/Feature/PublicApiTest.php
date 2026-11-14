@@ -3,10 +3,12 @@
 namespace Tests\Feature;
 
 use App\Contracts\HotspotRepository;
+use App\Models\AreaPreset;
 use App\Models\Setting;
-use App\Repositories\FakeHotspotRepository;
+use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\FakeHotspotRepository;
 use Tests\TestCase;
 
 class PublicApiTest extends TestCase
@@ -31,8 +33,13 @@ class PublicApiTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.from', '2000-11-01')
             ->assertJsonPath('data.to', '2026-11-13')
-            ->assertJsonPath('demo', true)
-            ->assertJsonStructure(['method' => ['version', 'grid_step'], 'sources', 'limits' => ['max_aoi_area_km2', 'csv_export_max_rows']]);
+            ->assertJsonPath('method.version', 'v1-2026-11-14')
+            ->assertJsonPath('method.params.confidence_filter', null)
+            ->assertJsonPath('method.name.uk', 'Метод приведення за площею та місяцем')
+            ->assertJsonPath('dataset.scope', 'countries')
+            ->assertJsonPath('dataset.countries', ['Ukraine'])
+            ->assertJsonMissingPath('demo')
+            ->assertJsonStructure(['method' => ['version', 'label', 'params', 'name' => ['en', 'uk']], 'sources', 'limits' => ['max_aoi_area_km2', 'csv_export_max_rows']]);
     }
 
     public function test_calendar_is_continuous_across_modis_viirs_switch(): void
@@ -128,7 +135,10 @@ class PublicApiTest extends TestCase
 
         $lines = array_values(array_filter(explode("\n", $response->streamedContent())));
         $header = str_getcsv(array_shift($lines), escape: '');
-        $this->assertSame(['latitude', 'longitude', 'acq_date', 'acq_time', 'satellite', 'instrument', 'confidence', 'frp', 'daynight', 'source'], $header);
+        $this->assertSame([
+            'latitude', 'longitude', 'acq_date', 'acq_time', 'satellite', 'instrument', 'confidence', 'frp', 'daynight', 'source',
+            'brightness', 'brightness_2', 'scan', 'track', 'firms_version', 'weight',
+        ], $header);
 
         $this->assertSame((int) $response->headers->get('X-Export-Expected-Rows'), count($lines));
         $this->assertGreaterThan(0, count($lines));
@@ -150,5 +160,108 @@ class PublicApiTest extends TestCase
 
         $response->assertOk()->assertHeader('X-Export-Truncated', '1');
         $this->assertSame(1001, substr_count($response->streamedContent(), "\n"));
+    }
+
+    public function test_csv_expected_rows_are_exact_for_part_of_a_month(): void
+    {
+        $response = $this->post('/api/export/csv', ['aoi' => self::KYIV_REGION, 'date_from' => '2020-04-10', 'date_to' => '2020-04-20']);
+
+        $lines = array_values(array_filter(explode("\n", $response->streamedContent())));
+        $response->assertHeader('X-Export-Truncated', '0');
+        $this->assertSame(count($lines) - 1, (int) $response->headers->get('X-Export-Expected-Rows'));
+    }
+
+    public function test_calendar_cells_carry_error_and_incomplete(): void
+    {
+        $cells = collect($this->postJson('/api/calendar', ['aoi' => self::KYIV_REGION, 'date_from' => '2002-01-01', 'date_to' => '2012-12-31'])
+            ->assertOk()->json('cells'))->keyBy(fn ($c) => $c['year'].'-'.$c['month']);
+
+        $this->assertTrue($cells['2002-6']['incomplete']);
+        $this->assertFalse($cells['2002-7']['incomplete']);
+        $this->assertGreaterThan(0, $cells['2002-7']['count_error'] + $cells['2002-8']['count_error']);
+        $this->assertSame(0, $cells['2012-7']['count_error']);
+    }
+
+    public function test_summary_sums_month_errors_into_years_and_totals(): void
+    {
+        $json = $this->postJson('/api/summary', ['aoi' => self::KYIV_REGION, 'date_from' => '2010-01-01', 'date_to' => '2011-12-31'])
+            ->assertOk()->json();
+        $calendar = $this->postJson('/api/calendar', ['aoi' => self::KYIV_REGION, 'date_from' => '2010-01-01', 'date_to' => '2011-12-31'])
+            ->json('cells');
+
+        $this->assertSame(array_sum(array_column($calendar, 'count_error')), $json['totals']['hotspots_error']);
+        $y2010 = collect($json['yearly'])->firstWhere('year', 2010);
+        $this->assertSame(
+            array_sum(array_column(array_filter($calendar, fn ($c) => $c['year'] === 2010), 'count_error')),
+            $y2010['count_error'],
+        );
+    }
+
+    public function test_summary_error_stays_null_without_harmonization(): void
+    {
+        $this->app->instance(HotspotRepository::class, new FakeHotspotRepository(CarbonImmutable::parse('2026-11-14'), harmonized: false));
+
+        $json = $this->postJson('/api/summary', ['aoi' => self::KYIV_REGION, 'date_from' => '2010-01-01', 'date_to' => '2011-12-31'])
+            ->assertOk()->json();
+
+        $this->assertNull($json['totals']['hotspots_error']);
+        $this->assertNull($json['yearly'][0]['count_error']);
+    }
+
+    public function test_map_returns_cells_when_zoomed_out_and_points_when_zoomed_in(): void
+    {
+        $cells = $this->postJson('/api/map', ['bbox' => [22, 44, 40.5, 52.5], 'zoom' => 6, 'date_from' => '2020-01-01', 'date_to' => '2020-12-31'])
+            ->assertOk()
+            ->assertJsonPath('type', 'FeatureCollection')
+            ->assertJsonPath('truncated', false)
+            ->json('features');
+        $this->assertSame('Polygon', $cells[0]['geometry']['type']);
+        $this->assertArrayHasKey('n_harm', $cells[0]['properties']);
+
+        $points = $this->postJson('/api/map', ['bbox' => [30, 50, 30.5, 50.3], 'zoom' => 10])->assertOk()->json('features');
+        $this->assertSame('Point', $points[0]['geometry']['type']);
+        $this->assertArrayHasKey('own_share', $points[0]['properties']);
+    }
+
+    public function test_map_clips_longitude_and_validates_bbox(): void
+    {
+        $this->postJson('/api/map', ['bbox' => [170, -10, 200, 10], 'zoom' => 4])->assertOk();
+        $this->postJson('/api/map', ['bbox' => [10, 10, 5, 20], 'zoom' => 4])->assertUnprocessable()->assertJsonValidationErrors('bbox');
+        $this->postJson('/api/map', ['bbox' => [1, 2, 3], 'zoom' => 4])->assertUnprocessable()->assertJsonValidationErrors('bbox');
+    }
+
+    public function test_map_reports_truncation(): void
+    {
+        config(['we_charge.map_max_points' => 10]);
+
+        $json = $this->postJson('/api/map', ['bbox' => [30, 50, 30.5, 50.3], 'zoom' => 10])->assertOk()->json();
+        $this->assertTrue($json['truncated']);
+        $this->assertCount(10, $json['features']);
+    }
+
+    public function test_meta_lists_enabled_quick_areas(): void
+    {
+        AreaPreset::query()->where('name_en', 'California')->update(['enabled' => false]);
+
+        $names = collect($this->getJson('/api/meta')->assertOk()->json('presets'))->pluck('name.en');
+
+        $this->assertContains('Kyiv region', $names);
+        $this->assertNotContains('California', $names);
+    }
+
+    public function test_only_admins_save_quick_areas(): void
+    {
+        $body = ['name' => 'Polissia', 'geometry' => self::KYIV_REGION];
+
+        $this->postJson('/presets', $body)->assertUnauthorized();
+
+        $this->actingAs(User::factory()->create())
+            ->postJson('/presets', $body)
+            ->assertCreated()
+            ->assertJsonPath('name.uk', 'Polissia');
+        $this->assertDatabaseHas('area_presets', ['name_en' => 'Polissia']);
+
+        $this->postJson('/presets', ['name' => 'Bad', 'geometry' => ['type' => 'Polygon', 'coordinates' => [[[0, 0], [1, 1]]]]])
+            ->assertUnprocessable();
     }
 }

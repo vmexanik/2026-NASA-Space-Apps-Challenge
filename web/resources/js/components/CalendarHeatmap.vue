@@ -62,7 +62,12 @@ function label(c) {
         mean: num(props.data.baseline.by_month[c.month - 1]?.mean, 0),
         anomaly: pct(c.anomaly_pct),
     });
-    return `${head}. ${detail}${c.partial ? ' (' + t('calendar.partial') + ')' : ''}`;
+    const notes = [
+        c.count_error ? t('calendar.error', { err: num(c.count_error) }) : null,
+        c.partial ? t('calendar.partial') : null,
+        c.incomplete ? t('calendar.incomplete') : null,
+    ].filter(Boolean);
+    return `${head}. ${detail}${notes.length ? ' (' + notes.join('; ') + ')' : ''}`;
 }
 
 // --- keyboard / hover ------------------------------------------------------------
@@ -116,6 +121,10 @@ function onKey(e) {
             >
                 <defs>
                     <pattern id="hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                        <line x1="0" y1="0" x2="0" y2="5" stroke="#000" stroke-opacity="0.25" stroke-width="2" />
+                    </pattern>
+                    <!-- Days without any satellite: hatched the other way, so it reads apart from "month in progress". -->
+                    <pattern id="hatch-incomplete" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)">
                         <line x1="0" y1="0" x2="0" y2="5" stroke="#000" stroke-opacity="0.25" stroke-width="2" />
                     </pattern>
                 </defs>
@@ -172,6 +181,15 @@ function onKey(e) {
                                 rx="3"
                                 fill="url(#hatch)"
                             />
+                            <rect
+                                v-if="byKey.get(`${year}-${col}`).incomplete"
+                                :x="LABEL_W + (col - 1) * CELL_W + GAP / 2"
+                                :y="HEAD_H + r * CELL_H + GAP / 2"
+                                :width="CELL_W - GAP"
+                                :height="CELL_H - GAP"
+                                rx="3"
+                                fill="url(#hatch-incomplete)"
+                            />
                             <text
                                 :x="LABEL_W + (col - 1) * CELL_W + CELL_W / 2"
                                 :y="HEAD_H + r * CELL_H + CELL_H / 2 + 4"
@@ -222,11 +240,12 @@ function onKey(e) {
         <!-- Text read-out of the hovered / focused month -->
         <p class="mt-2 min-h-[2.5rem] text-sm" aria-live="polite">
             <template v-if="shown">
-                <strong>{{ monthYear(shown.year, shown.month) }}: {{ num(shown.count) }}</strong>
+                <strong>{{ monthYear(shown.year, shown.month) }}: {{ num(shown.count) }}<template v-if="shown.count_error"> ± {{ num(shown.count_error) }}</template></strong>
                 <span class="text-muted">
                     · {{ shown.source === 'modis' ? t('calendar.modis') : t('calendar.viirs') }}
                     · {{ t('calendar.vsMean', { pct: pct(shown.anomaly_pct) }) }}
                     <template v-if="shown.partial"> · {{ t('calendar.partial') }}</template>
+                    <template v-if="shown.incomplete"> · {{ t('calendar.incomplete') }}</template>
                 </span>
             </template>
         </p>
@@ -247,6 +266,10 @@ function onKey(e) {
             <div class="flex items-center gap-1.5">
                 <svg width="14" height="14" aria-hidden="true"><rect width="14" height="14" rx="2" fill="var(--wc-zero)" /><rect width="14" height="14" rx="2" fill="url(#hatch)" /></svg>
                 {{ t('calendar.partial') }}
+            </div>
+            <div class="flex items-center gap-1.5">
+                <svg width="14" height="14" aria-hidden="true"><rect width="14" height="14" rx="2" fill="var(--wc-zero)" /><rect width="14" height="14" rx="2" fill="url(#hatch-incomplete)" /></svg>
+                {{ t('calendar.incomplete') }}
             </div>
             <div>MODIS* = {{ t('calendar.modis') }}</div>
         </div>

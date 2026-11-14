@@ -9,10 +9,11 @@ we_charge/
 ├── docker-compose.yml
 ├── docker/
 │   ├── php/     # php:8.4-fpm + pdo_pgsql, composer
-│   ├── nginx/   # конфіг віртуального хоста we-charge.test
+│   ├── nginx/   # конфіг віртуального хоста (localhost / we-charge.test)
 │   └── db/      # postgres:17 + PostGIS (arm64-сумісний)
 ├── web/         # Laravel 13 (API + SPA)
-└── parser/      # (далі) Python-парсер FIRMS даних
+├── parser/      # схема бази FIRMS (firmsdb/) і тестовий пакет даних (testdata/)
+└── setup.sh     # розгортання однією командою
 ```
 
 ## Документація
@@ -29,47 +30,43 @@ we_charge/
 | db     | wc_db      | 5432          | PostgreSQL 17 + PostGIS     |
 | node   | wc_node    | 5173          | Vite dev server (профіль `dev`) |
 
-## Перший запуск
+## Запуск однією командою
 
-1. Запусти Docker Desktop. Якщо в терміналі `docker: command not found`, додай у `~/.zshrc`:
+Потрібен лише Docker (Docker Desktop на macOS/Windows). PHP, Composer і Node на машині не потрібні.
 
-   ```bash
-   export PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"
-   ```
+```bash
+./setup.sh
+```
 
-2. Підніми контейнери:
+Скрипт:
+1. піднімає контейнери;
+2. створює `web/.env`, ставить пакети, генерує `APP_KEY`;
+3. робить міграції та сідер (адмін, продукти FIRMS, швидкі області);
+4. збирає фронтенд;
+5. розгортає тестовий пакет даних FIRMS по Україні (`parser/testdata/test-ukraine`, ≈1 хв);
+6. чистить кеші.
 
-   ```bash
-   docker compose up -d --build
-   ```
+Повторний запуск безпечний: що вже зроблено, пропускається, а дані перезаливаються, лише якщо в базі інший пакет.
 
-3. Якщо проєкт склонований з git (немає `web/vendor` і `web/.env`):
+Після `Done.` відкрий http://localhost (адмінка: http://localhost/admin, `admin@we-charge.test` / `admin`).
 
-   ```bash
-   cp web/.env.example web/.env
-   ```
+Інший пакет даних (наприклад, на весь світ) або лише застосунок без даних:
 
-   ```bash
-   docker compose exec php composer install
-   ```
+```bash
+./setup.sh path/to/package
+```
 
-   ```bash
-   docker compose exec php php artisan key:generate
-   ```
+```bash
+./setup.sh --no-data
+```
 
-4. Міграції та початкові дані (адмін, продукти FIRMS, регіон «Ukraine»):
+Якщо в терміналі `docker: command not found` на macOS, додай у `~/.zshrc`:
 
-   ```bash
-   docker compose exec php php artisan migrate --seed
-   ```
+```bash
+export PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"
+```
 
-5. Зібрати фронтенд (`public/build` не в git):
-
-   ```bash
-   docker compose run --rm --no-deps node sh -c "npm install && npm run build"
-   ```
-
-6. Пропиши хост (див. нижче) і відкрий http://we-charge.test
+Порти 80 і 5432 мають бути вільні (див. «Якщо не працює» нижче).
 
 ## Що де
 
@@ -77,11 +74,13 @@ we_charge/
 |---|---|
 | http://we-charge.test | Публічна SPA (Vue 3 + Leaflet): вибір AOI, календар, аналітика, експорт |
 | http://we-charge.test/admin | Адмінка (Filament 5): FIRMS MAP_KEY, продукти, регіони, журнал завантажень, адміни |
-| `/api/meta`, `/api/calendar`, `/api/summary`, `/api/export/csv` | Публічне API (контракт: `web/app/Contracts/HotspotRepository.php`, `web/app/Http/Requests/AoiQueryRequest.php`) |
+| `/api/meta`, `/api/calendar`, `/api/summary`, `/api/map`, `/api/export/csv` | Публічне API (контракт: `web/app/Contracts/HotspotRepository.php`, `web/app/Http/Requests/AoiQueryRequest.php`) |
 
 **Вхід в адмінку локально:** `admin@we-charge.test` / `admin` (з `ADMIN_EMAIL` / `ADMIN_PASSWORD` у `.env`). Змініть пароль у профілі після першого входу.
 
-**Дані поки синтетичні.** `WE_CHARGE_DATA_DRIVER=fake` віддає детерміновані демо-дані (`FakeHotspotRepository`), у UI показано банер «Demo data». Коли схема БД парсера буде готова, треба додати реалізацію `HotspotRepository` на PostGIS і перемкнути драйвер. Аналітика, API й фронтенд при цьому не змінюються.
+**Дані** застосунок читає зі схеми `firms` у PostgreSQL через її функції (`web/app/Repositories/PostgisHotspotRepository.php`, опис у [docs/database/README.md](docs/database/README.md)). Схему і дані створює `restore.sh` з пакета дампу, а не міграції Laravel. Поки даних нема, API відповідає 503, а сайт пише, що даних ще нема.
+
+**Швидкі області** (кнопки над картою) зберігає адмін: увійди в `/admin`, намалюй область на публічній карті й натисни «Save as quick area». Перейменувати (зокрема українською), впорядкувати чи сховати їх можна в адмінці, розділ Quick areas.
 
 **MAP_KEY** зберігається в таблиці `settings` зашифрованим (`APP_KEY`). Якщо там порожньо, береться `FIRMS_MAP_KEY` з `.env`. Як парсер читатиме налаштування, ще не вирішено.
 
@@ -93,9 +92,9 @@ we_charge/
 docker compose exec php php artisan test
 ```
 
-## Налаштування hosts на macOS
+## Домен we-charge.test (необов'язково)
 
-macOS не знає про `we-charge.test`, тому треба вручну сказати, що цей домен = твій комп'ютер.
+Застосунок працює на http://localhost. Якщо хочеш домен, macOS не знає про `we-charge.test`, тому треба вручну сказати, що цей домен = твій комп'ютер.
 
 1. Відкрий файл hosts (попросить пароль від мака):
 

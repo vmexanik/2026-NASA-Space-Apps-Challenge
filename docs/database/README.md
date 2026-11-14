@@ -48,11 +48,11 @@
 
 ## 2. Як перемкнути застосунок на базу
 
-- У `.env`: `WE_CHARGE_DATA_DRIVER=postgis`.
-- Новий клас `App\Repositories\PostgisHotspotRepository implements HotspotRepository`. Його реєструє `AppServiceProvider`, де вже є закоментований рядок `'postgis' => new PostgisHotspotRepository(...)`.
-- Усі функції бази, крім `dataset_info()`, приймають версію методу гармонізації. Репозиторій бере її з `Setting::get('harmonization_method_version')`.
-- Типове значення цього налаштування — `v0-demo` (`web/config/we_charge.php`), а такої версії в базі нема. Для тестового пакета в адмінці треба поставити `v1-2026-11-14`: сторінка Settings, поле «Active harmonization method version».
-- Якщо `firms.method_info(version)` повертає NULL, такої версії в базі нема. Тоді репозиторій має кинути помилку з назвою версії, а не віддати порожні дані (приклад у розділі 4).
+> **Зроблено (2026-11-15).** Застосунок читає лише базу: синтетичних даних і `WE_CHARGE_DATA_DRIVER` більше нема, `FakeHotspotRepository` лишився тільки в тестах (`web/tests/Support`). Метод гармонізації один: «Метод приведення за площею та місяцем». Його ключ у базі `v1-2026-11-14` записано в `web/config/we_charge.php` (`harmonization.version`), налаштування версії в адмінці нема. Поки в базі нема даних, API відповідає 503, а сайт пише, що даних ще нема.
+
+- `App\Repositories\PostgisHotspotRepository implements HotspotRepository`, його реєструє `AppServiceProvider`.
+- Усі функції бази, крім `dataset_info()`, приймають версію методу. Репозиторій бере її з `config('we_charge.harmonization.version')`.
+- Якщо `firms.method_info(version)` або `firms.coverage(version)` не дають даних, репозиторій кидає `App\Exceptions\DataUnavailable` (відповідь 503 з назвою версії).
 
 Тестовий пакет має дві версії методу:
 

@@ -6,8 +6,6 @@ use App\Models\Setting;
 use App\Services\FirmsKeyChecker;
 use BackedEnum;
 use Filament\Actions\Action;
-use Filament\Forms\Components\CheckboxList;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -84,29 +82,6 @@ class Settings extends Page
                                     Notification::make()->title('Saved key removed')->success()->send();
                                 }),
                         ]),
-                    ]),
-
-                Section::make('Quality filter & harmonization')
-                    ->description('Read by the parser and the harmonization step.')
-                    ->columns(2)
-                    ->schema([
-                        TextInput::make('modis_min_confidence')
-                            ->label('MODIS min confidence (0–100)')
-                            ->numeric()->integer()->minValue(0)->maxValue(100)->required(),
-                        CheckboxList::make('viirs_confidence_levels')
-                            ->label('VIIRS confidence levels kept')
-                            ->options(['l' => 'low', 'n' => 'nominal', 'h' => 'high'])
-                            ->columns(3)
-                            ->required(),
-                        Select::make('grid_step')
-                            ->label('Grid step')
-                            ->options(['0.1' => '0.1°', '0.25' => '0.25°', '0.5' => '0.5°', '1' => '1°'])
-                            ->formatStateUsing(fn ($state) => $state === null ? null : rtrim(rtrim(number_format((float) $state, 2, '.', ''), '0'), '.'))
-                            ->required(),
-                        TextInput::make('harmonization_method_version')
-                            ->label('Active harmonization method version')
-                            ->required()
-                            ->maxLength(32),
                     ]),
 
                 Section::make('Updates')

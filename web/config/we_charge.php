@@ -15,17 +15,23 @@ return [
         'password' => env('ADMIN_PASSWORD', 'admin'),
     ],
 
-    // Where the public API gets data: "fake" (synthetic demo data) until the real schema exists.
-    'data_driver' => env('WE_CHARGE_DATA_DRIVER', 'fake'),
+    // Most map objects one /api/map response carries (docs/database/README.md, section 5).
+    'map_max_points' => 20000,
+
+    // The one harmonization method (docs/harmonization/decisions/harmonization.md, approach 15, D29).
+    // version is its key in the firms schema; name is what people see.
+    'harmonization' => [
+        'version' => 'v1-2026-11-14',
+        'name' => [
+            'en' => 'Area-and-month adjustment method',
+            'uk' => 'Метод приведення за площею та місяцем',
+        ],
+    ],
 
     // Settings editable in the admin (Setting::get). type: string|int|float|bool|array.
     'settings' => [
         'firms_map_key' => ['type' => 'string', 'secret' => true, 'default' => null],
-        'modis_min_confidence' => ['type' => 'int', 'default' => 30],
-        'viirs_confidence_levels' => ['type' => 'array', 'default' => ['n', 'h']],
-        'grid_step' => ['type' => 'float', 'default' => 0.25],
         'nrt_refresh_hours' => ['type' => 'int', 'default' => 3],
-        'harmonization_method_version' => ['type' => 'string', 'default' => 'v0-demo'],
         'api_rate_limit_per_minute' => ['type' => 'int', 'default' => 60],
         'csv_export_max_rows' => ['type' => 'int', 'default' => 100000],
         'max_aoi_area_km2' => ['type' => 'int', 'default' => 5000000],

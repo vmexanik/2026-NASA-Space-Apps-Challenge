@@ -41,7 +41,7 @@ class AdminPanelTest extends TestCase
     {
         $this->actingAs(User::query()->first());
 
-        foreach (['/admin', '/admin/settings', '/admin/data-sources', '/admin/coverage-regions', '/admin/ingest-runs', '/admin/users'] as $url) {
+        foreach (['/admin', '/admin/settings', '/admin/data-sources', '/admin/coverage-regions', '/admin/area-presets', '/admin/area-presets/1/edit', '/admin/ingest-runs', '/admin/users'] as $url) {
             $this->get($url)->assertOk();
         }
     }
@@ -52,14 +52,14 @@ class AdminPanelTest extends TestCase
 
         Livewire::test(Settings::class)
             ->set('data.firms_map_key', 'abc123secret')
-            ->set('data.modis_min_confidence', 50)
+            ->set('data.nrt_refresh_hours', 6)
             ->call('save')
             ->assertHasNoErrors();
 
         $raw = DB::table('settings')->where('key', 'firms_map_key')->value('value');
         $this->assertNotSame('abc123secret', $raw);
         $this->assertSame('abc123secret', Setting::firmsMapKey());
-        $this->assertSame(50, Setting::get('modis_min_confidence'));
+        $this->assertSame(6, Setting::get('nrt_refresh_hours'));
 
         // Saving again with an empty key field keeps the stored key.
         Livewire::test(Settings::class)

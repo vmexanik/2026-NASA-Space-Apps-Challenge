@@ -8,10 +8,16 @@ export class ApiError extends Error {
     }
 }
 
-async function request(method, url, body) {
+const csrf = () => document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+
+/** Signed in to the admin panel: the map offers "Save as quick area". */
+export const isAdmin = () => document.querySelector('meta[name="wc-admin"]') !== null;
+
+async function request(method, url, body, signal) {
     const res = await fetch(url, {
         method,
-        headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+        signal,
+        headers: { Accept: 'application/json', 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf() },
         body: body ? JSON.stringify(body) : undefined,
     });
     if (!res.ok) {
@@ -30,6 +36,10 @@ export const api = {
     meta: () => request('GET', '/api/meta').then((r) => r.json()),
     calendar: (query) => request('POST', '/api/calendar', query).then((r) => r.json()),
     summary: (query) => request('POST', '/api/summary', query).then((r) => r.json()),
+    /** Fires in the visible box: { bbox: [w, s, e, n], zoom, date_from, date_to } → GeoJSON + truncated. */
+    /** Admin only: save the drawn shape as a quick area. */
+    savePreset: (name, geometry) => request('POST', '/presets', { name, geometry }).then((r) => r.json()),
+    map: (query, signal) => request('POST', '/api/map', query, signal).then((r) => r.json()),
 
     /** Downloads the CSV and returns { truncated, expected, max }. */
     async exportCsv(query) {

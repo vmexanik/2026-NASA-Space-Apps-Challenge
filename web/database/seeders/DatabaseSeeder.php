@@ -26,8 +26,8 @@ class DatabaseSeeder extends Seeder
             ['MODIS_NRT', 'MODIS near real-time', 'modis', 'Terra/Aqua', 'nrt', null, true],
             ['VIIRS_SNPP_SP', 'VIIRS S-NPP standard (archive)', 'viirs', 'Suomi NPP', 'archive', '2012-01-20', true],
             ['VIIRS_SNPP_NRT', 'VIIRS S-NPP near real-time', 'viirs', 'Suomi NPP', 'nrt', null, true],
-            ['VIIRS_NOAA20_SP', 'VIIRS NOAA-20 standard (archive)', 'viirs', 'NOAA-20', 'archive', '2018-04-01', false],
-            ['VIIRS_NOAA20_NRT', 'VIIRS NOAA-20 near real-time', 'viirs', 'NOAA-20', 'nrt', null, false],
+            ['VIIRS_NOAA20_SP', 'VIIRS NOAA-20 standard (archive)', 'viirs', 'NOAA-20', 'archive', '2018-04-01', true],
+            ['VIIRS_NOAA20_NRT', 'VIIRS NOAA-20 near real-time', 'viirs', 'NOAA-20', 'nrt', null, true],
             ['VIIRS_NOAA21_NRT', 'VIIRS NOAA-21 near real-time', 'viirs', 'NOAA-21', 'nrt', null, false],
         ];
 
