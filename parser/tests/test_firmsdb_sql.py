@@ -546,6 +546,95 @@ class TestFunctions(unittest.TestCase):
                                  {("cell", step, step)})
                 self.assertEqual(sum(int(r[11]) for r in cells), 5)  # the Ukrainian Suomi NPP fires of 2021
 
+    def test_map_points_newest_first(self):
+        # From zoom 9 on, the newest fires come first, so that a cut at max_points keeps the fresh ones; the cut
+        # here takes fires of three months.
+        bbox = "30.5, 50.25, 31.0, 50.5"
+        fires = sorted((f for f in FIRES if series_weight("v0-raw", f) is not None
+                        and 30.5 <= f.lon <= 31.0 and 50.25 <= f.lat <= 50.5),
+                       key=lambda f: (-f.date.toordinal(), -f.hhmm, f.sat, f.lat_e5, f.lon_e5))
+        expected = [(f.day, SATELLITES[f.sat - 1][2], f.lat, f.lon) for f in fires]
+        self.assertEqual(len(expected), 9)
+
+        def points(max_points: int) -> list[tuple]:
+            return [(r[8], r[7], float(r[2]), float(r[1])) for r in query(
+                f"SELECT * FROM firms.map_features({bbox}, 10, DATE '1999-01-01', DATE '2030-12-31', 'v0-raw', "
+                f"{max_points})")]
+
+        self.assertEqual(points(100), expected)
+        self.assertEqual(points(4), expected[:4])
+        self.assertEqual([p[0] for p in points(4)], ["2026-11-06", "2026-11-05", "2021-08-02", "2021-03-11"])
+        self.assertEqual(points(0), [])
+
+    def test_square_sums_match_cells(self):
+        # Zoom 5 reads the sums of 1-degree squares and zooms 4 and below those of 2-degree squares; both must
+        # equal the sums of the 0.25-degree cells they stand for.
+        cells = query("SELECT version, cell_id, month, n_raw, n_harm FROM firms.cell_month_series")
+        for version in ("v0-raw", "vtest", "vviirs"):
+            for zoom, side in ((5, 4), (4, 8), (2, 8)):
+                for first, last in (("1999-01-01", "2030-12-31"), ("2021-03-15", "2021-08-01")):
+                    with self.subTest(version=version, zoom=zoom, first=first):
+                        expected: dict[tuple[int, int], tuple[int, float]] = {}
+                        for v, cell, month, n_raw, n_harm in cells:
+                            if v == version and first[:7] <= month[:7] <= last[:7]:
+                                iy, ix = divmod(int(cell), 1440)
+                                r, h = expected.get((ix // side, iy // side), (0, 0.0))
+                                expected[(ix // side, iy // side)] = (r + int(n_raw), h + float(n_harm))
+                        self.assertTrue(expected)
+                        rows = self.map_features("-180, -90, 180, 90", zoom, first, last, version)
+                        got = {(round((float(r[3]) + 180) / (side * 0.25)), round((float(r[4]) + 90) / (side * 0.25))):
+                               (int(r[11]), float(r[12])) for r in rows}
+                        self.assertEqual(sorted(got), sorted(expected))
+                        for key, (n_raw, n_harm) in expected.items():
+                            self.assertEqual(got[key][0], n_raw, key)
+                            self.assertAlmostEqual(got[key][1], n_harm, places=9, msg=key)
+
+    def test_build_series_rebuilds_the_squares_of_its_months(self):
+        result = psql("""
+            BEGIN;
+            DELETE FROM firms.square_month_series WHERE version = 'v0-raw';
+            SELECT firms.build_series('v0-raw', DATE '2021-03-01', DATE '2021-08-01');
+            SELECT side, month, count(*), sum(n_raw) FROM firms.square_month_series WHERE version = 'v0-raw'
+            GROUP BY 1, 2 ORDER BY 1, 2;
+            ROLLBACK;""")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        # The Suomi NPP fires of v0-raw in March (3) and August (2) 2021, all in one square of either size.
+        self.assertEqual([line.split(SEP) for line in result.stdout.splitlines() if line],
+                         [["4", "2021-03-01", "1", "3"], ["4", "2021-08-01", "1", "2"],
+                          ["8", "2021-03-01", "1", "3"], ["8", "2021-08-01", "1", "2"]])
+
+    def test_repeated_calls_keep_their_speed(self):
+        # After five calls in one connection PL/pgSQL may keep a generic plan, which read the sums of a large bbox
+        # five times slower (Brazil, zoom 6). A million rows of sums in a version of their own show it here; the
+        # transaction takes them away again.
+        result = psql("""
+            BEGIN;
+            INSERT INTO firms.method VALUES ('vplan', 'plan test', '{"confidence_filter": null}', now());
+            INSERT INTO firms.cell_month_series
+            SELECT 'vplan', iy * 1440 + ix, DATE '2000-01-01' + make_interval(months => m), 3, 1, 1.5
+            FROM generate_series(520, 607) iy, generate_series(840, 1009) ix, generate_series(0, 69) m;
+            ANALYZE firms.cell_month_series;
+            CREATE TEMP TABLE took (nr int, ms float8);
+            DO $$
+            DECLARE
+                started timestamptz;
+            BEGIN
+                FOR nr IN 1..10 LOOP
+                    started := clock_timestamp();
+                    PERFORM count(*) FROM firms.map_features(30, 40, 72.5, 62, 6, DATE '2000-01-01',
+                                                             DATE '2005-12-31', 'vplan', 20000);
+                    INSERT INTO took VALUES (nr, extract(epoch FROM clock_timestamp() - started) * 1000);
+                END LOOP;
+            END
+            $$;
+            SELECT ms FROM took ORDER BY nr;
+            ROLLBACK;""")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        took = [float(line) for line in result.stdout.splitlines() if line]
+        self.assertEqual(len(took), 10)
+        later = sorted(took[5:])[2]  # the median of calls 6-10
+        self.assertLessEqual(later, 2 * took[0], took)
+
     def test_map_features_rejects_bad_bbox(self):
         self.assertTrue(self.map_features("-180, -90, 180, 90", 2, "2021-01-01", "2021-12-31", "v0-raw"))
         for bbox in ("31.0, 50.25, 30.5, 50.5", "30.5, 50.25, 30.5, 50.5", "30.5, 50.5, 31.0, 50.25",

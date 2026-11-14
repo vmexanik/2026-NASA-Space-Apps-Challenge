@@ -169,6 +169,19 @@ CREATE TABLE IF NOT EXISTS firms.cell_month_series (
     PRIMARY KEY (version, cell_id, month, satellite)
 );
 
+-- The same sums per square of 1 or 2 degrees and month, the satellites together, for the map's small zooms (web
+-- database design, 6.9): a square reads one row instead of 16 or 64. Built by firms.build_series.
+CREATE TABLE IF NOT EXISTS firms.square_month_series (
+    version text NOT NULL,
+    side    smallint NOT NULL,              -- the side of the square in cells of 0.25 degrees: 4 or 8
+    month   date NOT NULL,                  -- the first day of the month
+    sy      smallint NOT NULL,              -- the row of the square from lat -90: the row of its cells / side
+    sx      smallint NOT NULL,              -- the column of the square from lon -180: the column of its cells / side
+    n_raw   bigint NOT NULL,
+    n_harm  double precision NOT NULL,
+    PRIMARY KEY (version, side, month, sy, sx)
+);
+
 -- The source of the series in each month: viirs when a VIIRS satellite has a weight above 0 in it, else modis.
 CREATE TABLE IF NOT EXISTS firms.method_month (
     version text NOT NULL,

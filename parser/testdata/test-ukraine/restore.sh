@@ -509,7 +509,7 @@ and restore again."
                 "$version" "$failure" >&2
         fi
     done <<<"$versions"
-    "${PSQL[@]}" -c "ANALYZE firms.cell_month_series, firms.method_month"
+    "${PSQL[@]}" -c "ANALYZE firms.cell_month_series, firms.square_month_series, firms.method_month"
 
     step "8. row counts"
     declare -A expected=() unlisted=()
