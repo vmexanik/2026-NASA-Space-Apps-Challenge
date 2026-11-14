@@ -2,6 +2,5 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Public SPA (the admin panel lives under /admin, registered by Filament).
+Route::view('/', 'app');

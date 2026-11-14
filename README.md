@@ -52,13 +52,41 @@ we_charge/
    docker compose exec php php artisan key:generate
    ```
 
-4. Міграції:
+4. Міграції та початкові дані (адмін, продукти FIRMS, регіон «Ukraine»):
 
    ```bash
-   docker compose exec php php artisan migrate
+   docker compose exec php php artisan migrate --seed
    ```
 
-5. Пропиши хост (див. нижче) і відкрий http://we-charge.test
+5. Зібрати фронтенд (`public/build` не в git):
+
+   ```bash
+   docker compose run --rm --no-deps node sh -c "npm install && npm run build"
+   ```
+
+6. Пропиши хост (див. нижче) і відкрий http://we-charge.test
+
+## Що де
+
+| URL | Що це |
+|---|---|
+| http://we-charge.test | Публічна SPA (Vue 3 + Leaflet): вибір AOI, календар, аналітика, експорт |
+| http://we-charge.test/admin | Адмінка (Filament 5): FIRMS MAP_KEY, продукти, регіони, журнал завантажень, адміни |
+| `/api/meta`, `/api/calendar`, `/api/summary`, `/api/export/csv` | Публічне API (контракт: `web/app/Contracts/HotspotRepository.php`, `web/app/Http/Requests/AoiQueryRequest.php`) |
+
+**Вхід в адмінку локально:** `admin@we-charge.test` / `admin` (з `ADMIN_EMAIL` / `ADMIN_PASSWORD` у `.env`). Змініть пароль у профілі після першого входу.
+
+**Дані поки синтетичні.** `WE_CHARGE_DATA_DRIVER=fake` віддає детерміновані демо-дані (`FakeHotspotRepository`), у UI показано банер «Demo data». Коли схема БД парсера буде готова, треба додати реалізацію `HotspotRepository` на PostGIS і перемкнути драйвер. Аналітика, API й фронтенд при цьому не змінюються.
+
+**MAP_KEY** зберігається в таблиці `settings` зашифрованим (`APP_KEY`). Якщо там порожньо, береться `FIRMS_MAP_KEY` з `.env`. Як парсер читатиме налаштування, ще не вирішено.
+
+**Підкладки карти** (без ключів): OpenStreetMap (за замовчуванням), Esri Light Gray і Esri World Imagery. CARTO basemaps тепер вимагають API-ключ, тому їх не використовуємо.
+
+Тести:
+
+```bash
+docker compose exec php php artisan test
+```
 
 ## Налаштування hosts на macOS
 
