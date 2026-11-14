@@ -48,11 +48,22 @@ docker compose run --rm --no-deps node sh -c "npm ci --no-audit --no-fund && npm
 step "5/6 FIRMS data"
 if [ "$LOAD_DATA" = 1 ]; then
     field() { grep -o "\"$1\": *\"[^\"]*\"" "$PACKAGE/manifest.json" | head -1 | cut -d'"' -f4; }
+    sha() { if command -v sha256sum >/dev/null; then sha256sum "$1"; else shasum -a 256 "$1"; fi | cut -d' ' -f1; }
     want="$(field name) $(field built_at)"
     have=$(psql_db -tAc "select name || ' ' || to_char(built_at at time zone 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"') from firms.dataset limit 1" 2>/dev/null || true)
-    if [ "$want" = "$have" ]; then
-        echo "The database already holds $want, skipping the restore."
+    # The schema files the database was built with (firms.schema_migrations) against the package's own:
+    # a package with the same data but newer schema (new tables, faster functions) must be restored too.
+    want_schema=$(for f in "$PACKAGE"/schema/*.sql; do echo "$(basename "$f"):$(sha "$f")"; done | sort | paste -sd' ' -)
+    have_schema=$(psql_db -tAc "select string_agg(file || ':' || sha256, ' ' order by file) from firms.schema_migrations" 2>/dev/null || true)
+    if [ "$want" = "$have" ] && [ "$want_schema" = "$have_schema" ]; then
+        echo "The database already holds $want with the same schema, skipping the restore."
     else
+        if [ -n "$have_schema" ] && [ "$want_schema" != "$have_schema" ]; then
+            # restore.sh does not alter existing tables and stops on a changed 01_tables.sql, so start from an
+            # empty schema. Only firms is dropped: the app's own tables live in public and stay.
+            echo "The database was built with other schema files; dropping the schema firms to restore it anew."
+            psql_db -qc 'SET client_min_messages = warning; DROP SCHEMA firms CASCADE'
+        fi
         echo "Restoring $PACKAGE ($want), about a minute for the Ukraine package..."
         docker compose exec -T db rm -rf /tmp/firms-dump
         docker compose cp "$PACKAGE/." db:/tmp/firms-dump

@@ -228,6 +228,11 @@ class PublicApiTest extends TestCase
         $this->postJson('/api/map', ['bbox' => [170, -10, 200, 10], 'zoom' => 4])->assertOk();
         $this->postJson('/api/map', ['bbox' => [10, 10, 5, 20], 'zoom' => 4])->assertUnprocessable()->assertJsonValidationErrors('bbox');
         $this->postJson('/api/map', ['bbox' => [1, 2, 3], 'zoom' => 4])->assertUnprocessable()->assertJsonValidationErrors('bbox');
+
+        // A whole-world bbox is fine as cells, but not as single fires.
+        $this->postJson('/api/map', ['bbox' => [-180, -90, 180, 90], 'zoom' => 3])->assertOk();
+        $this->postJson('/api/map', ['bbox' => [-180, -90, 180, 90], 'zoom' => 12])->assertUnprocessable()->assertJsonValidationErrors('bbox');
+        $this->postJson('/api/map', ['bbox' => [0, 0, 34, 34], 'zoom' => 9])->assertOk();
     }
 
     public function test_map_reports_truncation(): void

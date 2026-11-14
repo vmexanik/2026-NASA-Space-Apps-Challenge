@@ -16,6 +16,20 @@ use Illuminate\Validation\Validator;
  */
 class MapRequest extends FormRequest
 {
+    /** Zoom from which the map shows single fires, and the cell limit of firms.map_features there. */
+    public const POINTS_ZOOM = 9;
+
+    public const MAX_POINT_CELLS = 20000;
+
+    /** 0.25° cells the bbox touches, counted as firms.map_features does. */
+    public static function cellCount(float $west, float $south, float $east, float $north): int
+    {
+        $ix = fn (float $lon) => min((int) floor(($lon + 180) / 0.25), 1439);
+        $iy = fn (float $lat) => min((int) floor(($lat + 90) / 0.25), 719);
+
+        return ($ix($east) - $ix($west) + 1) * ($iy($north) - $iy($south) + 1);
+    }
+
     public function rules(): array
     {
         return [
@@ -36,6 +50,14 @@ class MapRequest extends FormRequest
             [$west, $south, $east, $north] = $this->bbox();
             if ($west >= $east || $south >= $north) {
                 $validator->errors()->add('bbox', 'bbox must be [west, south, east, north] with west < east and south < north.');
+            }
+
+            // From zoom 9 firms.map_features reads single fires and refuses a bbox over this many 0.25° cells
+            // (about 35° × 35°); a map window never comes close (a 4K screen at zoom 9 is ~1 000 cells).
+            if ($this->zoom() >= self::POINTS_ZOOM && self::cellCount($west, $south, $east, $north) > self::MAX_POINT_CELLS) {
+                $validator->errors()->add('bbox', sprintf(
+                    'At zoom %d and above the bbox may cover at most %s cells of 0.25° (about 35° × 35°); zoom in or send a lower zoom.',
+                    self::POINTS_ZOOM, number_format(self::MAX_POINT_CELLS)));
             }
         }];
     }
