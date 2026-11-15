@@ -1,0 +1,9 @@
+Ukraine
+  2: all MODIS -> all VIIRS    error  12.3%  calendar same colour  74.2%
+  bar MODIS -> all VIIRS       error  13.3%  calendar same colour  77.3%
+Brazil
+  2: all MODIS -> all VIIRS    error   5.9%  calendar same colour  84.8%
+  bar MODIS -> all VIIRS       error   6.7%  calendar same colour  80.3%
+Australia
+  2: all MODIS -> all VIIRS    error   5.4%  calendar same colour  81.8%
+  bar MODIS -> all VIIRS       error   6.7%  calendar same colour  81.1%

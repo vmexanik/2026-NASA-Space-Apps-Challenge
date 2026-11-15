@@ -1,0 +1,15 @@
+2022 2458206
+2018 2632040
+2013 2764365
+2021 2737606
+2014 2845840
+2016 2857676
+2020 2770717
+2017 2818244
+2019 2865468
+2015 3043159
+2012 3141087
+cells with fires: 4152 of 16200; cell-months with fires: 36488; points: 30934408
+  cell-months with fewer than 10 points (11 years together): 8566 (23%), holding 0.1% of points
+  cell-months with fewer than 100 points (11 years together): 21269 (58%), holding 1.7% of points
+  cell-months with fewer than 1000 points (11 years together): 32069 (88%), holding 13.9% of points

@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Усі ознаки одразу: що йде разом із гулянням множника</title>
+<style>
+  html, body { margin: 0; }
+  .viz-root {
+    color-scheme: light;
+    --page: #f9f9f7; --surface-1: #fcfcfb;
+    --text-primary: #0b0b0b; --text-secondary: #52514e; --muted: #898781;
+    --border: rgba(11,11,11,0.10);
+    --dn3: #0d366b; --dn2: #2a78d6; --dn1: #86b6ef; --d0: #f0efec; --dp1: #f5938c; --dp2: #c74845; --dp3: #681114;
+    --dn3-ink: #ffffff; --dn2-ink: #ffffff; --dn1-ink: #0b0b0b; --d0-ink: #52514e; --dp1-ink: #0b0b0b; --dp2-ink: #ffffff; --dp3-ink: #ffffff;
+    position: relative; min-height: 100vh; box-sizing: border-box; padding: 24px 16px 40px;
+    background: var(--page); color: var(--text-primary);
+    font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) .viz-root {
+      color-scheme: dark;
+      --page: #0d0d0d; --surface-1: #1a1a19;
+      --text-primary: #f0efec; --text-secondary: #c3c2b7; --muted: #898781;
+      --border: rgba(255,255,255,0.10);
+      --dn3: #b7d3f6; --dn2: #3987e5; --dn1: #184f95; --d0: #383835; --dp1: #892b2e; --dp2: #d75758; --dp3: #febeba;
+      --dn3-ink: #0b0b0b; --dn2-ink: #ffffff; --dn1-ink: #ffffff; --d0-ink: #c3c2b7; --dp1-ink: #ffffff; --dp2-ink: #ffffff; --dp3-ink: #0b0b0b;
+    }
+  }
+  :root[data-theme="dark"] .viz-root {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface-1: #1a1a19;
+    --text-primary: #f0efec; --text-secondary: #c3c2b7; --muted: #898781;
+    --border: rgba(255,255,255,0.10);
+    --dn3: #b7d3f6; --dn2: #3987e5; --dn1: #184f95; --d0: #383835; --dp1: #892b2e; --dp2: #d75758; --dp3: #febeba;
+    --dn3-ink: #0b0b0b; --dn2-ink: #ffffff; --dn1-ink: #ffffff; --d0-ink: #c3c2b7; --dp1-ink: #ffffff; --dp2-ink: #ffffff; --dp3-ink: #0b0b0b;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; }
+  h1 { font-size: 22px; line-height: 1.25; font-weight: 650; margin: 0 0 6px; }
+  .lede { color: var(--text-secondary); margin: 0 0 16px; max-width: 80ch; }
+  .card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px 16px; margin: 0 0 16px; }
+  .card h2 { font-size: 16px; font-weight: 600; margin: 0 0 2px; }
+  .card .sub { color: var(--text-secondary); font-size: 13px; margin: 0 0 12px; max-width: 90ch; }
+  .note { color: var(--text-secondary); font-size: 13px; margin: 12px 0 0; max-width: 86ch; }
+  .tablewrap { overflow-x: auto; }
+  table { border-collapse: separate; border-spacing: 2px; font-variant-numeric: tabular-nums; }
+  table.wide { width: 100%; }
+  th { font-weight: 500; color: var(--muted); font-size: 12px; padding: 4px 6px; text-align: center; }
+  th[scope="row"] { text-align: left; color: var(--text-secondary); padding-left: 0; white-space: nowrap; font-size: 12.5px; outline: none; }
+  th[scope="row"]:hover, th[scope="row"]:focus-visible { color: var(--text-primary); }
+  th.rot { vertical-align: bottom; padding: 4px 2px; }
+  th.rot span { display: inline-block; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; text-align: left; max-height: 250px; }
+  td { text-align: center; font-size: 12.5px; padding: 6px 4px; border-radius: 4px; min-width: 46px; outline: none; }
+  td.dn3 { background: var(--dn3); color: var(--dn3-ink); } td.dn2 { background: var(--dn2); color: var(--dn2-ink); }
+  td.dn1 { background: var(--dn1); color: var(--dn1-ink); } td.d0 { background: var(--d0); color: var(--d0-ink); }
+  td.dp1 { background: var(--dp1); color: var(--dp1-ink); } td.dp2 { background: var(--dp2); color: var(--dp2-ink); }
+  td.dp3 { background: var(--dp3); color: var(--dp3-ink); }
+  td.self { background: transparent; color: var(--muted); }
+  td[tabindex]:hover, td[tabindex]:focus-visible { box-shadow: 0 0 0 2px var(--surface-1), 0 0 0 4px var(--text-primary); }
+  .scale { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; margin: 12px 0 0; padding: 0; list-style: none; color: var(--text-secondary); font-size: 12.5px; }
+  .scale li { display: flex; align-items: center; gap: 6px; }
+  .sw { width: 22px; height: 14px; border-radius: 3px; flex: none; }
+  .tip { position: absolute; z-index: 5; pointer-events: none; background: var(--surface-1); color: var(--text-primary); border: 1px solid var(--border);
+         border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.14); padding: 8px 10px; font-size: 12.5px; min-width: 200px; max-width: 340px; }
+  .tip[hidden] { display: none; }
+  .tip .t { color: var(--text-secondary); margin: 0 0 4px; }
+  .tip .r { display: flex; align-items: baseline; gap: 8px; margin: 2px 0; }
+  .tip b { font-weight: 650; font-variant-numeric: tabular-nums; min-width: 3.4em; text-align: right; }
+  .tip .l { color: var(--text-secondary); }
+  footer { color: var(--muted); font-size: 12px; margin-top: 4px; max-width: 90ch; }
+</style>
+</head>
+<body>
+<div class="viz-root" id="root">
+  <div class="wrap">
+    <h1>Жодна ознака сама не пояснює, чому множник гуляє: найсильніший зв'язок — 0,4</h1>
+    <p class="lede">Один рядок — одна ознака місяця. Число в клітинці — наскільки ця ознака йде разом із тим, що множник місяця відійшов від свого звичайного. Від −1 до +1: плюс означає «ознака більша — множник більший», мінус — навпаки, близько нуля — зв'язку нема. Україна, 2012–2021, сезон прибрано з обох боків.</p>
+
+    <figure class="card" style="margin-left:0;margin-right:0">
+      <h2>Кожна ознака проти гуляння множника</h2>
+      <p class="sub" id="sub1"></p>
+      <div class="tablewrap"><table class="wide" id="t1"></table></div>
+      <ul class="scale" id="scale1"></ul>
+      <p class="note" id="note1"></p>
+    </figure>
+
+    <figure class="card" style="margin-left:0;margin-right:0">
+      <h2>Десять найсильніших ознак одна проти одної</h2>
+      <p class="sub">Багато ознак кажуть те саме різними словами. Кольорова клітинка означає, що дві ознаки ходять разом (червона) або в різні боки (синя), і рахувати їх як дві окремі причини не можна. Сіра — зв'язку між ними нема.</p>
+      <div class="tablewrap"><table id="t2"></table></div>
+      <ul class="scale" id="scale2"></ul>
+    </figure>
+
+    <footer>Кореляція Спірмена за місяцями, де MODIS нарахував хоча б 50 точок. Зв'язок слабший за 0,21 на такій кількості місяців не відрізнити від випадковості. Кореляція показує, що йде разом, а не що є причиною.</footer>
+  </div>
+  <div class="tip" id="tip" role="status" hidden></div>
+</div>
+<script>
+(function () {
+  "use strict";
+  var theme = new URLSearchParams(location.search).get("theme");
+  if (theme === "dark" || theme === "light") document.documentElement.dataset.theme = theme;
+  var D = {"targets": ["усі точки", "без ночі", "без ночі, вогні від 10 МВт"], "order": ["MODIS: медіана T4−T11", "VIIRS: частка нічних точок", "Місце: середня широта вогнів", "Рік", "VIIRS: медіана температури фону T11", "VIIRS: медіана сили точки", "MODIS: частка слабких точок, до 10 МВт", "VIIRS: середня ширина пікселя", "MODIS: медіана сили точки", "Скільки точок MODIS у місяці", "VIIRS: частка слабких клітинок, до 10 МВт", "Місце: середня довгота вогнів", "Різниця годин прольоту, VIIRS − MODIS", "MODIS: середня година денного прольоту", "MODIS: медіана температури фону T11", "MODIS: точок на клітинку 1 км", "VIIRS: точок на клітинку 1 км", "MODIS: частка нічних точок", "VIIRS: медіана T4−T11", "MODIS: середня впевненість", "MODIS: частка низької впевненості", "MODIS: середня ширина пікселя", "VIIRS: частка низької впевненості", "VIIRS: середня година денного прольоту"], "table": {"VIIRS: частка нічних точок": [[0.345, 88], [-0.169, 88], [0.034, 88]], "VIIRS: частка слабких клітинок, до 10 МВт": [[0.268, 88], [0.299, 88], [0.024, 88]], "VIIRS: медіана сили точки": [[-0.297, 88], [-0.064, 88], [-0.032, 88]], "VIIRS: точок на клітинку 1 км": [[-0.081, 88], [-0.415, 88], [-0.166, 88]], "VIIRS: середня ширина пікселя": [[-0.274, 88], [-0.227, 88], [-0.021, 88]], "VIIRS: частка низької впевненості": [[-0.017, 88], [0.139, 88], [-0.019, 88]], "VIIRS: медіана T4−T11": [[0.066, 88], [0.281, 88], [0.222, 88]], "VIIRS: медіана температури фону T11": [[-0.301, 88], [-0.11, 88], [-0.219, 88]], "VIIRS: середня година денного прольоту": [[-0.016, 88], [-0.05, 88], [-0.022, 88]], "MODIS: частка нічних точок": [[0.067, 88], [-0.197, 88], [-0.098, 88]], "MODIS: частка слабких точок, до 10 МВт": [[-0.279, 88], [-0.133, 88], [0.109, 88]], "MODIS: медіана сили точки": [[0.273, 88], [0.082, 88], [-0.059, 88]], "MODIS: точок на клітинку 1 км": [[-0.107, 88], [-0.181, 88], [-0.343, 88]], "MODIS: середня ширина пікселя": [[0.02, 88], [-0.054, 88], [-0.092, 88]], "MODIS: частка низької впевненості": [[-0.034, 88], [-0.057, 88], [0.189, 88]], "MODIS: середня впевненість": [[-0.062, 88], [-0.217, 88], [-0.32, 88]], "MODIS: медіана T4−T11": [[0.352, 88], [0.247, 88], [0.112, 88]], "MODIS: медіана температури фону T11": [[-0.108, 88], [-0.141, 88], [-0.289, 88]], "MODIS: середня година денного прольоту": [[-0.116, 88], [-0.013, 88], [-0.079, 88]], "Різниця годин прольоту, VIIRS − MODIS": [[0.126, 88], [0.012, 88], [0.07, 88]], "Місце: середня широта вогнів": [[0.304, 88], [0.113, 88], [0.174, 88]], "Місце: середня довгота вогнів": [[0.16, 88], [0.143, 88], [0.037, 88]], "Скільки точок MODIS у місяці": [[-0.269, 88], [-0.346, 88], [-0.255, 88]], "Рік": [[0.301, 88], [0.139, 88], [0.3, 88]]}, "top": ["MODIS: медіана T4−T11", "VIIRS: частка нічних точок", "Місце: середня широта вогнів", "Рік", "VIIRS: медіана температури фону T11", "VIIRS: медіана сили точки", "MODIS: частка слабких точок, до 10 МВт", "VIIRS: середня ширина пікселя", "MODIS: медіана сили точки", "Скільки точок MODIS у місяці"], "matrix": [[1.0, 0.222, 0.109, 0.09, -0.419, 0.225, -0.565, -0.124, 0.555, -0.012], [0.222, 1.0, 0.253, 0.133, -0.308, -0.5, -0.286, -0.051, 0.328, 0.154], [0.109, 0.253, 1.0, -0.044, -0.145, -0.049, -0.16, -0.166, 0.122, 0.25], [0.09, 0.133, -0.044, 1.0, -0.033, 0.029, -0.122, 0.069, 0.245, -0.134], [-0.419, -0.308, -0.145, -0.033, 1.0, 0.39, -0.154, 0.205, 0.155, 0.312], [0.225, -0.5, -0.049, 0.029, 0.39, 1.0, -0.323, 0.25, 0.319, 0.289], [-0.565, -0.286, -0.16, -0.122, -0.154, -0.323, 1.0, -0.025, -0.936, -0.399], [-0.124, -0.051, -0.166, 0.069, 0.205, 0.25, -0.025, 1.0, 0.1, 0.202], [0.555, 0.328, 0.122, 0.245, 0.155, 0.319, -0.936, 0.1, 1.0, 0.375], [-0.012, 0.154, 0.25, -0.134, 0.312, 0.289, -0.399, 0.202, 0.375, 1.0]], "summary": {"усі точки": {"all": 0.454268178818349, "chosen": ["MODIS: медіана T4−T11", "VIIRS: частка слабких клітинок, до 10 МВт", "Рік", "Місце: середня широта вогнів", "MODIS: медіана температури фону T11"], "chosenScore": 0.44384350102102665}, "без ночі": {"all": 0.34231730586139364, "chosen": ["Скільки точок MODIS у місяці", "MODIS: частка низької впевненості", "MODIS: середня впевненість", "MODIS: медіана T4−T11", "Рік", "VIIRS: точок на клітинку 1 км"], "chosenScore": 0.4138532608494304}, "без ночі, вогні від 10 МВт": {"all": 0.21816195332564647, "chosen": ["Рік", "MODIS: середня впевненість", "MODIS: частка низької впевненості", "VIIRS: частка слабких клітинок, до 10 МВт", "MODIS: точок на клітинку 1 км"], "chosenScore": 0.3220683065719555}}, "drift": {"усі точки": {"perYear": 0.014450602197910644, "perYearWithout2012": 0.01382141502902768}, "без ночі": {"perYear": 0.007783966328272404, "perYearWithout2012": 0.00890242229156574}, "без ночі, вогні від 10 МВт": {"perYear": 0.013136547896940538, "perYearWithout2012": 0.014480949233159634}}, "nMonths": 91, "about": {"VIIRS: частка нічних точок": "Яка частка точок VIIRS цього місяця припала на нічні прольоти.", "VIIRS: частка слабких клітинок, до 10 МВт": "Точки VIIRS склеєні в клітинки близько 1 км. Яка частка клітинок слабша за 10 МВт.", "VIIRS: медіана сили точки": "Типова сила (FRP) точки VIIRS цього місяця.", "VIIRS: точок на клітинку 1 км": "Скільки точок VIIRS у середньому в одній клітинці 1 км: великі суцільні вогні дають більше.", "VIIRS: середня ширина пікселя": "Наскільки далеко від центру смуги VIIRS бачив вогні: ширший піксель — ближче до краю.", "VIIRS: частка низької впевненості": "Частка точок VIIRS з позначкою low.", "VIIRS: медіана T4−T11": "Типова різниця між «гарячим» і «фоновим» каналом VIIRS: чим більша, тим яскравіший вогонь.", "VIIRS: медіана температури фону T11": "Типова температура землі довкола вогню за VIIRS.", "VIIRS: середня година денного прольоту": "О котрій годині за сонцем VIIRS у середньому бачив денні вогні.", "MODIS: частка нічних точок": "Яка частка точок MODIS цього місяця припала на нічні прольоти.", "MODIS: частка слабких точок, до 10 МВт": "Частка точок MODIS, слабших за 10 МВт.", "MODIS: медіана сили точки": "Типова сила (FRP) точки MODIS цього місяця.", "MODIS: точок на клітинку 1 км": "Скільки точок MODIS у середньому в одній клітинці 1 км: повтори на краю смуги й великі вогні дають більше.", "MODIS: середня ширина пікселя": "Наскільки далеко від центру смуги MODIS бачив вогні: ширший піксель — ближче до краю.", "MODIS: частка низької впевненості": "Частка точок MODIS з впевненістю нижче 30.", "MODIS: середня впевненість": "Середня впевненість точок MODIS, від 0 до 100.", "MODIS: медіана T4−T11": "Типова різниця між «гарячим» і «фоновим» каналом MODIS: чим більша, тим яскравіший вогонь.", "MODIS: медіана температури фону T11": "Типова температура землі довкола вогню за MODIS.", "MODIS: середня година денного прольоту": "О котрій годині за сонцем MODIS у середньому бачив денні вогні.", "Різниця годин прольоту, VIIRS − MODIS": "На скільки годин денний проліт VIIRS у середньому пізніший за проліт MODIS.", "Місце: середня широта вогнів": "Де в середньому горіло: більше число — північніше.", "Місце: середня довгота вогнів": "Де в середньому горіло: більше число — східніше.", "Скільки точок MODIS у місяці": "Наскільки великий був місяць за числом точок MODIS.", "Рік": "Календарний рік: чи множник повільно повзе з часом."}};
+  var root = document.getElementById("root"), tip = document.getElementById("tip");
+  var EDGES = [0.21, 0.35, 0.5];
+
+  function fr(v) { return (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v).toFixed(2).replace(".", ","); }
+  function cls(v) {
+    var a = Math.abs(v), k = 0;
+    while (k < EDGES.length && a >= EDGES[k]) k++;
+    return k === 0 ? "d0" : (v < 0 ? "dn" : "dp") + k;
+  }
+  function words(v) {
+    var a = Math.abs(v);
+    return a < 0.21 ? "не відрізнити від випадковості" : a < 0.35 ? "слабкий зв'язок" : a < 0.5 ? "помірний зв'язок" : "сильний зв'язок";
+  }
+  function el(name, c, text, parent) {
+    var e = document.createElement(name);
+    if (c) e.className = c;
+    if (text != null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function showTip(title, rows, x0, y0) {
+    tip.textContent = "";
+    el("p", "t", title, tip);
+    rows.forEach(function (r) {
+      var row = el("div", "r", null, tip);
+      if (r.value != null) el("b", null, r.value, row);
+      el("span", "l", r.label, row);
+    });
+    tip.hidden = false;
+    var box = root.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
+    var x = x0 - box.left + 14, y = y0 - box.top + 14;
+    if (x + w > box.width - 8) x = x0 - box.left - w - 14;
+    if (y + h > box.height - 8) y = y0 - box.top - h - 14;
+    tip.style.left = Math.max(8, x) + "px";
+    tip.style.top = Math.max(8, y) + "px";
+  }
+  function hideTip() { tip.hidden = true; }
+  function withTip(node, title, rows) {
+    node.tabIndex = 0;
+    function on(ev) {
+      var r = node.getBoundingClientRect(), k = ev.type === "focus";
+      showTip(title, rows, k ? r.left + r.width / 2 : ev.clientX, k ? r.bottom : ev.clientY);
+    }
+    node.addEventListener("pointermove", on); node.addEventListener("focus", on);
+    node.addEventListener("pointerleave", hideTip); node.addEventListener("blur", hideTip);
+  }
+  function scale(id) {
+    var ul = document.getElementById(id);
+    [["dn3", "−0,5 і нижче"], ["dn2", "−0,35…−0,5"], ["dn1", "−0,21…−0,35"], ["d0", "до ±0,21: як випадковість"],
+     ["dp1", "+0,21…+0,35"], ["dp2", "+0,35…+0,5"], ["dp3", "+0,5 і вище"]].forEach(function (p) {
+      var li = el("li", null, null, ul), sw = el("span", "sw", null, li);
+      sw.style.background = "var(--" + p[0] + ")";
+      el("span", null, p[1], li);
+    });
+  }
+
+  // table 1: every feature against the departure, three ways of counting
+  document.getElementById("sub1").textContent =
+    "Три стовпчики — три способи рахувати: усі точки, без ночі, і без ночі з однаковою планкою 10 МВт. Місяців: " + D.nMonths +
+    ". Рядки впорядковано за першим стовпчиком. Наведи на назву ознаки — побачиш, що вона означає.";
+  var t1 = document.getElementById("t1");
+  var hr = el("tr", null, null, el("thead", null, null, t1));
+  el("th", null, "Ознака місяця", hr).setAttribute("scope", "col");
+  D.targets.forEach(function (t) { el("th", null, t, hr).setAttribute("scope", "col"); });
+  var tb = el("tbody", null, null, t1);
+  D.order.forEach(function (name) {
+    var tr = el("tr", null, null, tb), th = el("th", null, name, tr);
+    th.setAttribute("scope", "row");
+    withTip(th, name, [{ value: null, label: D.about[name] || "" }]);
+    D.table[name].forEach(function (cell, i) {
+      var td = el("td", cls(cell[0]), fr(cell[0]), tr);
+      withTip(td, name, [
+        { value: fr(cell[0]), label: "зв'язок із гулянням множника, " + D.targets[i] },
+        { value: String(cell[1]), label: "місяців у розрахунку" },
+        { value: null, label: words(cell[0]) }]);
+    });
+  });
+  scale("scale1");
+  var S = D.summary, pc = function (v) { return Math.round(v * 100) + "%"; };
+  document.getElementById("note1").textContent =
+    "Усі " + D.order.length + " ознаки разом пояснюють " + pc(S[D.targets[0]].all) + " гуляння множника на всіх точках, " +
+    pc(Math.max(S[D.targets[1]].all, S[D.targets[1]].chosenScore)) + " без ночі і " +
+    pc(Math.max(S[D.targets[2]].all, S[D.targets[2]].chosenScore)) + " з планкою 10 МВт (перевірено на роках, яких модель не бачила). Решта — шум лічби і те, чого в цих ознаках нема.";
+
+  // table 2: the strongest features against each other
+  var t2 = document.getElementById("t2");
+  var hr2 = el("tr", null, null, el("thead", null, null, t2));
+  el("th", null, "", hr2);
+  D.top.forEach(function (name) { el("span", null, name, el("th", "rot", null, hr2)); });
+  var tb2 = el("tbody", null, null, t2);
+  D.top.forEach(function (a, i) {
+    var tr = el("tr", null, null, tb2);
+    el("th", null, a, tr).setAttribute("scope", "row");
+    D.top.forEach(function (b, j) {
+      if (i === j) { el("td", "self", "—", tr); return; }
+      var v = D.matrix[i][j], td = el("td", cls(v), fr(v), tr);
+      withTip(td, a + "  ×  " + b, [{ value: fr(v), label: "наскільки ці дві ознаки ходять разом" }, { value: null, label: words(v) }]);
+    });
+  });
+  scale("scale2");
+})();
+</script>
+</body>
+</html>

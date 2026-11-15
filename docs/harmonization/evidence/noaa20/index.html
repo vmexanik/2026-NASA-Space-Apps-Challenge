@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NOAA-20 проти Suomi NPP: чи годиться вага 1</title>
+<style>
+  :root { --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --grid: #e6e5e0;
+           --best: #e3eefb; --worst: #fbe9e1; }
+  @media (prefers-color-scheme: dark) {
+    :root { --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --grid: #2e2e2c;
+             --best: #1c3350; --worst: #44261a; }
+  }
+  body { margin: 0; background: var(--page); color: var(--ink);
+          font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 1100px; margin: 0 auto; padding: 32px 20px 56px; }
+  h1 { font-size: 28px; line-height: 1.25; margin: 0 0 10px; }
+  h2 { font-size: 21px; margin: 36px 0 10px; }
+  p { margin: 0 0 12px; max-width: 80ch; }
+  .lead { font-size: 18px; color: var(--ink-2); }
+  .verdict { background: var(--surface); border: 1px solid var(--grid); border-radius: 12px; padding: 14px 18px;
+              margin: 20px 0; }
+  .card { background: var(--surface); border: 1px solid var(--grid); border-radius: 12px; padding: 12px 16px;
+           overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; font-variant-numeric: tabular-nums; }
+  th, td { padding: 5px 8px; text-align: right; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: var(--ink-2); font-weight: 600; }
+  td.best { background: var(--best); font-weight: 650; }
+  td.worst { background: var(--worst); }
+  code { font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+<h1>NOAA-20 проти Suomi NPP: чи годиться вага 1</h1>
+<p class="lead">Етап 6 дорожньої карти. Від 3 листопада 2026 року Suomi NPP мовчить, і ряд веде NOAA-20 з вагою 1.
+Ще NOAA-20 заповнює 34 дні 2022–2024 років, коли Suomi NPP не дав жодної точки. Чи рахує NOAA-20 пожежі так само,
+як Suomi NPP?</p>
+
+<div class="verdict">
+<p><b>Так. Вага 1 лишається.</b> На 2 792 спільних днях 2018–2025 NOAA-20 дав 0,992 точки на одну
+точку Suomi NPP. Власний множник квадрата 2° і місяця робить гірше, а не краще: помилка на квадратах 2°
+8,1% з вагою 1 і 8,8% зі своїм множником. Один множник світу помилку не змінює.</p>
+<p>Що лишається: похибка NOAA-20 як заміни Suomi NPP. Її покаже застосунок: таблиця внизу піде в
+<code>firms.method_error</code> замість нуля.</p>
+</div>
+
+<h2>Помилка: медіана |вгадане / справжнє − 1|</h2>
+<p>Кожен рік вгадується з точок NOAA-20 цього року, множники вчаться на інших роках. Рахуються зони-місяці, де
+Suomi NPP дав 100 і більше точок, як у перевірці версії. Синім найменша помилка рядка, червоним найбільша.</p>
+<div class="card"><table><tr><th>область</th><th>вага 1 (версія v1)</th><th>один множник світу</th><th>множник світу на місяць</th><th>свій множник квадрата 2° і місяця</th></tr><tr><td>області 0,5°</td><td>9,2%</td><td class="best">9,2%</td><td>9,2%</td><td class="worst">9,5%</td></tr><tr><td>квадрати 2°</td><td class="best">8,1%</td><td>8,1%</td><td>8,1%</td><td class="worst">8,8%</td></tr><tr><td>квадрати 8°</td><td class="best">6,3%</td><td>6,4%</td><td>6,5%</td><td class="worst">6,9%</td></tr><tr><td>Україна, квадрати 2°</td><td>7,4%</td><td class="best">7,3%</td><td>7,4%</td><td class="worst">8,2%</td></tr><tr><td>Бразилія, квадрати 2°</td><td class="best">7,5%</td><td>7,5%</td><td>7,5%</td><td class="worst">8,0%</td></tr><tr><td>Австралія, квадрати 2°</td><td>9,1%</td><td class="best">9,0%</td><td>9,0%</td><td class="worst">9,6%</td></tr><tr><td>Україна вся</td><td class="best">3,7%</td><td>3,7%</td><td>3,7%</td><td class="worst">4,3%</td></tr><tr><td>Бразилія вся</td><td class="worst">2,1%</td><td>1,9%</td><td class="best">1,6%</td><td>1,7%</td></tr><tr><td>Австралія вся</td><td>2,1%</td><td class="best">1,6%</td><td>1,8%</td><td class="worst">2,3%</td></tr></table></div>
+
+<h2>Колір календаря збігається</h2>
+<p>Частка зон-місяців, де вгадане й справжнє число дають той самий колір календаря.</p>
+<div class="card"><table><tr><th>область</th><th>вага 1 (версія v1)</th><th>один множник світу</th><th>множник світу на місяць</th><th>свій множник квадрата 2° і місяця</th></tr><tr><td>області 0,5°</td><td>82,4%</td><td>82,4%</td><td>82,5%</td><td>82,1%</td></tr><tr><td>квадрати 2°</td><td>83,2%</td><td>83,2%</td><td>83,2%</td><td>82,2%</td></tr><tr><td>квадрати 8°</td><td>84,3%</td><td>84,2%</td><td>84,1%</td><td>83,3%</td></tr></table></div>
+
+<h2>Скільки точок NOAA-20 на одну точку Suomi NPP</h2>
+<p>Лише пожежі на рослинності (type = 0), без фільтра впевненості, лише в дні, коли обидва супутники дали хоч одну
+точку. Архів NOAA-20 починається з квітня 2018 року, тому того року лише 275 спільних днів.</p>
+<div class="card"><table><tr><th>рік</th><th>світ</th><th>Україна</th><th>Бразилія</th><th>Австралія</th><th>спільних днів</th><th>лише NOAA-20</th><th>лише Suomi NPP</th></tr><tr><td>2018</td><td>0,978</td><td>0,967</td><td>0,981</td><td>0,975</td><td>275</td><td>0</td><td>90</td></tr><tr><td>2019</td><td>0,984</td><td>0,995</td><td>0,982</td><td>0,983</td><td>365</td><td>0</td><td>0</td></tr><tr><td>2020</td><td>0,989</td><td>1,008</td><td>0,980</td><td>0,978</td><td>366</td><td>0</td><td>0</td></tr><tr><td>2021</td><td>0,991</td><td>1,004</td><td>0,978</td><td>0,991</td><td>365</td><td>0</td><td>0</td></tr><tr><td>2022</td><td>0,992</td><td>1,011</td><td>0,980</td><td>0,986</td><td>350</td><td>15</td><td>0</td></tr><tr><td>2023</td><td>0,996</td><td>1,015</td><td>0,992</td><td>0,972</td><td>360</td><td>0</td><td>5</td></tr><tr><td>2024</td><td>1,007</td><td>1,002</td><td>0,991</td><td>1,010</td><td>346</td><td>19</td><td>1</td></tr><tr><td>2025</td><td>0,998</td><td>1,022</td><td>0,991</td><td>0,997</td><td>365</td><td>0</td><td>0</td></tr></table></div>
+<h2>За місяцями і за широтою</h2>
+<div class="card"><table><tr><th>місяць</th><th>січ</th><th>лют</th><th>бер</th><th>кві</th><th>тра</th><th>чер</th><th>лип</th><th>сер</th><th>вер</th><th>жов</th><th>лис</th><th>гру</th></tr><tr><td>NOAA-20 / Suomi NPP</td><td>0,994</td><td>0,984</td><td>0,993</td><td>0,988</td><td>0,991</td><td>0,991</td><td>1,018</td><td>0,989</td><td>0,986</td><td>0,980</td><td>1,004</td><td>0,989</td></tr></table></div>
+<div class="card" style="margin-top:12px"><table><tr><th>широта</th><th>NOAA-20, млн точок</th><th>Suomi NPP, млн точок</th><th>NOAA-20 / Suomi NPP</th></tr><tr><td>-60…-40</td><td>0,10</td><td>0,10</td><td>1,001</td></tr><tr><td>-40…-20</td><td>10,97</td><td>11,13</td><td>0,985</td></tr><tr><td>-20…0</td><td>61,77</td><td>62,29</td><td>0,992</td></tr><tr><td>0…20</td><td>41,81</td><td>42,19</td><td>0,991</td></tr><tr><td>20…40</td><td>11,47</td><td>11,46</td><td>1,001</td></tr><tr><td>40…60</td><td>11,52</td><td>11,59</td><td>0,994</td></tr><tr><td>60…80</td><td>5,27</td><td>5,27</td><td>1,001</td></tr></table></div>
+
+<h2>Чому свій множник не допомагає</h2>
+<p>Множники квадратів, зважені за кількістю точок, лежать між 0,962 (10%) і 1,050 (90%),
+медіана 1,010. Цей розкид дає випадковість, а не справжня різниця між датчиками: на роках, яких множник не бачив,
+він вгадує гірше, ніж вага 1.</p>
+
+<h2>Похибка за кількістю точок</h2>
+<p>Медіана |справжнє − вгадане| / вгадане для зон-місяців 0,5°, 2° і 8° разом, за кількістю точок NOAA-20 у зоні.
+Стовпчик «вага 1» стане рядками NOAA-20 у <code>firms.method_error</code>.</p>
+<div class="card"><table><tr><th>точок NOAA-20 у зоні за місяць</th><th>похибка, вага 1</th><th>похибка, свій множник</th><th>зон-місяців</th></tr><tr><td>1–2</td><td>100,0%</td><td>100,0%</td><td>567 934</td></tr><tr><td>3–9</td><td>50,0%</td><td>49,1%</td><td>559 253</td></tr><tr><td>10–29</td><td>30,0%</td><td>29,8%</td><td>385 597</td></tr><tr><td>30–99</td><td>18,6%</td><td>18,9%</td><td>284 547</td></tr><tr><td>100–299</td><td>11,9%</td><td>12,2%</td><td>168 801</td></tr><tr><td>300–999</td><td>7,9%</td><td>8,3%</td><td>115 766</td></tr><tr><td>1000+</td><td>5,0%</td><td>5,5%</td><td>63 488</td></tr></table></div>
+
+<h2>Як відтворити</h2>
+<p>Потрібні річні архіви FIRMS <code>viirs-jpss1_2018…2025</code> і <code>viirs-snpp_2018…2025</code> у
+<code>data/raw/archive/</code> теки зі скриптами даних (<code>parser/</code> репозиторію застосунку). Замір читає їх тими самими функціями пакета
+<code>harmonize</code>, що й <code>build_factors.py</code>, за 67 с:</p>
+<p><code>python3 -I noaa20_probe.py parser results.json</code><br>
+<code>python3 -I make_page.py results.json index.html</code></p>
+</main>
+</body>
+</html>

@@ -1,0 +1,21 @@
+years: SNPP [2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021] MODIS [2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021] NOAA-20 [2018, 2019, 2020, 2021]
+SNPP  mask 2012-2014 -> rows of 2015: test rows fire=153668 static=17824; mask cells: 515 (with neighbours 2942), 'burns on 15+ days' cells: 221
+   same ~1 km cell as a past static row          catches  98.5% of static rows (night  98.9%, day  95.0%) | wrongly drops 0.53% of fire rows
+   same cell or a neighbour                      catches  98.7% of static rows (night  99.1%, day  96.5%) | wrongly drops 0.94% of fire rows
+   no type used: cell burned on 15+ days before  catches  98.7% of static rows (night  99.2%, day  94.6%) | wrongly drops 0.99% of fire rows
+SNPP  mask 2012-2016 -> rows of 2017-2021: test rows fire=345715 static=86954; mask cells: 749 (with neighbours 4397), 'burns on 15+ days' cells: 408
+   same ~1 km cell as a past static row          catches  99.3% of static rows (night  99.6%, day  97.0%) | wrongly drops 1.31% of fire rows
+   same cell or a neighbour                      catches  99.6% of static rows (night  99.8%, day  98.3%) | wrongly drops 2.23% of fire rows
+   no type used: cell burned on 15+ days before  catches  99.1% of static rows (night  99.5%, day  95.7%) | wrongly drops 1.64% of fire rows
+SNPP  mask 2012-2019 -> rows of 2020-2021: test rows fire=108059 static=33025; mask cells: 1011 (with neighbours 5935), 'burns on 15+ days' cells: 493
+   same ~1 km cell as a past static row          catches  99.4% of static rows (night  99.6%, day  97.7%) | wrongly drops 1.19% of fire rows
+   same cell or a neighbour                      catches  99.7% of static rows (night  99.8%, day  98.9%) | wrongly drops 2.34% of fire rows
+   no type used: cell burned on 15+ days before  catches  99.2% of static rows (night  99.6%, day  96.1%) | wrongly drops 1.95% of fire rows
+MODIS mask 2012-2019 -> rows of 2020-2021: test rows fire=34320 static=2825; mask cells: 943 (with neighbours 5906), 'burns on 15+ days' cells: 104
+   same ~1 km cell as a past static row          catches  75.1% of static rows (night  95.7%, day  61.2%) | wrongly drops 0.16% of fire rows
+   same cell or a neighbour                      catches  82.4% of static rows (night  97.5%, day  72.3%) | wrongly drops 1.05% of fire rows
+   no type used: cell burned on 15+ days before  catches  70.2% of static rows (night  93.2%, day  54.8%) | wrongly drops 0.11% of fire rows
+NOAA-20 rows of 2020-2021, mask from SNPP 2012-2019: test rows fire=108841 static=32765; mask cells: 1011 (with neighbours 5935), 'burns on 15+ days' cells: 493
+   same ~1 km cell as a past static row          catches  99.3% of static rows (night  99.5%, day  97.9%) | wrongly drops 1.34% of fire rows
+   same cell or a neighbour                      catches  99.7% of static rows (night  99.8%, day  99.1%) | wrongly drops 2.51% of fire rows
+   no type used: cell burned on 15+ days before  catches  98.9% of static rows (night  99.3%, day  96.0%) | wrongly drops 2.09% of fire rows

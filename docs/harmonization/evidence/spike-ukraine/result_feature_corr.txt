@@ -1,0 +1,75 @@
+loading...
+year-months with 50+ MODIS points: 91
+
+== correlation of each feature with the month's departure of the multiplier (Spearman), three ways of counting
+feature                                                         усі точки                     без ночі   без ночі, вогні від 10 МВт
+MODIS: медіана T4−T11                                       +0.35 (n= 88)                +0.25 (n= 88)                +0.11 (n= 88)
+VIIRS: частка нічних точок                                  +0.34 (n= 88)                -0.17 (n= 88)                +0.03 (n= 88)
+Місце: середня широта вогнів                                +0.30 (n= 88)                +0.11 (n= 88)                +0.17 (n= 88)
+Рік                                                         +0.30 (n= 88)                +0.14 (n= 88)                +0.30 (n= 88)
+VIIRS: медіана температури фону T11                         -0.30 (n= 88)                -0.11 (n= 88)                -0.22 (n= 88)
+VIIRS: медіана сили точки                                   -0.30 (n= 88)                -0.06 (n= 88)                -0.03 (n= 88)
+MODIS: частка слабких точок, до 10 МВт                      -0.28 (n= 88)                -0.13 (n= 88)                +0.11 (n= 88)
+VIIRS: середня ширина пікселя                               -0.27 (n= 88)                -0.23 (n= 88)                -0.02 (n= 88)
+MODIS: медіана сили точки                                   +0.27 (n= 88)                +0.08 (n= 88)                -0.06 (n= 88)
+Скільки точок MODIS у місяці                                -0.27 (n= 88)                -0.35 (n= 88)                -0.26 (n= 88)
+VIIRS: частка слабких клітинок, до 10 МВт                   +0.27 (n= 88)                +0.30 (n= 88)                +0.02 (n= 88)
+Місце: середня довгота вогнів                               +0.16 (n= 88)                +0.14 (n= 88)                +0.04 (n= 88)
+Різниця годин прольоту, VIIRS − MODIS                       +0.13 (n= 88)                +0.01 (n= 88)                +0.07 (n= 88)
+MODIS: середня година денного прольоту                      -0.12 (n= 88)                -0.01 (n= 88)                -0.08 (n= 88)
+MODIS: медіана температури фону T11                         -0.11 (n= 88)                -0.14 (n= 88)                -0.29 (n= 88)
+MODIS: точок на клітинку 1 км                               -0.11 (n= 88)                -0.18 (n= 88)                -0.34 (n= 88)
+VIIRS: точок на клітинку 1 км                               -0.08 (n= 88)                -0.41 (n= 88)                -0.17 (n= 88)
+MODIS: частка нічних точок                                  +0.07 (n= 88)                -0.20 (n= 88)                -0.10 (n= 88)
+VIIRS: медіана T4−T11                                       +0.07 (n= 88)                +0.28 (n= 88)                +0.22 (n= 88)
+MODIS: середня впевненість                                  -0.06 (n= 88)                -0.22 (n= 88)                -0.32 (n= 88)
+MODIS: частка низької впевненості                           -0.03 (n= 88)                -0.06 (n= 88)                +0.19 (n= 88)
+MODIS: середня ширина пікселя                               +0.02 (n= 88)                -0.05 (n= 88)                -0.09 (n= 88)
+VIIRS: частка низької впевненості                           -0.02 (n= 88)                +0.14 (n= 88)                -0.02 (n= 88)
+VIIRS: середня година денного прольоту                      -0.02 (n= 88)                -0.05 (n= 88)                -0.02 (n= 88)
+  spread of the target 'усі точки': typical departure 8.9%, n=88
+  spread of the target 'без ночі': typical departure 7.6%, n=88
+  spread of the target 'без ночі, вогні від 10 МВт': typical departure 6.4%, n=88
+
+== drift: change of the multiplier per year (departures against the year), with and without 2012
+  [усі точки] +1.5% a year (+14% over 2012-2021); without 2012: +1.4% a year
+      mean departure by year: 2012:-6% 2013:-6% 2014:-3% 2015:+4% 2016:+6% 2017:-5% 2018:+5% 2019:-0% 2020:+13% 2021:+6%
+  [без ночі] +0.8% a year (+7% over 2012-2021); without 2012: +0.9% a year
+      mean departure by year: 2012:-0% 2013:-1% 2014:-3% 2015:-1% 2016:+8% 2017:-2% 2018:+8% 2019:+0% 2020:+1% 2021:+9%
+  [без ночі, вогні від 10 МВт] +1.3% a year (+13% over 2012-2021); without 2012: +1.5% a year
+      mean departure by year: 2012:-3% 2013:-3% 2014:-2% 2015:+1% 2016:+1% 2017:-1% 2018:+1% 2019:-0% 2020:+5% 2021:+17%
+
+== all features together: ridge regression, left-out-year check
+  [усі точки] + MODIS: медіана T4−T11                        -> explains 13.7% of the departures in left-out years
+  [усі точки] + VIIRS: частка слабких клітинок, до 10 МВт    -> explains 23.7% of the departures in left-out years
+  [усі точки] + Рік                                          -> explains 34.0% of the departures in left-out years
+  [усі точки] + Місце: середня широта вогнів                 -> explains 40.9% of the departures in left-out years
+  [усі точки] + MODIS: медіана температури фону T11          -> explains 44.4% of the departures in left-out years
+  [усі точки] all 24 features together (ridge 10): explains 45.4%; chosen 5: 44.4%
+
+  [без ночі] + Скільки точок MODIS у місяці                 -> explains 11.3% of the departures in left-out years
+  [без ночі] + MODIS: частка низької впевненості            -> explains 24.1% of the departures in left-out years
+  [без ночі] + MODIS: середня впевненість                   -> explains 28.0% of the departures in left-out years
+  [без ночі] + MODIS: медіана T4−T11                        -> explains 34.7% of the departures in left-out years
+  [без ночі] + Рік                                          -> explains 39.3% of the departures in left-out years
+  [без ночі] + VIIRS: точок на клітинку 1 км                -> explains 41.4% of the departures in left-out years
+  [без ночі] all 24 features together (ridge 10): explains 34.2%; chosen 6: 41.4%
+
+  [без ночі, вогні від 10 МВт] + Рік                                          -> explains  6.5% of the departures in left-out years
+  [без ночі, вогні від 10 МВт] + MODIS: середня впевненість                   -> explains 16.9% of the departures in left-out years
+  [без ночі, вогні від 10 МВт] + MODIS: частка низької впевненості            -> explains 25.9% of the departures in left-out years
+  [без ночі, вогні від 10 МВт] + VIIRS: частка слабких клітинок, до 10 МВт    -> explains 30.4% of the departures in left-out years
+  [без ночі, вогні від 10 МВт] + MODIS: точок на клітинку 1 км                -> explains 32.2% of the departures in left-out years
+  [без ночі, вогні від 10 МВт] all 24 features together (ridge 3): explains 21.8%; chosen 5: 32.2%
+
+== the ten strongest features against each other (Spearman)
+MODIS: медіана T4−T11                        +1.00 +0.22 +0.11 +0.09 -0.42 +0.23 -0.56 -0.12 +0.56 -0.01
+VIIRS: частка нічних точок                   +0.22 +1.00 +0.25 +0.13 -0.31 -0.50 -0.29 -0.05 +0.33 +0.15
+Місце: середня широта вогнів                 +0.11 +0.25 +1.00 -0.04 -0.14 -0.05 -0.16 -0.17 +0.12 +0.25
+Рік                                          +0.09 +0.13 -0.04 +1.00 -0.03 +0.03 -0.12 +0.07 +0.24 -0.13
+VIIRS: медіана температури фону T11          -0.42 -0.31 -0.14 -0.03 +1.00 +0.39 -0.15 +0.21 +0.16 +0.31
+VIIRS: медіана сили точки                    +0.23 -0.50 -0.05 +0.03 +0.39 +1.00 -0.32 +0.25 +0.32 +0.29
+MODIS: частка слабких точок, до 10 МВт       -0.56 -0.29 -0.16 -0.12 -0.15 -0.32 +1.00 -0.03 -0.94 -0.40
+VIIRS: середня ширина пікселя                -0.12 -0.05 -0.17 +0.07 +0.21 +0.25 -0.03 +1.00 +0.10 +0.20
+MODIS: медіана сили точки                    +0.56 +0.33 +0.12 +0.24 +0.16 +0.32 -0.94 +0.10 +1.00 +0.38
+Скільки точок MODIS у місяці                 -0.01 +0.15 +0.25 -0.13 +0.31 +0.29 -0.40 +0.20 +0.38 +1.00

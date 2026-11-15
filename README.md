@@ -9,11 +9,17 @@ we_charge/
 ├── docker-compose.yml
 ├── docker/
 │   ├── php/     # php:8.4-fpm + pdo_pgsql, composer
-│   ├── nginx/   # конфіг віртуального хоста we-charge.test
+│   ├── nginx/   # конфіг віртуального хоста (localhost / we-charge.test)
 │   └── db/      # postgres:17 + PostGIS (arm64-сумісний)
 ├── web/         # Laravel 13 (API + SPA)
-└── parser/      # (далі) Python-парсер FIRMS даних
+├── parser/      # схема бази FIRMS (firmsdb/) і тестовий пакет даних (testdata/)
+└── setup.sh     # розгортання однією командою
 ```
+
+## Документація
+
+- [docs/harmonization/README.md](docs/harmonization/README.md) — як гармонізація зводить MODIS і VIIRS в один ряд, з доказами на даних NASA.
+- [docs/database/README.md](docs/database/README.md) — схема бази FIRMS і функції, які читає бекенд.
 
 ## Контейнери
 
@@ -24,45 +30,71 @@ we_charge/
 | db     | wc_db      | 5432          | PostgreSQL 17 + PostGIS     |
 | node   | wc_node    | 5173          | Vite dev server (профіль `dev`) |
 
-## Перший запуск
+## Запуск однією командою
 
-1. Запусти Docker Desktop. Якщо в терміналі `docker: command not found`, додай у `~/.zshrc`:
+Потрібен лише Docker (Docker Desktop на macOS/Windows). PHP, Composer і Node на машині не потрібні.
 
-   ```bash
-   export PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"
-   ```
+```bash
+./setup.sh
+```
 
-2. Підніми контейнери:
+Скрипт:
+1. піднімає контейнери;
+2. створює `web/.env`, ставить пакети, генерує `APP_KEY`;
+3. робить міграції та сідер (адмін, продукти FIRMS, швидкі області);
+4. збирає фронтенд;
+5. розгортає тестовий пакет даних FIRMS по Україні (`parser/testdata/test-ukraine`, ≈1 хв);
+6. чистить кеші.
 
-   ```bash
-   docker compose up -d --build
-   ```
+Повторний запуск безпечний: що вже зроблено, пропускається. Дані перезаливаються, лише якщо в базі інший пакет або пакет з іншою схемою. Наприклад, після `git pull`, що оновив `schema/*.sql` пакета: тоді скрипт сам видаляє схему `firms` (лише її, таблиці застосунку в `public` лишаються) і розгортає пакет наново.
 
-3. Якщо проєкт склонований з git (немає `web/vendor` і `web/.env`):
+Після `Done.` відкрий http://localhost (адмінка: http://localhost/admin, `admin@we-charge.test` / `admin`).
 
-   ```bash
-   cp web/.env.example web/.env
-   ```
+Інший пакет даних (наприклад, на весь світ) або лише застосунок без даних:
 
-   ```bash
-   docker compose exec php composer install
-   ```
+```bash
+./setup.sh path/to/package
+```
 
-   ```bash
-   docker compose exec php php artisan key:generate
-   ```
+```bash
+./setup.sh --no-data
+```
 
-4. Міграції:
+Якщо в терміналі `docker: command not found` на macOS, додай у `~/.zshrc`:
 
-   ```bash
-   docker compose exec php php artisan migrate
-   ```
+```bash
+export PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"
+```
 
-5. Пропиши хост (див. нижче) і відкрий http://we-charge.test
+Порти 80 і 5432 мають бути вільні (див. «Якщо не працює» нижче).
 
-## Налаштування hosts на macOS
+## Що де
 
-macOS не знає про `we-charge.test`, тому треба вручну сказати, що цей домен = твій комп'ютер.
+| URL | Що це |
+|---|---|
+| http://we-charge.test | Публічна SPA (Vue 3 + Leaflet): вибір AOI, календар, аналітика, експорт |
+| http://we-charge.test/admin | Адмінка (Filament 5): FIRMS MAP_KEY, ліміти публічного API, швидкі області, довідник продуктів, журнал завантажень, адміни |
+| `/api/meta`, `/api/calendar`, `/api/summary`, `/api/map`, `/api/export/csv` | Публічне API (контракт: `web/app/Contracts/HotspotRepository.php`, `web/app/Http/Requests/AoiQueryRequest.php`) |
+
+**Вхід в адмінку локально:** `admin@we-charge.test` / `admin` (з `ADMIN_EMAIL` / `ADMIN_PASSWORD` у `.env`). Змініть пароль у профілі після першого входу.
+
+**Дані** застосунок читає зі схеми `firms` у PostgreSQL через її функції (`web/app/Repositories/PostgisHotspotRepository.php`, опис у [docs/database/README.md](docs/database/README.md)). Схему і дані створює `restore.sh` з пакета дампу, а не міграції Laravel. Поки даних нема, API відповідає 503, а сайт пише, що даних ще нема.
+
+**Швидкі області** (кнопки над картою) зберігає адмін: увійди в `/admin`, намалюй область на публічній карті й натисни «Save as quick area». Перейменувати (зокрема українською), впорядкувати чи сховати їх можна в адмінці, розділ Quick areas.
+
+**MAP_KEY** зберігається в таблиці `settings` зашифрованим (`APP_KEY`). Якщо там порожньо, береться `FIRMS_MAP_KEY` з `.env`. Скрипти даних у `parser/` цього налаштування не читають: ключ вони беруть зі змінної середовища `FIRMS_MAP_KEY`, а якщо її нема, то з `parser/.env` (`parser/firms/config.py`). Докладніше — у розділі MAP_KEY [parser/docs/deploy.md](parser/docs/deploy.md#map_key).
+
+**Підкладки карти** (без ключів): OpenStreetMap (за замовчуванням), Esri Light Gray і Esri World Imagery. CARTO basemaps тепер вимагають API-ключ, тому їх не використовуємо.
+
+Тести:
+
+```bash
+docker compose exec php php artisan test
+```
+
+## Домен we-charge.test (необов'язково)
+
+Застосунок працює на http://localhost. Якщо хочеш домен, macOS не знає про `we-charge.test`, тому треба вручну сказати, що цей домен = твій комп'ютер.
 
 1. Відкрий файл hosts (попросить пароль від мака):
 

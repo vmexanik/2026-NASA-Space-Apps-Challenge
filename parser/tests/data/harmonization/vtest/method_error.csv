@@ -1,0 +1,4 @@
+version,source,satellite,n_min,rel_error
+vtest,modis,terra,1,0.7438362781729015
+vtest,modis,aqua,1,0.6884399544841339
+vtest,viirs,,1,0.0

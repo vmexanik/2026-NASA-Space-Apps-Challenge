@@ -1,0 +1,48 @@
+vegetation fire rows 2012-2021: Aqua 145192, Suomi NPP 820233
+
+== 1. Suomi NPP points inside one Aqua pixel, passes at most 10 min apart, daytime
+  Aqua daytime points in such passes: 31220
+  by Aqua pixel width (scan, km):
+     1.0-1.2  Aqua points  14019  pixel area   1.1 km2  Suomi NPP points inside: mean  1.66, median  1.0, none inside 23.9%
+     1.2-1.5  Aqua points   6628  pixel area   1.4 km2  Suomi NPP points inside: mean  1.80, median  1.0, none inside 22.3%
+     1.5-2.0  Aqua points   4582  pixel area   2.1 km2  Suomi NPP points inside: mean  2.04, median  2.0, none inside 20.4%
+     2.0-3.0  Aqua points   3668  pixel area   3.5 km2  Suomi NPP points inside: mean  2.20, median  2.0, none inside 23.1%
+     3.0-4.8  Aqua points   2323  pixel area   6.6 km2  Suomi NPP points inside: mean  2.77, median  2.0, none inside 25.4%
+  by Aqua point power (FRP, MW):
+         <10  Aqua points  10504  pixel area   1.2 km2  Suomi NPP points inside: mean  1.15, median  1.0, none inside 30.9%
+       10-20  Aqua points   9071  pixel area   1.6 km2  Suomi NPP points inside: mean  1.73, median  1.0, none inside 21.1%
+       20-50  Aqua points   7900  pixel area   2.7 km2  Suomi NPP points inside: mean  2.28, median  2.0, none inside 18.7%
+      50-100  Aqua points   2475  pixel area   3.7 km2  Suomi NPP points inside: mean  3.11, median  3.0, none inside 16.6%
+        >100  Aqua points   1270  pixel area   3.6 km2  Suomi NPP points inside: mean  4.37, median  4.0, none inside 11.4%
+  mean Suomi NPP points inside, by pixel width (rows) and power (columns: <15, 15-50, >50 MW):
+      <=1.3 km:  1.31 (n=11844)    2.28 (n=4206)    3.79 (n=924)
+    1.3-2.0 km:  1.33 (n=3764)    2.16 (n=3610)    3.63 (n=881)
+      >2.0 km:  1.30 (n=425)    2.04 (n=3626)    3.37 (n=1940)
+
+== 2. predict Suomi NPP counts from Aqua points; an Aqua point's weight = month factor x class weight
+  days with 20+ Aqua points: Suomi NPP count / (Aqua count x month factor), by what Aqua's pixels were like that day
+    by the day's median pixel width, km:
+          <1.15  days  439  median ratio  0.84  middle half 0.69..1.02
+       1.15-1.3  days  135  median ratio  0.93  middle half 0.77..1.16
+        1.3-1.6  days  216  median ratio  1.05  middle half 0.87..1.30
+        1.6-2.2  days  242  median ratio  1.16  middle half 0.97..1.40
+           >2.2  days  142  median ratio  1.16  middle half 0.97..1.44
+    by the day's median point power, MW:
+             <8  days   41  median ratio  0.67  middle half 0.54..0.78
+           8-12  days  251  median ratio  0.82  middle half 0.69..0.98
+          12-18  days  363  median ratio  0.98  middle half 0.77..1.22
+          18-30  days  383  median ratio  1.11  middle half 0.93..1.37
+            >30  days  136  median ratio  1.13  middle half 0.92..1.41
+  days with 20+ Aqua points and no Suomi NPP point at all: 1 2012-03-25  (left out of the fits)
+  learn 2012-2016, test 2017-2021
+    month only                   typical day error  37.3% (days within 50%:  62%, n=978) | typical month error  11.5% (n=44)
+    month x pixel width          typical day error  31.8% (days within 50%:  63%, n=978) | typical month error  11.6% (n=44)  class weights: 0.80 1.05 1.13 1.26 1.14
+    month x power (FRP)          typical day error  32.5% (days within 50%:  64%, n=978) | typical month error   9.3% (n=44)  class weights: 0.58 1.10 1.30 1.17 1.04
+    month x width x power        typical day error  31.3% (days within 50%:  65%, n=978) | typical month error   9.4% (n=44)  class weights: 0.69 1.11 1.02 0.99 1.28 1.04 0.97 1.32 1.20
+    month x pixel area, no fit   typical day error  48.6% (days within 50%:  51%, n=978) | typical month error  10.2% (n=44)
+  learn 2017-2021, test 2012-2016
+    month only                   typical day error  33.8% (days within 50%:  63%, n=964) | typical month error  12.4% (n=44)
+    month x pixel width          typical day error  30.1% (days within 50%:  65%, n=964) | typical month error  10.2% (n=44)  class weights: 0.81 1.09 1.14 1.18 1.08
+    month x power (FRP)          typical day error  29.6% (days within 50%:  67%, n=964) | typical month error   9.7% (n=44)  class weights: 0.61 1.12 1.27 1.09 1.07
+    month x width x power        typical day error  30.2% (days within 50%:  67%, n=964) | typical month error   9.1% (n=44)  class weights: 0.69 1.10 1.08 0.98 1.41 1.05 1.01 1.22 1.10
+    month x pixel area, no fit   typical day error  47.2% (days within 50%:  51%, n=964) | typical month error   9.9% (n=44)

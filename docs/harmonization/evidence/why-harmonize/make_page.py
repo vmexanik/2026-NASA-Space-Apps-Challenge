@@ -1,0 +1,295 @@
+#!/usr/bin/env python3
+"""Build a self-contained HTML page: why the harmonized series exists (the false jump of 2012).
+
+Usage: python3 -I make_page.py <yearly.json from yearly.py> <aqua_monthly.json from monthly_aqua.py> <out.html>
+
+Three yearly series for Ukraine, vegetation fires (type = 0):
+  stitched    MODIS (Terra + Aqua) up to 2011, VIIRS Suomi NPP from 2012, counts as they are
+  modis       MODIS (Terra + Aqua) for all years
+  harmonized  Aqua points x the multiplier of their calendar month up to 2011, VIIRS Suomi NPP from 2012
+The monthly multipliers are those of the Ukraine spike (calendar_sketch.py, learned on 2012-2021).
+"""
+import json
+import sys
+
+YEARLY, MONTHLY, OUT = sys.argv[1], sys.argv[2], sys.argv[3]
+K = [10.6, 6.0, 3.9, 4.8, 8.7, 12.8, 9.8, 8.9, 5.8, 3.7, 4.4, 8.2]
+
+yearly = json.load(open(YEARLY, encoding="utf-8"))
+aqua = json.load(open(MONTHLY, encoding="utf-8"))
+
+rows = []
+for y in range(2001, 2026):
+    modis = sum(yearly[f"modis {y}"].values())
+    viirs = sum(yearly[f"viirs-snpp {y}"].values()) if y >= 2012 else None
+    if y >= 2012:
+        harm = viirs
+    elif y >= 2003:
+        harm = round(sum(aqua.get(f"{y}-{m + 1:02d}", 0) * K[m] for m in range(12)))
+    else:
+        harm = None
+    rows.append({"year": y, "stitched": viirs if y >= 2012 else modis, "modis": modis, "harm": harm})
+
+
+def mean(key, a, b):
+    v = [r[key] for r in rows if a <= r["year"] <= b]
+    return sum(v) / len(v)
+
+
+by_year = {r["year"]: r for r in rows}
+stats = {
+    "modis_jump": by_year[2012]["modis"] / by_year[2011]["modis"] - 1,
+    "stitched_jump": by_year[2012]["stitched"] / by_year[2011]["stitched"] - 1,
+    "harm_jump": by_year[2012]["harm"] / by_year[2011]["harm"] - 1,
+    "before": mean("modis", 2001, 2011),
+    "after_stitched": mean("stitched", 2012, 2025),
+    "after_modis": mean("modis", 2012, 2025),
+}
+
+
+def pct(x):
+    return f"{'+' if x > 0 else '−'}{abs(round(x * 100))}%"
+
+
+def thousands(x):
+    return f"{x / 1000:.1f}".replace(".", ",") + " тис."
+
+
+html = r"""<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Навіщо гармонізація: фальшивий стрибок 2012 року</title>
+<style>
+  :root {
+    --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --ink-3: #6f6e69;
+    --grid: #e6e5e0; --rule: #b9b8b1;
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --ink-3: #9d9c93;
+      --grid: #2e2e2c; --rule: #5a5955;
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink);
+         font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 980px; margin: 0 auto; padding: 32px 20px 56px; }
+  h1 { font-size: 28px; line-height: 1.25; margin: 0 0 10px; }
+  h2 { font-size: 19px; margin: 36px 0 10px; }
+  p { margin: 0 0 12px; max-width: 72ch; }
+  .lead { font-size: 18px; color: var(--ink-2); }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 24px 0; }
+  .tile { background: var(--surface); border: 1px solid var(--grid); border-radius: 10px; padding: 14px 16px; }
+  .tile .k { font-size: 13px; color: var(--ink-2); display: flex; align-items: center; gap: 8px; }
+  .tile .v { font-size: 30px; font-weight: 650; font-variant-numeric: tabular-nums; margin-top: 4px; }
+  .tile .s { font-size: 13px; color: var(--ink-3); }
+  .sw { width: 14px; height: 3px; border-radius: 2px; display: inline-block; flex: none; }
+  .card { background: var(--surface); border: 1px solid var(--grid); border-radius: 12px; padding: 18px 18px 10px; position: relative; }
+  .card h3 { margin: 0 0 4px; font-size: 16px; }
+  .card .sub { margin: 0 0 8px; font-size: 13px; color: var(--ink-2); }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13.5px; color: var(--ink-2); margin: 6px 0 4px; }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .legend .dash { background: repeating-linear-gradient(90deg, var(--s2) 0 6px, transparent 6px 10px); }
+  svg { display: block; width: 100%; height: auto; }
+  .axis text { fill: var(--ink-3); font-size: 12px; font-variant-numeric: tabular-nums; }
+  .grid line { stroke: var(--grid); }
+  .lbl { font-size: 12.5px; font-weight: 600; }
+  .note { fill: var(--ink-2); font-size: 12px; }
+  .tip { position: absolute; pointer-events: none; background: var(--surface); color: var(--ink);
+         border: 1px solid var(--grid); border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.16);
+         padding: 8px 10px; font-size: 13px; min-width: 220px; display: none; }
+  .tip .y { font-weight: 650; margin-bottom: 4px; }
+  .tip .r { display: flex; align-items: center; gap: 8px; }
+  .tip .r b { margin-left: auto; font-variant-numeric: tabular-nums; }
+  ol, ul { padding-left: 22px; max-width: 74ch; }
+  li { margin-bottom: 6px; }
+  details { margin-top: 14px; }
+  summary { cursor: pointer; color: var(--ink-2); }
+  table { border-collapse: collapse; margin-top: 10px; font-size: 14px; font-variant-numeric: tabular-nums; }
+  th, td { padding: 4px 12px; text-align: right; border-bottom: 1px solid var(--grid); }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: var(--ink-2); font-weight: 600; }
+  code { font-size: 13.5px; }
+  .decision { border-left: 4px solid var(--s1); padding: 6px 0 6px 14px; margin: 14px 0; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Навіщо гармонізація: фальшивий стрибок 2012 року</h1>
+  <p class="lead">До 2012 року точки пожеж дає лише MODIS. З 2012 року є ще VIIRS, а він бачить у кілька разів більше
+  точок, бо його піксель дрібніший. Якщо просто склеїти ряд, «пожеж» раптом стає вдвічі більше. Горіти більше не почало:
+  просто змінився датчик.</p>
+
+  <div class="tiles">
+    <div class="tile"><div class="k"><i class="sw" style="background:var(--s3)"></i>2011 → 2012, лише MODIS</div>
+      <div class="v">__MODIS_JUMP__</div><div class="s">так змінились пожежі насправді</div></div>
+    <div class="tile"><div class="k"><i class="sw" style="background:var(--s2)"></i>2011 → 2012, склеєно як є</div>
+      <div class="v">__STITCHED_JUMP__</div><div class="s">ряд каже протилежне до правди</div></div>
+    <div class="tile"><div class="k"><i class="sw" style="background:var(--s1)"></i>2011 → 2012, після гармонізації</div>
+      <div class="v">__HARM_JUMP__</div><div class="s">напрям знову правильний: спад</div></div>
+  </div>
+
+  <div class="card" id="card">
+    <h3>Україна: точки пожеж на рослинності за рік</h3>
+    <p class="sub">Пожежі на рослинності (<code>type = 0</code>), уся країна, 2001–2025. Наведіть мишку на рік, щоб побачити числа.</p>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--s1);height:4px"></i>Після гармонізації: старі роки в «точках VIIRS»</span>
+      <span><i class="sw dash"></i>Склеєно як є: MODIS до 2011, VIIRS з 2012</span>
+      <span><i class="sw" style="background:var(--s3)"></i>Лише MODIS, усі роки</span>
+    </div>
+    <svg id="chart" viewBox="0 0 940 440" role="img" aria-label="Лінійний графік: точки пожеж за рік, три ряди"></svg>
+    <div class="tip" id="tip"></div>
+  </div>
+
+  <h2>Як читати графік</h2>
+  <ol>
+    <li><b>Зелена лінія</b> — лише MODIS. Датчик той самий усі 25 років, тому вона чесно показує, коли горіло більше, а коли
+      менше. Її біда в іншому: MODIS погано бачить слабкі вогні, а його супутники Terra й Aqua вже доживають свій вік.</li>
+    <li><b>Помаранчева пунктирна</b> — склеєно як є. До 2011 року вона йде по зеленій, а у 2012 році стрибає вгору на
+      VIIRS. У середньому за 2001–2011 роки було __BEFORE__ точок на рік. Склеєний ряд каже, що з 2012 року їх
+      __AFTER_STITCHED__, тобто в __RATIO__ раза більше. Зелена лінія за ті самі роки дає __AFTER_MODIS__, тобто
+      __AFTER_MODIS_PCT__.</li>
+    <li><b>Синя</b> — після гармонізації. Старі роки перераховані «на мову VIIRS»: кожна точка MODIS множиться на множник
+      свого місяця. Тепер обидві частини ряду стоять на одній шкалі, і у 2012 році немає стрибка, лише справжній спад.
+      З 2012 року синя й помаранчева лінії збігаються, бо там обидві — це VIIRS.</li>
+  </ol>
+
+  <h2>Що з цього випливає</h2>
+  <div class="decision">
+    <p><b>Точки різних датчиків ніколи не ставимо поруч як є.</b> Перш ніж потрапити на один графік чи в календар, лічба
+    старого датчика перераховується на шкалу VIIRS. Без цього календар горіння показував би зміну супутника, а не пожежі:
+    усі роки після 2012 вийшли б «вище норми», а всі до 2012 — «нижче».</p>
+  </div>
+  <p>Чому множник залежить від місяця: улітку VIIRS бачить у 12,8 раза більше точок, ніж Aqua, а в жовтні — лише в 3,7 раза.
+  Один множник на весь рік дає помилку 42–44% за місяць, множник на кожен місяць — близько 12%
+  (розвідка: <code>evidence/spike-ukraine/README.md</code>).</p>
+
+  <h2>Звідки числа</h2>
+  <ul>
+    <li>Архів FIRMS: річні файли <code>modis_&lt;рік&gt;_all_countries.zip</code> і <code>viirs-snpp_&lt;рік&gt;_all_countries.zip</code>,
+      з них узято файл України.</li>
+    <li>MODIS — Terra й Aqua разом. VIIRS — Suomi NPP.</li>
+    <li>Синя лінія до 2011 року — це лише Aqua, бо множники вивчені на парі Aqua і Suomi NPP. Множники за місяцями:
+      січ 10,6 · лют 6,0 · бер 3,9 · кві 4,8 · тра 8,7 · чер 12,8 · лип 9,8 · сер 8,9 · вер 5,8 · жов 3,7 · лис 4,4 · гру 8,2.
+      Вивчені на 2012–2021 роках. Aqua почав літати в середині 2002 року, тому синя лінія починається з 2003-го.</li>
+    <li>Скрипти поруч зі сторінкою: <code>yearly.py</code> (точки за рік), <code>monthly_aqua.py</code> (точки Aqua за
+      місяць), <code>make_page.py</code> (ця сторінка).</li>
+  </ul>
+
+  <details>
+    <summary>Таблиця з усіма числами</summary>
+    <table id="table"><thead><tr><th>Рік</th><th>Склеєно як є</th><th>Лише MODIS</th><th>Після гармонізації</th></tr></thead><tbody></tbody></table>
+  </details>
+</main>
+<script>
+const ROWS = __ROWS__;
+const fmt = v => v == null ? "—" : v.toLocaleString("uk-UA");
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+const tb = document.querySelector("#table tbody");
+for (const r of ROWS) tb.insertAdjacentHTML("beforeend",
+  `<tr><td>${r.year}</td><td>${fmt(r.stitched)}</td><td>${fmt(r.modis)}</td><td>${fmt(r.harm)}</td></tr>`);
+
+const W = 940, H = 440, L = 64, R = 24, T = 24, B = 40;
+const Y0 = 2001, Y1 = 2025, VMAX = 200000;
+const x = y => L + (y - Y0) / (Y1 - Y0) * (W - L - R);
+const y = v => T + (1 - v / VMAX) * (H - T - B);
+const svg = document.getElementById("chart");
+const NS = "http://www.w3.org/2000/svg";
+const el = (tag, attrs, parent = svg) => {
+  const e = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+  parent.appendChild(e); return e;
+};
+
+function draw() {
+  svg.innerHTML = "";
+  const g = el("g", {class: "grid"}), ax = el("g", {class: "axis"});
+  for (let v = 0; v <= VMAX; v += 50000) {
+    el("line", {x1: L, x2: W - R, y1: y(v), y2: y(v)}, g);
+    el("text", {x: L - 10, y: y(v) + 4, "text-anchor": "end"}, ax).textContent = v === 0 ? "0" : (v / 1000) + " тис.";
+  }
+  for (let yr = Y0; yr <= Y1; yr += 2) {
+    el("text", {x: x(yr), y: H - B + 22, "text-anchor": "middle"}, ax).textContent = yr;
+  }
+  // the year VIIRS comes in
+  el("line", {x1: x(2012), x2: x(2012), y1: T, y2: H - B, stroke: css("--rule"), "stroke-dasharray": "3 4"});
+  el("text", {x: x(2012) + 8, y: T + 12, class: "note"}).textContent = "2012: з'являється VIIRS";
+
+  const path = (key, color, extra = {}) => {
+    let d = "";
+    for (const r of ROWS) if (r[key] != null) d += (d ? "L" : "M") + x(r.year) + "," + y(r[key]);
+    el("path", Object.assign({d, fill: "none", stroke: color, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round"}, extra));
+  };
+  path("harm", css("--s1"), {"stroke-width": 4, opacity: 0.85});
+  path("modis", css("--s3"));
+  path("stitched", css("--s2"), {"stroke-dasharray": "6 4"});
+
+  const label = (yr, key, text, color, dx, dy, anchor = "start") =>
+    el("text", {x: x(yr) + dx, y: y(ROWS.find(r => r.year === yr)[key]) + dy, fill: color, class: "lbl", "text-anchor": anchor}).textContent = text;
+  label(2008, "harm", "після гармонізації", css("--s1"), 0, -12, "middle");
+  label(2012, "stitched", "склеєно: стрибок", css("--s2"), 10, 34, "start");
+  label(2025, "modis", "лише MODIS", css("--s3"), 0, 22, "end");
+
+  const cross = el("line", {y1: T, y2: H - B, stroke: css("--rule"), visibility: "hidden"});
+  const dots = ["harm", "stitched", "modis"].map((k, i) =>
+    el("circle", {r: 5, fill: css(["--s1", "--s2", "--s3"][i]), stroke: css("--surface"), "stroke-width": 2, visibility: "hidden"}));
+  const hit = el("rect", {x: L, y: T, width: W - L - R, height: H - T - B, fill: "transparent"});
+  const tip = document.getElementById("tip"), card = document.getElementById("card");
+
+  const show = ev => {
+    const p = svg.createSVGPoint(); p.x = ev.clientX; p.y = ev.clientY;
+    const q = p.matrixTransform(svg.getScreenCTM().inverse());
+    const yr = Math.max(Y0, Math.min(Y1, Math.round(Y0 + (q.x - L) / (W - L - R) * (Y1 - Y0))));
+    const r = ROWS.find(o => o.year === yr);
+    cross.setAttribute("x1", x(yr)); cross.setAttribute("x2", x(yr)); cross.setAttribute("visibility", "visible");
+    ["harm", "stitched", "modis"].forEach((k, i) => {
+      if (r[k] == null) { dots[i].setAttribute("visibility", "hidden"); return; }
+      dots[i].setAttribute("cx", x(yr)); dots[i].setAttribute("cy", y(r[k])); dots[i].setAttribute("visibility", "visible");
+    });
+    const row = (c, name, v, dash) => `<div class="r"><i class="sw${dash ? " dash" : ""}" style="background:${dash ? "" : c}"></i>${name}<b>${fmt(v)}</b></div>`;
+    tip.innerHTML = `<div class="y">${yr}</div>` +
+      row("var(--s1)", "Після гармонізації", r.harm) +
+      row("var(--s2)", "Склеєно як є", r.stitched, true) +
+      row("var(--s3)", "Лише MODIS", r.modis);
+    tip.style.display = "block";
+    const cb = card.getBoundingClientRect(), sb = svg.getBoundingClientRect();
+    let left = ev.clientX - cb.left + 16;
+    if (left + tip.offsetWidth > cb.width - 8) left = ev.clientX - cb.left - tip.offsetWidth - 16;
+    tip.style.left = left + "px";
+    tip.style.top = (sb.top - cb.top + 30) + "px";
+  };
+  hit.addEventListener("mousemove", show);
+  hit.addEventListener("mouseleave", () => {
+    tip.style.display = "none"; cross.setAttribute("visibility", "hidden");
+    dots.forEach(d => d.setAttribute("visibility", "hidden"));
+  });
+}
+draw();
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw);
+</script>
+</body>
+</html>
+"""
+
+subs = {
+    "__ROWS__": json.dumps(rows),
+    "__MODIS_JUMP__": pct(stats["modis_jump"]),
+    "__STITCHED_JUMP__": pct(stats["stitched_jump"]),
+    "__HARM_JUMP__": pct(stats["harm_jump"]),
+    "__BEFORE__": thousands(stats["before"]),
+    "__AFTER_STITCHED__": thousands(stats["after_stitched"]),
+    "__RATIO__": f"{stats['after_stitched'] / stats['before']:.1f}".replace(".", ","),
+    "__AFTER_MODIS__": thousands(stats["after_modis"]),
+    "__AFTER_MODIS_PCT__": f"на {abs(round((stats['after_modis'] / stats['before'] - 1) * 100))}% "
+                           + ("менше" if stats["after_modis"] < stats["before"] else "більше"),
+}
+for k, v in subs.items():
+    html = html.replace(k, v)
+with open(OUT, "w", encoding="utf-8") as fh:
+    fh.write(html)
+print("wrote", OUT, json.dumps({k: round(v, 3) for k, v in stats.items()}))
