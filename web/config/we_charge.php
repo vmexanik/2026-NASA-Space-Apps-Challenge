@@ -31,7 +31,6 @@ return [
     // Settings editable in the admin (Setting::get). type: string|int|float|bool|array.
     'settings' => [
         'firms_map_key' => ['type' => 'string', 'secret' => true, 'default' => null],
-        'nrt_refresh_hours' => ['type' => 'int', 'default' => 3],
         'api_rate_limit_per_minute' => ['type' => 'int', 'default' => 60],
         'csv_export_max_rows' => ['type' => 'int', 'default' => 100000],
         'max_aoi_area_km2' => ['type' => 'int', 'default' => 5000000],

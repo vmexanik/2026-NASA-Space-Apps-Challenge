@@ -14,7 +14,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
 /**
- * Read-only journal. Rows are written by the parser.
+ * Read-only journal. Rows are written by parser/firmsdb/restore.sh when it loads a data package.
  */
 class IngestRunResource extends Resource
 {

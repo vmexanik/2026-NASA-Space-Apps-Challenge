@@ -39,7 +39,7 @@ class PublicApiTest extends TestCase
             ->assertJsonPath('dataset.scope', 'countries')
             ->assertJsonPath('dataset.countries', ['Ukraine'])
             ->assertJsonMissingPath('demo')
-            ->assertJsonStructure(['method' => ['version', 'label', 'params', 'name' => ['en', 'uk']], 'sources', 'limits' => ['max_aoi_area_km2', 'csv_export_max_rows']]);
+            ->assertJsonStructure(['method' => ['version', 'label', 'params', 'name' => ['en', 'uk']], 'limits' => ['max_aoi_area_km2', 'csv_export_max_rows']]);
     }
 
     public function test_calendar_is_continuous_across_modis_viirs_switch(): void
@@ -65,20 +65,6 @@ class PublicApiTest extends TestCase
         $this->assertCount(12, $response->json('baseline.by_month'));
     }
 
-    public function test_summary_compares_current_month_with_median(): void
-    {
-        $current = $this->postJson('/api/summary', ['aoi' => self::KYIV_REGION])
-            ->assertOk()
-            ->json('current_month');
-
-        $this->assertSame(2026, $current['year']);
-        $this->assertSame(11, $current['month']);
-        $this->assertTrue($current['partial']);
-        $this->assertSame(13, $current['days_elapsed']);
-        $this->assertEqualsWithDelta($current['median'] * 13 / 30, $current['median_to_date'], 0.1);
-        $this->assertContains($current['status'], ['above', 'normal', 'below']);
-    }
-
     public function test_summary_rankings_are_sorted(): void
     {
         $json = $this->postJson('/api/summary', ['aoi' => self::KYIV_REGION, 'date_from' => '2005-01-01', 'date_to' => '2020-12-31'])
@@ -91,7 +77,6 @@ class PublicApiTest extends TestCase
         $this->assertSame($sorted, $counts);
         $this->assertCount(10, $json['top_months']);
         $this->assertSame(16, count($json['yearly']));
-        $this->assertNotNull($json['trend']);
     }
 
     public function test_same_aoi_gives_same_numbers(): void

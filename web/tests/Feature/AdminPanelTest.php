@@ -24,8 +24,8 @@ class AdminPanelTest extends TestCase
     public function test_seeder_creates_default_admin_and_sources(): void
     {
         $this->assertDatabaseHas('users', ['email' => 'admin@we-charge.test']);
-        $this->assertDatabaseHas('data_sources', ['code' => 'MODIS_SP', 'enabled' => true]);
-        $this->assertDatabaseHas('data_sources', ['code' => 'VIIRS_SNPP_SP', 'enabled' => true]);
+        $this->assertDatabaseHas('data_sources', ['code' => 'MODIS_SP']);
+        $this->assertDatabaseHas('data_sources', ['code' => 'VIIRS_SNPP_SP']);
 
         // Idempotent.
         $this->seed();
@@ -41,7 +41,7 @@ class AdminPanelTest extends TestCase
     {
         $this->actingAs(User::query()->first());
 
-        foreach (['/admin', '/admin/settings', '/admin/data-sources', '/admin/coverage-regions', '/admin/area-presets', '/admin/area-presets/1/edit', '/admin/ingest-runs', '/admin/users'] as $url) {
+        foreach (['/admin', '/admin/settings', '/admin/data-sources', '/admin/area-presets', '/admin/area-presets/1/edit', '/admin/ingest-runs', '/admin/users'] as $url) {
             $this->get($url)->assertOk();
         }
     }
@@ -52,14 +52,14 @@ class AdminPanelTest extends TestCase
 
         Livewire::test(Settings::class)
             ->set('data.firms_map_key', 'abc123secret')
-            ->set('data.nrt_refresh_hours', 6)
+            ->set('data.csv_export_max_rows', 50000)
             ->call('save')
             ->assertHasNoErrors();
 
         $raw = DB::table('settings')->where('key', 'firms_map_key')->value('value');
         $this->assertNotSame('abc123secret', $raw);
         $this->assertSame('abc123secret', Setting::firmsMapKey());
-        $this->assertSame(6, Setting::get('nrt_refresh_hours'));
+        $this->assertSame(50000, Setting::get('csv_export_max_rows'));
 
         // Saving again with an empty key field keeps the stored key.
         Livewire::test(Settings::class)

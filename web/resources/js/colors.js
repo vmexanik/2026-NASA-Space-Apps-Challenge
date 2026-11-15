@@ -46,8 +46,6 @@ export function textOn(fill) {
     return lum > 0.4 ? '#1d1b19' : '#ffffff';
 }
 
-export const legendStops = { sequential: INFERNO, diverging: PUOR };
-
 // --- Discrete classes for the calendar -------------------------------------------------
 // Five classes above zero with round, readable limits, spaced evenly on a log scale up to the
 // largest month of the area (1–10, 11–50, 51–200, …). A legend of ranges reads faster than a ramp.

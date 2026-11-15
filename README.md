@@ -73,7 +73,7 @@ export PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"
 | URL | Що це |
 |---|---|
 | http://we-charge.test | Публічна SPA (Vue 3 + Leaflet): вибір AOI, календар, аналітика, експорт |
-| http://we-charge.test/admin | Адмінка (Filament 5): FIRMS MAP_KEY, продукти, регіони, журнал завантажень, адміни |
+| http://we-charge.test/admin | Адмінка (Filament 5): FIRMS MAP_KEY, ліміти публічного API, швидкі області, довідник продуктів, журнал завантажень, адміни |
 | `/api/meta`, `/api/calendar`, `/api/summary`, `/api/map`, `/api/export/csv` | Публічне API (контракт: `web/app/Contracts/HotspotRepository.php`, `web/app/Http/Requests/AoiQueryRequest.php`) |
 
 **Вхід в адмінку локально:** `admin@we-charge.test` / `admin` (з `ADMIN_EMAIL` / `ADMIN_PASSWORD` у `.env`). Змініть пароль у профілі після першого входу.

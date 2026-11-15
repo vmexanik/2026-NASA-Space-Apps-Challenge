@@ -4,7 +4,6 @@ namespace App\Filament\Resources\DataSources\Tables;
 
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
@@ -31,7 +30,6 @@ class DataSourcesTable
                 TextColumn::make('available_from')
                     ->date()
                     ->placeholder('—'),
-                ToggleColumn::make('enabled'),
             ])
             ->filters([
                 SelectFilter::make('sensor')->options(['modis' => 'MODIS', 'viirs' => 'VIIRS']),

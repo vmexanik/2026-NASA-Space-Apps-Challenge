@@ -14,7 +14,6 @@ class IngestRunInfolist
             ->columns(3)
             ->components([
                 TextEntry::make('dataSource.code')->label('Source')->placeholder('—'),
-                TextEntry::make('coverageRegion.name')->label('Region')->placeholder('—'),
                 TextEntry::make('status')->badge()->color(fn (string $state) => IngestRunsTable::statusColor($state)),
                 TextEntry::make('period_from')->date()->placeholder('—'),
                 TextEntry::make('period_to')->date()->placeholder('—'),

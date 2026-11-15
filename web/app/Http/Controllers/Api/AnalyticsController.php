@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\AoiQueryRequest;
 use App\Http\Requests\MapRequest;
 use App\Models\AreaPreset;
-use App\Models\DataSource;
 use App\Models\Setting;
 use App\Services\FireAnalytics;
 use Illuminate\Http\JsonResponse;
@@ -34,8 +33,6 @@ class AnalyticsController extends Controller
             'dataset' => $this->repository->dataset(),
             'presets' => AreaPreset::query()->where('enabled', true)->orderBy('sort')->orderBy('id')->get()
                 ->map(fn (AreaPreset $p) => $p->toPublic()),
-            'sources' => DataSource::query()->where('enabled', true)->orderBy('sort')
-                ->get(['code', 'label', 'sensor', 'satellite', 'kind', 'available_from']),
             'limits' => [
                 'max_aoi_area_km2' => Setting::get('max_aoi_area_km2'),
                 'csv_export_max_rows' => Setting::get('csv_export_max_rows'),
@@ -57,7 +54,7 @@ class AnalyticsController extends Controller
         );
     }
 
-    /** POST /api/summary: key figures, rankings, current month vs median, trend. */
+    /** POST /api/summary: key figures and rankings. */
     public function summary(AoiQueryRequest $request): JsonResponse
     {
         return response()->json(

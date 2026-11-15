@@ -494,10 +494,6 @@ const btn = 'rounded-md border border-line px-2.5 py-1 text-sm hover:border-acce
                     <p class="mb-2">{{ t('method.p2') }}</p>
                     <p class="mb-2">{{ t('method.p3', { name: methodName, filter: qualityFilter }) }}</p>
                     <p class="mb-2">{{ t('method.p4') }}</p>
-                    <p class="mb-1 font-medium">{{ t('method.sources') }}</p>
-                    <ul class="mb-2 flex flex-wrap gap-1.5">
-                        <li v-for="s in meta.sources" :key="s.code" class="rounded border border-line px-2 py-0.5 font-mono text-xs">{{ s.code }}</li>
-                    </ul>
                     <p class="text-xs text-muted">{{ t('method.firms') }}</p>
                 </template>
             </section>

@@ -55,7 +55,6 @@ final class FireAnalytics
                 'by_month' => array_values($baseline),
             ],
             'scale' => ['min' => 0, 'max' => $counts === [] ? 0 : max($counts)],
-            'sources' => $this->sourceSummary($cells),
         ];
     }
 
@@ -113,17 +112,14 @@ final class FireAnalytics
                 'peak_month' => $sortedMonths[0] ?? null,
                 'peak_year' => $sortedYears[0] ?? null,
             ],
-            'current_month' => $this->currentMonth($series, $baseline),
             'top_months' => array_slice($sortedMonths, 0, 10),
             'top_years' => array_slice($sortedYears, 0, 10),
             'yearly' => array_map(fn ($y) => $y + [
                 'anomaly_pct' => $y['complete'] && $yearMean ? round(($y['count'] / $yearMean - 1) * 100, 1) : null,
             ], $years),
-            'trend' => $this->trend($completeYears),
             'fire_season' => $maxMedian > 0
                 ? array_keys(array_filter($medians, fn ($m) => $m >= 0.5 * $maxMedian))
                 : [],
-            'sources' => $this->sourceSummary($cells),
         ];
     }
 
@@ -191,83 +187,6 @@ final class FireAnalytics
         }));
     }
 
-    private function currentMonth(array $series, array $baseline): ?array
-    {
-        $last = end($series);
-        if ($last === false) {
-            return null;
-        }
-
-        $lastDay = $this->repository->coverage()['to'];
-        $daysInMonth = CarbonImmutable::create($last['year'], $last['month'], 1)->daysInMonth;
-        $daysElapsed = $last['partial'] ? $lastDay->day : $daysInMonth;
-        $fraction = $daysElapsed / $daysInMonth;
-
-        $b = $baseline[$last['month']];
-        $medianToDate = $b['median'] === null ? null : round($b['median'] * $fraction, 1);
-        $projected = $fraction > 0 ? $last['count'] / $fraction : null;
-
-        $ratio = $medianToDate ? round($last['count'] / $medianToDate, 2) : null;
-
-        $values = $this->baselineValues[$last['month']] ?? [];
-        $percentile = $values && $projected !== null
-            ? (int) round(100 * count(array_filter($values, fn ($v) => $v <= $projected)) / count($values))
-            : null;
-
-        return [
-            'year' => $last['year'],
-            'month' => $last['month'],
-            'count' => $last['count'],
-            'partial' => $last['partial'],
-            'days_elapsed' => $daysElapsed,
-            'days_in_month' => $daysInMonth,
-            'median' => $b['median'],
-            'median_to_date' => $medianToDate,
-            'projected' => $projected === null ? null : (int) round($projected),
-            'ratio' => $ratio,
-            'percentile' => $percentile,
-            'status' => match (true) {
-                $ratio === null => 'unknown',
-                $ratio >= 1.5 => 'above',
-                $ratio <= 0.67 => 'below',
-                default => 'normal',
-            },
-            'baseline_years' => $b['n'],
-        ];
-    }
-
-    /** OLS slope over complete years. */
-    private function trend(array $completeYears): ?array
-    {
-        $n = count($completeYears);
-        if ($n < 3) {
-            return null;
-        }
-
-        $xs = array_column($completeYears, 'year');
-        $ys = array_column($completeYears, 'count');
-        $mx = array_sum($xs) / $n;
-        $my = array_sum($ys) / $n;
-        $sxx = array_sum(array_map(fn ($x) => ($x - $mx) ** 2, $xs));
-        $sxy = 0;
-        foreach ($xs as $i => $x) {
-            $sxy += ($x - $mx) * ($ys[$i] - $my);
-        }
-        $slope = $sxx > 0 ? $sxy / $sxx : 0;
-        $pctPerDecade = $my > 0 ? $slope * 10 / $my * 100 : null;
-
-        return [
-            'slope_per_year' => round($slope, 1),
-            'pct_per_decade' => $pctPerDecade === null ? null : round($pctPerDecade, 1),
-            'years' => [min($xs), max($xs)],
-            'direction' => match (true) {
-                $pctPerDecade === null || abs($pctPerDecade) < 5 => 'flat',
-                $pctPerDecade > 0 => 'up',
-                default => 'down',
-            },
-        ];
-    }
-
     private function quantile(array $sorted, float $q): float
     {
         $pos = ($count = count($sorted)) > 1 ? $q * ($count - 1) : 0;
@@ -282,16 +201,6 @@ final class FireAnalytics
         $complete = array_filter($series, fn ($r) => ! $r['partial']);
 
         return $complete === [] ? null : [min(array_column($complete, 'year')), max(array_column($complete, 'year'))];
-    }
-
-    private function sourceSummary(array $cells): array
-    {
-        $out = ['modis' => 0, 'viirs' => 0];
-        foreach ($cells as $row) {
-            $out[$row['source']] = ($out[$row['source']] ?? 0) + 1;
-        }
-
-        return ['months_by_source' => $out, 'modis_to_viirs_note' => 'MODIS months are scaled to VIIRS-equivalent counts.'];
     }
 
     private function aoiInfo(Aoi $aoi): array

@@ -25,7 +25,7 @@ class IngestRunsTable
         return $table
             ->defaultSort('created_at', 'desc')
             ->emptyStateHeading('No ingest runs yet')
-            ->emptyStateDescription('The parser writes a row here for every download it performs.')
+            ->emptyStateDescription('restore.sh writes a row here for every data source each time it loads a data package into the database.')
             ->columns([
                 TextColumn::make('created_at')
                     ->label('Created')
@@ -34,9 +34,6 @@ class IngestRunsTable
                 TextColumn::make('dataSource.code')
                     ->label('Source')
                     ->fontFamily('mono')
-                    ->placeholder('—'),
-                TextColumn::make('coverageRegion.name')
-                    ->label('Region')
                     ->placeholder('—'),
                 TextColumn::make('period_from')
                     ->label('Period')

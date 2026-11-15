@@ -5,7 +5,6 @@ namespace App\Filament\Resources\DataSources\Schemas;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 
 class DataSourceForm
@@ -38,9 +37,6 @@ class DataSourceForm
                     ->integer()
                     ->default(0)
                     ->required(),
-                Toggle::make('enabled')
-                    ->helperText('The parser downloads only enabled products.')
-                    ->inline(false),
             ]);
     }
 }

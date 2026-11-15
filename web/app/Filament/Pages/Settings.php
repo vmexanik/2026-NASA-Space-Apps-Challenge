@@ -64,7 +64,7 @@ class Settings extends Page
                                 $hasEnvKey => 'not set here, using FIRMS_MAP_KEY from .env',
                                 default => 'not set',
                             })
-                            ->helperText('Stored encrypted. If empty, FIRMS_MAP_KEY from .env is used.'),
+                            ->helperText('Stored encrypted. If empty, FIRMS_MAP_KEY from .env is used. Used here only by "Check key": the data scripts in parser/ take the key from their own FIRMS_MAP_KEY or parser/.env.'),
                         Actions::make([
                             Action::make('checkKey')
                                 ->label('Check key')
@@ -82,13 +82,6 @@ class Settings extends Page
                                     Notification::make()->title('Saved key removed')->success()->send();
                                 }),
                         ]),
-                    ]),
-
-                Section::make('Updates')
-                    ->schema([
-                        TextInput::make('nrt_refresh_hours')
-                            ->label('NRT refresh interval, hours')
-                            ->numeric()->integer()->minValue(1)->maxValue(168)->required(),
                     ]),
 
                 Section::make('Public API')
